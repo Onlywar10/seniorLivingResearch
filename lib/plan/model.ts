@@ -26,7 +26,7 @@ export type Inputs = {
   showsTravel: number; // trade shows ($10k a year) and travel ($10k a year), from launch
   hubertPT: number; // Hubert part-time (contractor) until he goes full-time
   hubertFT: number; // Hubert full-time: $62k salary plus taxes and health
-  salesCost: number; // sales associate: $60k base plus taxes and health
+  salesCost: number; // sales associate: $55k base plus taxes and health (the plan loaded $60k to $6,200, about 24%)
   commission: number; // % commission on first-year contract value of new communities, once the sales associate starts
   adam: number; // Adam's monthly cost once paid
   p3Fixed: number; // Phase 3 (Year 2) fixed monthly cost
@@ -58,7 +58,7 @@ export const PLAN_DEFAULTS: Inputs = {
   showsTravel: 1670,
   hubertPT: 2400,
   hubertFT: 6200,
-  salesCost: 6200,
+  salesCost: 5700,
   commission: 10,
   adam: 5600, // $62k salary plus payroll taxes (the plan loaded $70k to $6,300, about 8%)
   p3Fixed: 29970, // the plan's $35,770 less Tim ($55k, about $5,800 a month): Tim is free for now

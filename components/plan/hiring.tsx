@@ -10,7 +10,7 @@ const SLOTS = [...MONTH_NAMES.map((n) => n.replace(" 20", " ’")), "Later"]; //
 
 const PEOPLE: Record<StaffKey, { name: string; role: string; salary: string; cost: (i: Inputs) => string; tone: string }> = {
   hubert: { name: "Hubert", role: "Developer, full-time", salary: "$62k salary", cost: (i) => `${fmt$(i.hubertFT)}/mo (part-time ${fmt$(i.hubertPT)} until then)`, tone: "#2563eb" },
-  sales: { name: "Sales associate", role: "Demos, proposals, closing", salary: "$60k base + commission", cost: (i) => `${fmt$(i.salesCost)}/mo + ${i.commission}% commission`, tone: "#9333ea" },
+  sales: { name: "Sales associate", role: "Demos, proposals, closing", salary: "$55k base + commission", cost: (i) => `${fmt$(i.salesCost)}/mo + ${i.commission}% commission`, tone: "#9333ea" },
   adam: { name: "Adam", role: "Head of Senior Living", salary: "$62k salary", cost: (i) => `${fmt$(i.adam)}/mo`, tone: "#ea580c" },
 };
 

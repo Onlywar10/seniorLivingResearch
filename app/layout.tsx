@@ -12,9 +12,9 @@ const publicSans = Public_Sans({
 });
 
 export const metadata: Metadata = {
-  title: { default: "CMS Plus One-Year Plan", template: "%s · CMS Plus One-Year Plan" },
+  title: { default: "Kinward One-Year Plan", template: "%s · Kinward One-Year Plan" },
   description:
-    "CMS Plus one-year business plan for Catapult: summary, product, market, pricing, timeline, team, an interactive financial model, scenarios, risks and asks. Draft for discussion.",
+    "Kinward one-year business plan for Catapult: summary, product and rollout, market, an interactive financial model, team, objections, offers and asks. Draft for discussion.",
   robots: { index: false, follow: false },
 };
 
@@ -31,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
               <ModelProvider>{children}</ModelProvider>
             </main>
             <Pager />
-            <footer><span>{C.meta.footer}</span><span>CMS Plus · built on Catapult</span></footer>
+            <footer><span>{C.meta.footer}</span><span>Kinward · built on Catapult</span></footer>
           </div>
         </div>
       </body>

@@ -64,7 +64,7 @@ export const ROLLOUT: RolloutPhase[] = [
     id: "s5", name: "Stage 5 · finish engagement", title: "Beta Stage 5 · finish engagement (Q4 2027)", from: 11, to: 13, row: 0, kind: "beta",
     summary: "Engagement is finished before the move into marketing.",
     plans: "Community Life",
-    sections: [{ heading: "What it adds", items: [app(2), "Digital signage and in-room TV: signage pages per community through a partner player, then our own screen management", "Live dining import from MealSuite, DiningRD and similar", "Shared content ecosystem: activities and templates rated across all CMS Plus communities; licensed content", "Voice calls alongside text, email and push"] }],
+    sections: [{ heading: "What it adds", items: [app(2), "Digital signage and in-room TV: signage pages per community through a partner player, then our own screen management", "Live dining import from MealSuite, DiningRD and similar", "Shared content ecosystem: activities and templates rated across all Kinward communities; licensed content", "Voice calls alongside text, email and push"] }],
   },
   {
     id: "s6", name: "Stage 6 · marketing", title: "Beta Stage 6 · move into marketing (Q1 2028)", from: 14, to: 16, row: 0, kind: "beta",

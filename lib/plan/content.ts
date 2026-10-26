@@ -1,14 +1,14 @@
 // Edit wording and numbers here. Tags: "estimate" = planning assumption · "derived" = our arithmetic · "draft" = a stated plan figure not yet tested with buyers.
 export const CONTENT = {
   meta: {
-    title: "CMS Plus — One-Year Plan",
+    title: "Kinward — One-Year Plan",
     subtitle: "Draft for discussion · prepared for Jason Jeffery, Catapult",
     date: "25 Oct 2026",
     footer: "Draft for discussion · figures are planning estimates · 25 Oct 2026"
   },
 
   summary: {
-    pitch: "CMS Plus brings families and the public into the daily life of a senior living community.",
+    pitch: "Kinward brings families and the public into the daily life of a senior living community.",
     elevator: "Staff post an activity, menu or event once, and it appears on the community’s website, goes to families by text and email, and prints as large-print flyers for residents, in a few minutes a week instead of hours.",
     question: "Your question on 11 Oct: assuming the MVP is built, where are we one year from now?",
     facts: [
@@ -316,13 +316,13 @@ export const CONTENT = {
     intro: "The objections we expect on sales calls, in the buyer’s own words, with how we answer and what backs the answer up. Drafted from our offer work; none has been tested on an operator yet, so treat the answers as first drafts to refine on alpha calls.",
     groups: [
       { theme: "Value and price", items: [
-        { q: "We already pay for LifeLoop or Go Icon.", who: "COO", answer: "They run engagement behind a login; none of them builds or runs the public website. CMS Plus puts the same community life on the website, in front of prospects and AI search, as well as on families’ phones. Their calendar can feed in, or Community Life replaces both the engagement app and the website for less than paying for both.", proof: "A side-by-side of what reaches the public website today vs with CMS Plus. Offer idea: a switch credit of up to 3 months of their remaining fees, paid out in the second year." },
+        { q: "We already pay for LifeLoop or Go Icon.", who: "COO", answer: "They run engagement behind a login; none of them builds or runs the public website. Kinward puts the same community life on the website, in front of prospects and AI search, as well as on families’ phones. Their calendar can feed in, or Community Life replaces both the engagement app and the website for less than paying for both.", proof: "A side-by-side of what reaches the public website today vs with Kinward. Offer idea: a switch credit of up to 3 months of their remaining fees, paid out in the second year." },
         { q: "Budgets are tight. Is it worth it?", who: "COO or CFO", answer: "Compare it with the stack, not one vendor: website, engagement, messaging, AI chat and content bought separately run about $700–1,600 per community per month, plus about 20 hours of staff time. Community Life at $649 replaces two of those bills for less than one.", proof: "The monthly scorecard, baseline vs day 90: staff time, families reached, website freshness. Offer ideas: budget-season start (sign in Q3–Q4, bill from January), setup spread over 6 months, and the Pays-For-Itself guarantee once alpha proves the numbers." },
         { q: "Isn’t this just a cheaper website vendor, or a cheaper engagement app?", who: "Anyone comparing quotes", answer: "It’s a Community Life Platform: post once and it reaches the website, families by text and email, large-print print and AI search. Nobody else spans both halves, and nobody puts menus, news and apartments live on community pages.", proof: "The demo of one sample community end to end; the always-current guarantee (a menu or calendar more than 7 days out of date because of us means that month is free)." },
         { q: "Prices will go up once we’re locked in.", who: "CFO", answer: "Prices are locked for the term, and increases after it are capped at 5% a year. Many vendors in this market use multi-year renewals with no stated cap.", proof: "The cap written into the contract." },
       ]},
       { theme: "Trust", items: [
-        { q: "You’re new. Will you be around?", who: "COO", answer: "CMS Plus is a branch of Catapult, an established website and CMS company that hosts the systems of hundreds of school districts. They get a proven platform, not a start-up experiment.", proof: "Powered by Catapult; full export of their content and contacts at any time." },
+        { q: "You’re new. Will you be around?", who: "COO", answer: "Kinward is a branch of Catapult, an established website and CMS company that hosts the systems of hundreds of school districts. They get a proven platform, not a start-up experiment.", proof: "Powered by Catapult; full export of their content and contacts at any time." },
         { q: "Our property system already does this.", who: "COO or IT", answer: "Property systems like Yardi run units, leases and resident portals; they don’t publish a community’s daily life to its website and families. We connect to them rather than replace them, starting with the CRM and later live availability.", proof: "Inquiries routed to their CRM from day one; property-system integration on the roadmap (Stage 7)." },
       ]},
       { theme: "Adoption", items: [

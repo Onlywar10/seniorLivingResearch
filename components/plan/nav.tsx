@@ -26,7 +26,7 @@ export function SideNav() {
   return (
     <nav className="sidenav" aria-label="Plan sections">
       <Link href="/" className="brand">
-        <div className="brand-mark"><Logo /><span>CMS Plus</span></div>
+        <div className="brand-mark"><Logo /><span>Kinward</span></div>
         <div className="brand-sub">One-year plan · draft</div>
       </Link>
       <ul className="navlist"><NavLinks /></ul>
@@ -46,7 +46,7 @@ export function TopNav() {
   }, [path]);
   return (
     <header className="topnav" aria-label="Plan sections">
-      <div className="topnav-in"><Link href="/" className="brand-mark"><Logo size={20} /><span>CMS Plus · one-year plan</span></Link></div>
+      <div className="topnav-in"><Link href="/" className="brand-mark"><Logo size={20} /><span>Kinward · one-year plan</span></Link></div>
       <ul ref={list}><NavLinks /></ul>
     </header>
   );

@@ -10,10 +10,10 @@ export const CONTENT = {
   summary: {
     pitch: "Kinward brings families and the public into the daily life of a senior living community.",
     elevator: [
-      "When did your families last see what Mom actually did this week? In most communities, they only hear from you when something goes wrong, and the website still shows last month’s menu.",
-      "Kinward fixes that. Your staff post an activity, a menu or a photo once, from their phone, and it goes out to families by text and email, onto your website, and into large-print flyers for residents.",
-      "Families feel close, people thinking about moving in see real daily life before they tour, and your team gets hours back every week. It replaces both your website vendor and your engagement app, for less than buying both.",
-      "We’re starting with five California operators this spring. Could I show you what it would look like for one of your communities?"
+      "When did your families last see what Grandma actually did this week? In most communities, they only hear from you when something goes wrong. And when someone looks at your website, do they see a sales brochure that looks just like the four others they’re comparing, or do they see your community?",
+      "Kinward fixes both. Your staff post an activity, a menu or a photo once, and it goes everywhere: onto your website, into large-print flyers for residents, and out to families by text and email.",
+      "Families feel close to their loved ones, and people looking for a home for their aging parents see real daily life before they tour. Kinward replaces both your website vendor and your engagement app, for less than buying both.",
+      "We’re starting with five operators this spring. Could I show you what it would look like for one of your communities?"
     ],
     question: "Your question on 11 Oct: assuming the MVP is built, where are we one year from now?",
     facts: [

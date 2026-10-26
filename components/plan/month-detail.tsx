@@ -56,9 +56,8 @@ export function MonthDetail({ rows, index, onIndex, onClose }: {
               <caption>Costs</caption>
               <thead><tr><th scope="col">Line</th><th scope="col">Detail</th><th scope="col" className="r">Amount</th></tr></thead>
               <tbody>
-                {costLines.map((l, i) => (
+                {costLines.map((l) => (
                   <Fragment key={l.label}>
-                    {i === 0 || costLines[i - 1].group !== l.group ? <tr className="md-group"><th scope="rowgroup" colSpan={3}>{l.group}</th></tr> : null}
                     <tr><th scope="row">{l.label}</th><td className="muted">{l.note ?? ""}</td><td className="r num">{fmt$(l.amount)}</td></tr>
                   </Fragment>
                 ))}

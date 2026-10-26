@@ -216,8 +216,8 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
         { group: "Team", label: "Hubert", note: hired.hubert ? "full-time" : "part-time contractor", amount: hired.hubert ? inp.hubertFT : inp.hubertPT },
         { group: "Team", label: "Sales associate", note: hired.sales ? "base pay" : "not hired yet", amount: hired.sales ? inp.salesCost : 0 },
         { group: "Team", label: "Sales commission", note: hired.sales ? `${inp.commission}% of first-year value on ${m > 1 ? newSigned : 0} new communities` : "—", amount: hired.sales ? commissionNow : 0 },
-        { group: "Ads and marketing", label: "Ads and marketing programmes", amount: inp.ads },
-        { group: "Ads and marketing", label: "Trade shows and travel", amount: inp.showsTravel },
+        { group: "Ads and marketing", label: "Ads/Marketing", amount: inp.ads },
+        { group: "Ads and marketing", label: "Trade shows", note: "including travel", amount: inp.showsTravel },
         { group: "Running the business", label: "Software and tools", amount: inp.tools },
         ...(extra ? [{ group: "Running the business", label: "Insurance, legal, bookkeeping and payroll", note: "not covered by Catapult", amount: extra }] : []),
       ];

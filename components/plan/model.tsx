@@ -34,11 +34,11 @@ const GROUPS: { id: string; group: string; items: Control[] }[] = [
     { key: "runCost", label: "Running cost + card fees per community", min: 30, max: 120, step: 1, f: money },
     { key: "p1Fixed", label: "Build and alpha cost (Nov 2026 – Jun 2027)", min: 0, max: 10000, step: 100, f: money },
     { key: "tools", label: "Software and tools (from launch)", min: 0, max: 5000, step: 50, f: money },
-    { key: "showsTravel", label: "Trade shows and travel (from launch)", min: 0, max: 8000, step: 10, f: money },
+    { key: "showsTravel", label: "Trade shows, including travel (from launch)", min: 0, max: 8000, step: 10, f: money },
     { key: "p3Fixed", label: "Phase 3 fixed cost (Year 2, Tim free for now)", min: 20000, max: 80000, step: 10, f: money },
   ]},
   { id: "ads", group: "Ads", items: [
-    { key: "ads", label: "Ads and marketing programmes (from launch)", min: 0, max: 15000, step: 50, f: money },
+    { key: "ads", label: "Ads/Marketing (from launch)", min: 0, max: 15000, step: 50, f: money },
   ]},
   { id: "staff", group: "Staff pay", items: [
     { key: "adam", label: "Adam ($62k + payroll taxes)", min: 0, max: 12000, step: 100, f: money },

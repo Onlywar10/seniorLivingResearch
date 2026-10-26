@@ -645,3 +645,17 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .r-item.k-show:hover { box-shadow: none; }
 .r-item.k-show.on { box-shadow: none; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
 .rollout-detail.k-customers { border-top-color: var(--c-customers); } .rollout-detail.k-show { border-top-color: var(--c-show); }
+
+/* alpha agreement button and PDF pop-out */
+.agreement-btn { display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: .86rem; font-weight: 650; color: var(--accent-ink); background: #fef3c7; border: 1px solid #f59e0b; border-radius: 8px; padding: 7px 12px; cursor: pointer; transition: background .2s var(--ease), box-shadow .2s var(--ease); }
+.agreement-btn span { font-size: .68rem; font-weight: 700; color: #92400e; background: #fde68a; border-radius: 4px; padding: 1px 5px; }
+.agreement-btn:hover { background: #fde68a; box-shadow: 0 2px 8px -3px rgba(146, 64, 14, .4); }
+.offer-doc { padding: 0 var(--s5) var(--s5); }
+.pdf-dialog { position: fixed; inset: 0; margin: auto; width: min(920px, 94vw); height: min(90vh, 1100px); padding: 0; border: 0; border-radius: var(--radius); box-shadow: 0 24px 60px -12px rgba(0,0,0,.45); overflow: hidden; }
+.pdf-dialog[open] { display: flex; flex-direction: column; }
+.pdf-dialog::backdrop { background: rgba(20, 26, 24, .55); backdrop-filter: blur(2px); }
+.pdf-head { display: flex; justify-content: space-between; align-items: center; gap: var(--s3); flex-wrap: wrap; padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line); background: var(--panel); }
+.pdf-head b { font-size: .92rem; }
+.pdf-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.pdf-actions a.btn { text-decoration: none; }
+.pdf-frame { flex: 1; width: 100%; border: 0; background: #525659; }

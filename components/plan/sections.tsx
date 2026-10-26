@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { CONTENT as C } from "@/lib/plan/content";
 import { SectionHead, Tag } from "./ui";
 import { RolloutCalendar } from "./rollout";
+import { AgreementButton } from "./agreement";
 
 // The landing page: core facts, headline numbers and the month-by-month view (a client component, passed as children).
 export function Summary({ children }: { children: React.ReactNode }) {
@@ -150,6 +151,7 @@ export function Offers() {
             <article className="offer" key={f.name}>
               <h3>{f.name}</h3>
               <dl>{f.rows.map((r) => <Fragment key={r[0]}><dt>{r[0]}</dt><dd>{r[1]}</dd></Fragment>)}</dl>
+              {f.name === "Alpha Founding Partner" ? <div className="offer-doc"><AgreementButton /></div> : null}
             </article>
           ))}
         </div>

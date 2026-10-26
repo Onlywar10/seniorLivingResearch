@@ -15,6 +15,7 @@ export type RolloutPhase = {
   summary: string;
   plans?: string; // which plans this phase feeds
   sections: { heading: string; items: string[] }[];
+  agreement?: boolean; // show the alpha agreement PDF button
 };
 
 export const ROLLOUT_START = { year: 2026, month: 10 }; // November 2026
@@ -80,17 +81,54 @@ export const ROLLOUT: RolloutPhase[] = [
 
   // ---- Customers ----
   {
-    id: "recruit", name: "Recruit alpha", title: "Recruiting the alpha organisations (Nov 2026 – Feb 2027)", from: 0, to: 3, row: 1, kind: "customers",
+    id: "recruit", name: "Recruit alpha", title: "Recruiting the alpha organisations (Nov 2026 – Feb 2027)", from: 0, to: 3, row: 1, kind: "customers", agreement: true,
     summary: "Up to 5 California organisations with 1–3 pilot communities each, from Jason’s and Tim’s networks. Alpha agreements signed by about February 2027, and pre-alpha site builds start alongside their current sites ahead of go-live in March.",
-    sections: [{ heading: "What we ask of each organisation", items: P.alphaTerms.terms.slice(0, 2) }],
+    sections: [{ heading: "The alpha agreement in brief", items: P.alphaTerms.terms }],
   },
   {
-    id: "alpha", name: "Alpha live · 90 days", title: "Alpha live: 90 days from the beginning of March 2027", from: 4, to: 7, row: 1, kind: "customers",
-    summary: "Alpha goes live at the beginning of March 2027. Each organisation runs 90 days live against the agreed success criteria; when they’re met, it converts to paid at the founding price in early June.",
+    id: "alpha", name: "Alpha live · 90 days", title: "Alpha live: how we define success (Mar–Jun 2027)", from: 4, to: 7, row: 1, kind: "customers",
+    summary: "Alpha goes live at the beginning of March 2027 and runs 90 days. Success is defined by these metrics: every one must be met for an organisation to convert at the founding price in early June. Targets are starting numbers; baselines are taken 2–4 weeks before go-live, and days count from each community’s go-live.",
     plans: "Converts at the founding price: Community Life $519, Website $349",
     sections: [
-      { heading: "How each alpha runs", items: P.alphaTerms.steps.map((s) => `${s.name}: ${s.body}`) },
-      { heading: "Terms (draft)", items: P.alphaTerms.terms },
+      { heading: "Staff", items: [
+        "One entry reaches every channel: every post reaches 3 or more channels (week 1)",
+        "Monthly calendar takes less time: down 50% or more on the time diary (day 60)",
+        "Fewer hours on communication: down 15 or more hours per community a month (day 60)",
+        "Staff post without being chased: an update in 10 of the last 12 weeks, with no help from us after day 30 (day 90)",
+        "Training sticks: 80% or more of trained staff post on their own within 14 days (day 30)",
+        "Nothing wrong or unapproved goes out: zero (ongoing)",
+      ] },
+      { heading: "Residents", items: [
+        "Residents know what’s on: +15 points, or 75% or more agree, on a short survey (day 90)",
+        "Residents feel part of it: +10 points, or 70% or more agree, and at least one resident suggestion becomes a calendar activity per community (day 90)",
+      ] },
+      { heading: "Families", items: [
+        "Families are reachable and opted in: 60% or more of residents’ families by day 30, 70% or more by day 90",
+        "Families keep reading: 50% or more of opted-in families view or click the weekly digest (day 30 onward)",
+        "Few families leave: 5% or fewer opt out (day 90)",
+        "Families know what’s happening: +15 points, or 80% or more agree, with a 25% or higher response rate (day 90)",
+        "Families feel included: +15 points, or 70% or more agree, and 2 or more family-open events per community a month (day 90)",
+        "Families get involved: replies, sign-ups and attendance rise against baseline (day 90)",
+        "Last-minute changes reach everyone fast: website and families updated within 15 minutes (week 1 onward)",
+        "Messages arrive: 95% or more delivered, in the right language (day 30)",
+      ] },
+      { heading: "The public", items: [
+        "Every community page stays current: always less than 7 days old (week 2 onward)",
+        "The website shows real daily life: this week’s menu, the calendar and recent news live on every community page, and prospects say so at inquiry or tour",
+      ] },
+      { heading: "Across the board", items: [
+        "Fast, repeatable onboarding: 30 days or less, with the second group faster (day 30)",
+        "First calendar live within 7 days of kickoff; texting live within 14 days",
+        "Little support needed: 2 hours or less per community a month (day 60)",
+        "Works at any size: large and small organisations both pass (day 90)",
+        "Leadership sees results: a monthly scorecard every month (day 30 onward)",
+        "Leadership wants to keep it: yes at 4 or more of 5 organisations in the day-90 interview",
+        "Uptime 99.5% or more (ongoing), and a full data export tested once per organisation (day 90)",
+      ] },
+      { heading: "Alongside the metrics", items: [
+        "At least 3 recorded resident, family or staff stories per organisation, and one publishable case study and one willing reference each",
+        "Pass rule: every criterion must be met; still to decide whether one or two near-misses can pass if the trend is clearly right",
+      ] },
     ],
   },
   {

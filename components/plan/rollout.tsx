@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { AgreementButton } from "./agreement";
 import { ROLLOUT, ROLLOUT_MONTHS, ROLLOUT_ROWS, ROLLOUT_START, type RolloutPhase } from "@/lib/plan/rollout";
 
 const COL = 92; // px per month on the calendar
@@ -11,14 +12,15 @@ const when = (p: RolloutPhase) => {
   const f = (d: Date) => `${d.toLocaleString("en-US", { month: "short" })} ${d.getFullYear()}`;
   return p.from === p.to ? f(a) : `${f(a)} – ${f(b)}`;
 };
-// Phases in calendar order, for previous / next.
-const ORDER = [...ROLLOUT].sort((a, b) => a.from - b.from || a.row - b.row);
+// Previous / next step along the selected item’s own row, in date order.
+const rowOrder = (row: number) => ROLLOUT.filter((p) => p.row === row).sort((a, b) => a.from - b.from);
 
 export function RolloutCalendar() {
   const [selected, setSelected] = useState("p1");
   const scroller = useRef<HTMLDivElement>(null);
   const phase = ROLLOUT.find((p) => p.id === selected)!;
-  const idx = ORDER.findIndex((p) => p.id === selected);
+  const order = rowOrder(phase.row);
+  const idx = order.findIndex((p) => p.id === selected);
 
   const select = (id: string) => {
     setSelected(id);
@@ -73,12 +75,13 @@ export function RolloutCalendar() {
             <h3>{phase.title}</h3>
           </div>
           <div className="rd-nav">
-            <button type="button" className="btn" disabled={idx <= 0} onClick={() => select(ORDER[idx - 1].id)}>← Previous</button>
-            <button type="button" className="btn" disabled={idx >= ORDER.length - 1} onClick={() => select(ORDER[idx + 1].id)}>Next →</button>
+            <button type="button" className="btn" disabled={idx <= 0} onClick={() => select(order[idx - 1].id)}>← Previous</button>
+            <button type="button" className="btn" disabled={idx >= order.length - 1} onClick={() => select(order[idx + 1].id)}>Next →</button>
           </div>
         </div>
         <p className="rd-summary">{phase.summary}</p>
         {phase.plans ? <p className="rd-plans"><b>Plans:</b> {phase.plans}</p> : null}
+        {phase.agreement ? <div><AgreementButton /></div> : null}
         {phase.sections.map((s) => (
           <div key={s.heading} className="rd-section">
             <h4>{s.heading}</h4>

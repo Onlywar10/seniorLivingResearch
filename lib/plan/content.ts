@@ -317,18 +317,36 @@ export const CONTENT = {
     share: "About 75 paying communities is roughly 0.5% of the 14,000 assisted living and memory care communities with 26+ beds, and $508k is about 0.3% of the $153M engagement market."
   },
 
-  risks: [
-    ["No operator has seen it yet", "Prices, tiers and offers are untested.", "Operator conversations start after this meeting; mock demo first; offers tried on alpha calls before they go in the playbook."],
-    ["Build time", "A usable MVP takes 3–4 months, which pushes Year 1 to about July 2027; Adam building means less selling before launch.", "Phase 1 is what Catapult already has; Dave mentors; cohorts staggered; May conferences fill the pipeline."],
-    ["Adoption", "Staff don’t post; families don’t sign up.", "Weekly posting reminder, photo post from the phone, a content library so nothing starts empty, a champion per community."],
-    ["Occupancy link unproven", "Complete’s promise (more move-ins) has no evidence yet.", "Inquiry source tagging from alpha; an outcome guarantee only after the evidence exists."],
-    ["Churn", "The plan assumes about 1% of communities leave a month.", "Two-year contracts with penalties for leaving early; quarterly results reviews; measure real churn from month 1."],
-    ["Funnel unknown", "We don’t yet know how many conversations it takes to sign an organisation.", "Measure every stage through alpha and beta; set targets from real numbers."],
-    ["Capacity", "Onboarding and support reach about 1.6 people by month 12.", "Watch hours per community from alpha; hire in Phase 3 when it pinches."],
-    ["Setup cash is borrowed", "The first 10 organisations’ setup is credited back in Year 2.", "Don’t spend it as profit."],
-    ["Privacy, texting and licence rules", "Family contact data and consent; texting registration; California requires an RCFE’s licence number in all advertising (Health and Safety Code §1569.681).", "Registration in onboarding; consent records; licence number on every community site; no named-resident data until the app’s privacy review."],
-    ["Equity and the spin-out are verbal", "Adam’s upside and the spin-out path depend on it.", "Agree in conversation over time; in writing before Year 1."]
-  ],
+  objections: {
+    intro: "The objections we expect on sales calls, in the buyer’s own words, with how we answer and what backs the answer up. Drafted from our offer work; none has been tested on an operator yet, so treat the answers as first drafts to refine on alpha calls.",
+    groups: [
+      { theme: "Value and price", items: [
+        { q: "We already pay for LifeLoop or Go Icon.", who: "COO", answer: "They run engagement behind a login; none of them builds or runs the public website. CMS Plus puts the same community life on the website, in front of prospects and AI search, as well as on families’ phones. Their calendar can feed in, or Community Life replaces both the engagement app and the website for less than paying for both.", proof: "A side-by-side of what reaches the public website today vs with CMS Plus. Offer idea: a switch credit of up to 3 months of their remaining fees, paid out in the second year." },
+        { q: "Budgets are tight. Is it worth it?", who: "COO or CFO", answer: "Compare it with the stack, not one vendor: website, engagement, messaging, AI chat and content bought separately run about $700–1,600 per community per month, plus about 20 hours of staff time. Community Life at $649 replaces two of those bills for less than one.", proof: "The monthly scorecard, baseline vs day 90: staff time, families reached, website freshness. Offer ideas: budget-season start (sign in Q3–Q4, bill from January), setup spread over 6 months, and the Pays-For-Itself guarantee once alpha proves the numbers." },
+        { q: "Isn’t this just a cheaper website vendor, or a cheaper engagement app?", who: "Anyone comparing quotes", answer: "It’s a Community Life Platform: post once and it reaches the website, families by text and email, large-print print and AI search. Nobody else spans both halves, and nobody puts menus, news and apartments live on community pages.", proof: "The demo of one sample community end to end; the always-current guarantee (a menu or calendar more than 7 days out of date because of us means that month is free)." },
+        { q: "Prices will go up once we’re locked in.", who: "CFO", answer: "Prices are locked for the term, and increases after it are capped at 5% a year. Many vendors in this market use multi-year renewals with no stated cap.", proof: "The cap written into the contract." },
+      ]},
+      { theme: "Trust", items: [
+        { q: "You’re new. Will you be around?", who: "COO", answer: "CMS Plus is a branch of Catapult, an established website and CMS company that hosts the systems of hundreds of school districts. They get a proven platform, not a start-up experiment.", proof: "Powered by Catapult; full export of their content and contacts at any time." },
+        { q: "Our property system already does this.", who: "COO or IT", answer: "Property systems like Yardi run units, leases and resident portals; they don’t publish a community’s daily life to its website and families. We connect to them rather than replace them, starting with the CRM and later live availability.", proof: "Inquiries routed to their CRM from day one; property-system integration on the roadmap (Stage 7)." },
+      ]},
+      { theme: "Adoption", items: [
+        { q: "My staff won’t use another tool.", who: "Executive director", answer: "Posting takes a photo and one sentence from the phone, with a weekly reminder. Existing calendars and menus come in from a PDF or photo, and a ready-made content library means nothing starts empty. One entry replaces retyping the same news in five places.", proof: "The share of communities posting weekly without our help, tracked in alpha." },
+        { q: "Families won’t sign up or read it.", who: "Executive director", answer: "There’s no app to download: families get updates by text and email in their own language, plus a weekly digest built automatically.", proof: "Family opt-in by day 30 and weekly open rates. Offer idea: a Family Night launch kit, where we run the first sign-up event with each community." },
+      ]},
+      { theme: "Switching", items: [
+        { q: "Switching from our agency or website is a nightmare.", who: "VP of marketing", answer: "We do the migration. The new site is built alongside the old one and the switch only happens once the agreed acceptance list is met.", proof: "The migration guarantee: no broken pages or lost rankings, or we fix it and credit a month." },
+        { q: "Moving the website will hurt our Google ranking.", who: "VP of marketing", answer: "Every old page address is mapped and redirected so rankings carry over, and each community gets a live-facts feed that search engines and AI tools can read and cite.", proof: "Search traffic stable after launch; the migration guarantee; a free AI Visibility Audit before they buy." },
+        { q: "We can’t commit before we’ve seen it work.", who: "COO", answer: "Founding partners pay nothing until the results we agree together are met. After that, every customer gets a 90-day risk-free switch, and can start with one community before rolling out.", proof: "The alpha agreement’s success criteria; the 90-day risk-free switch." },
+        { q: "If we leave, we lose everything.", who: "COO", answer: "They own their content and contacts and can export all of it at any time.", proof: "A full data export, written into the agreement." },
+      ]},
+      { theme: "Control and compliance", items: [
+        { q: "Legal and IT will slow this down: texting consent, privacy.", who: "COO", answer: "It carries public, community-level information only, no resident care records, which keeps it outside HIPAA. Texting registration and consent records are handled in onboarding, and every community site shows its California licence number.", proof: "Texting registered within about 14 days; consent records kept per family." },
+        { q: "Corporate needs brand control across all our communities.", who: "VP of marketing", answer: "Central templates and branding, shared content across every community site, and approvals by role.", proof: "Brand templates on every channel; one dashboard across communities." },
+        { q: "I’m afraid wrong information goes out to families.", who: "Executive director or COO", answer: "A manager approves every family message before it goes (emergencies skip the queue), and staff see exactly where each post went and who it reached.", proof: "Approval logs and delivery tracking per message." },
+      ]},
+    ],
+  },
 
   asks: [
     { title: "Confirm what Catapult covers", body: "The platform, Dave’s mentoring, hosting and upkeep, texting registration, insurance, legal, bookkeeping and payroll, and the build and alpha costs (about $24–27k from November to about June)." },

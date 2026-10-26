@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Chart, registerables, type Plugin, type TooltipItem } from "chart.js";
 import { allMonths, cashTotals, STAFF_ORDER, type StaffKey } from "@/lib/plan/model";
 import { fmt$, fmtN } from "@/lib/plan/format";
@@ -13,7 +13,10 @@ const INK = "#1d2422", PROFIT = "#16a34a", LOSS = "#dc2626", REVENUE = "#15803d"
 const JUL_2027 = 8; // index of the first Year-1 month in allMonths
 const HIRE_NAME: Record<StaffKey, string> = { adam: "Adam", hubert: "Hubert", sales: "Sales" };
 
-type SeriesKey = "result" | "cum" | "revenue" | "cost" | "paying";
+export type SeriesKey = "result" | "cum" | "revenue" | "cost" | "paying";
+export type Window = { from: number; to: number };
+export const DEFAULT_WINDOW: Window = { from: 0, to: 19 };
+export const DEFAULT_SERIES: Record<SeriesKey, boolean> = { result: true, cum: true, revenue: true, cost: true, paying: false };
 const SERIES: { key: SeriesKey; label: string; color: string; dash?: boolean }[] = [
   { key: "result", label: "Monthly result", color: PROFIT },
   { key: "cum", label: "Running total", color: INK },
@@ -53,29 +56,15 @@ const marksPlugin: Plugin = {
   },
 };
 
-export function Explorer() {
+// Timeframe and series controls. They live in the financial model's dashboard and drive Explorer.
+export function ExplorerControls({ win, setWin, show, setShow }: {
+  win: Window; setWin: React.Dispatch<React.SetStateAction<Window>>;
+  show: Record<SeriesKey, boolean>; setShow: React.Dispatch<React.SetStateAction<Record<SeriesKey, boolean>>>;
+}) {
   const { state, hires, cashOpt } = useModel();
   const rows = useMemo(() => allMonths(state, cashOpt, hires), [state, cashOpt, hires]);
-  const [win, setWin] = useState({ from: 0, to: 19 });
-  const [show, setShow] = useState<Record<SeriesKey, boolean>>({ result: true, cum: true, revenue: true, cost: true, paying: false });
-
   const from = Math.min(win.from, win.to), to = Math.max(win.from, win.to);
-  const view = rows.slice(from, to + 1);
-  const opening = from > 0 ? rows[from - 1].cum : 0;
-  const t = cashTotals(view);
-  const hireIdx = ((): Marks => {
-    const out: Marks = [];
-    if (from < JUL_2027 && to >= JUL_2027) out.push({ index: JUL_2027 - from, text: "Revenue starts" });
-    STAFF_ORDER.forEach((k) => {
-      const name = HIRE_NAME[k];
-      const i = view.findIndex((r) => r.phase.includes(k === "adam" ? "Adam paid" : k === "hubert" ? "Hubert full-time" : "sales associate starts"));
-      if (i >= 0) out.push({ index: i, text: `${name} starts` });
-    });
-    return out;
-  })();
-
   return (
-    <div className="explorer">
       <div className="explorer-controls">
         <div className="timeframe" role="group" aria-label="Timeframe">
           <span className="ctl-label">Timeframe</span>
@@ -102,7 +91,31 @@ export function Explorer() {
           ))}
         </div>
       </div>
+  );
+}
 
+// The single chart and table: the chosen months, from whatever running total is carried in.
+export function Explorer({ win, show }: { win: Window; show: Record<SeriesKey, boolean> }) {
+  const { state, hires, cashOpt } = useModel();
+  const rows = useMemo(() => allMonths(state, cashOpt, hires), [state, cashOpt, hires]);
+
+  const from = Math.min(win.from, win.to), to = Math.max(win.from, win.to);
+  const view = rows.slice(from, to + 1);
+  const opening = from > 0 ? rows[from - 1].cum : 0;
+  const t = cashTotals(view);
+  const hireIdx = ((): Marks => {
+    const out: Marks = [];
+    if (from < JUL_2027 && to >= JUL_2027) out.push({ index: JUL_2027 - from, text: "Revenue starts" });
+    STAFF_ORDER.forEach((k) => {
+      const name = HIRE_NAME[k];
+      const i = view.findIndex((r) => r.phase.includes(k === "adam" ? "Adam paid" : k === "hubert" ? "Hubert full-time" : "sales associate starts"));
+      if (i >= 0) out.push({ index: i, text: `${name} starts` });
+    });
+    return out;
+  })();
+
+  return (
+    <div className="explorer">
       <dl className="cash-stats">
         <div><dt>{from > 0 ? `Carried in to ${view[0].label}` : "Starting point"}</dt><dd className={opening < 0 ? "neg" : ""}>{fmt$(opening, { k: true, plus: true })}</dd><span>{from > 0 ? "running total before this window" : "development starts"}</span></div>
         <div><dt>Result over these {view.length} months</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd><span>revenue {fmt$(t.revenue + t.setup - t.credit, { k: true })} · costs {fmt$(t.cost, { k: true })}</span></div>

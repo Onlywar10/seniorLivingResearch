@@ -13,6 +13,9 @@ const nextConfig: NextConfig = {
       // Tiers and pricing, and the timeline, were merged into the product page.
       { source: "/pricing", destination: "/product", permanent: false },
       { source: "/timeline", destination: "/product", permanent: false },
+      // Scenarios became presets on the financial model; Risks became Objections.
+      { source: "/scenarios", destination: "/model", permanent: false },
+      { source: "/risks", destination: "/objections", permanent: false },
     ];
   },
   partialPrefetching: true,

@@ -29,7 +29,7 @@ const slotLabel = (slot: number) => (slot === AFTER_YEAR_1 ? "after Year 1" : MO
 
 // Drag each person to the month they start full-time. A faint marker shows the month revenue
 // would first cover them; "Reset to automatic" puts everyone back on that rule.
-export function HiringPlanner({ inputs }: { inputs: Inputs }) {
+export function HiringPlanner({ inputs, compact = false }: { inputs: Inputs; compact?: boolean }) {
   const { hires, setHires, cashOpt } = useModel();
   const auto = useMemo(() => computeModel(inputs, {}, cashOpt).hired, [inputs, cashOpt]);
   const actual = useMemo(() => computeModel(inputs, hires, cashOpt).hired, [inputs, hires, cashOpt]);
@@ -41,11 +41,11 @@ export function HiringPlanner({ inputs }: { inputs: Inputs }) {
   });
 
   return (
-    <div className="hiring">
+    <div className={`hiring ${compact ? "compact" : ""}`}>
       <div className="hiring-top">
         <div>
-          <h3>Who joins full-time, and when</h3>
-          <p className="muted small">Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Adam, then Hubert, then the sales associate. Setup fees count towards that when they’re switched on. The faint dot marks that month.</p>
+          {compact ? null : <h3>Who joins full-time, and when</h3>}
+          <p className="muted small">{compact ? "Drag each person to the month they start full-time. Left alone, each starts the first month revenue covers them (Adam, then Hubert, then the sales associate); the faint dot marks that month." : null}{compact ? null : <>Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Adam, then Hubert, then the sales associate. Setup fees count towards that when they’re switched on. The faint dot marks that month.</>}</p>
         </div>
         <button type="button" className="btn" disabled={!anyChosen} onClick={() => setHires({})}>Reset to automatic</button>
       </div>

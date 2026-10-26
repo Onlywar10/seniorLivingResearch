@@ -192,19 +192,29 @@ export function Team() {
   );
 }
 
-export function Risks() {
+// Sales-call objections, grouped by theme; each opens to our answer and what backs it up.
+export function Objections() {
+  const O = C.objections;
   return (
-    <section className="section" id="risks" aria-labelledby="risks-h">
+    <section className="section" id="objections" aria-labelledby="objections-h">
       <div className="inner">
-        <SectionHead id="risks" title="Risks and what we’re unsure of" intro="Open any risk to see what we do about it." />
-        <div className="risks">
-          {C.risks.map((r) => (
-            <details className="risk" key={r[0]}>
-              <summary><b>{r[0]}</b><span>{r[1]}</span></summary>
-              <div className="do"><b>What we do about it</b><p>{r[2]}</p></div>
-            </details>
-          ))}
-        </div>
+        <SectionHead id="objections" title="Objections" intro={O.intro} />
+        {O.groups.map((g) => (
+          <div className="obj-group" key={g.theme}>
+            <h2 className="obj-theme">{g.theme}</h2>
+            <div className="risks">
+              {g.items.map((o) => (
+                <details className="risk obj" key={o.q}>
+                  <summary><b>“{o.q}”</b><span>{o.who}</span></summary>
+                  <div className="do">
+                    <b>How we answer</b><p>{o.answer}</p>
+                    <b>What backs it up</b><p>{o.proof}</p>
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        ))}
       </div>
     </section>
   );

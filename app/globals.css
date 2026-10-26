@@ -704,3 +704,21 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .glossary dt { font-weight: 650; font-size: .88rem; }
 .glossary dd { margin: 2px 0 0; font-size: .86rem; color: var(--ink-2); }
 .fold-note { margin: 0; padding: 0 var(--s4) var(--s3); }
+
+/* summary: quick milestone timeline */
+.quick-timeline { margin-top: var(--s6); }
+.quick-timeline h2 { font-size: 1.15rem; margin-bottom: var(--s4); }
+.quick-timeline ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); position: relative; }
+.quick-timeline ol::before { content: ""; position: absolute; top: 6px; left: 0; right: 0; height: 2px; background: var(--line-2); }
+.quick-timeline li { position: relative; padding: var(--s5) var(--s3) 0 0; display: grid; gap: 3px; align-content: start; }
+.quick-timeline li::before { content: ""; position: absolute; top: 0; left: 0; width: 14px; height: 14px; border-radius: 50%; background: var(--ground); border: 3px solid var(--accent); }
+.qt-when { font-size: .75rem; font-weight: 700; color: var(--accent-ink); }
+.quick-timeline b { font-size: .9rem; line-height: 1.25; }
+.qt-detail { font-size: .78rem; color: var(--ink-2); line-height: 1.4; }
+@media (max-width: 980px) {
+  .quick-timeline ol { grid-template-columns: 1fr; gap: var(--s4); padding-left: 26px; }
+  .quick-timeline ol::before { top: 0; bottom: 0; left: 6px; right: auto; width: 2px; height: auto; }
+  .quick-timeline li { padding: 0; }
+  .quick-timeline li::before { left: -26px; top: 2px; }
+}
+@media print { .quick-timeline li { break-inside: avoid; } }

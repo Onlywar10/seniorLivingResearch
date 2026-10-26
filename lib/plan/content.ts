@@ -33,6 +33,16 @@ export const CONTENT = {
       { value: "≈45%", label: "Operating margin in June 2028: what’s left of revenue after every cost, all salaries included", tag: "derived" },
       { value: "≈53%", label: "Operating margin at about $1M a year in revenue, the point where it could become its own company", tag: "derived" }
     ],
+    timelineTitle: "When the milestones land",
+    timeline: [
+      { when: "Nov 2026", label: "Building starts", detail: "Adam and Hubert build on Catapult’s platform, with Dave mentoring" },
+      { when: "Feb 2027", label: "Usable product", detail: "Ready for the first pilot organisations" },
+      { when: "Mar 2027", label: "Free pilot goes live", detail: "Up to 5 California operators, 90 days against agreed results" },
+      { when: "Jun 2027", label: "First revenue", detail: "The pilot’s 20 communities start paying" },
+      { when: "Jul 2027", label: "Launch", detail: "On sale to everyone; 30 waitlist communities join; every monthly cost covered; the team goes full-time" },
+      { when: "Q2 2028", label: "Complete plan on sale", detail: "Marketing tools to help fill apartments" },
+      { when: "Jun 2028", label: "100 paying communities", detail: "About $684k in annual recurring revenue, at a 45% margin" },
+    ],
     tagNote: "Tags: draft = a stated plan figure not yet tested with buyers · estimate = a planning assumption · derived = calculated from the other figures.",
     glossaryTitle: "Terms used on this page",
     glossary: [
@@ -313,6 +323,8 @@ export const CONTENT = {
     first12Intro: "From the day development starts. Eight months of build and alpha (Catapult pays these costs; alpha is free until it converts in June), then the first four months of sales.",
     first12Short: "From the day building starts: eight months of building and the free pilot (the pilot communities start paying in June), then the first four months of sales.",
     year1Short: "The 12 months from the July 2027 launch. The running total starts from what building and the pilot cost before launch.",
+    allTitle: "Nov 2026 – Jun 2028: from building to 100 communities",
+    allShort: "Eight months of building and the free pilot (Catapult pays these costs; the pilot communities start paying in June 2027), then Year 1 from the July 2027 launch.",
     summaryTitle: "Month by month",
     summaryIntro: "Money in and out each month in the expected case, aiming for 100 paying communities by June 2028: the 20 pilot communities pay from June 2027, the 30 waitlist communities join at the July launch, and new ones sign each month. Bars show each month’s result (revenue minus costs); the line is the running total. Click any month to see its revenue and costs line by line.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",

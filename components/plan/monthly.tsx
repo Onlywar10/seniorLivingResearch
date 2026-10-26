@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart, registerables, type Plugin, type TooltipItem } from "chart.js";
 import { CONTENT as C } from "@/lib/plan/content";
-import { buildCost, cashTotals, first12Cash, year1Cash, PLAN_DEFAULTS, type CashOptions, type CashRow } from "@/lib/plan/model";
+import { allMonths, cashTotals, PLAN_DEFAULTS, type CashOptions, type CashRow } from "@/lib/plan/model";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { useModel } from "./model-state";
 import { Tag } from "./ui";
@@ -164,13 +164,13 @@ function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 
       {opening && !compact ? (
         <dl className="cash-stats">
           <div><dt>Debt carried in</dt><dd className="neg">{fmt$(opening, { k: true })}</dd><span>build and alpha, Nov 2026 – Jun 2027</span></div>
-          <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
+          <div><dt>{rows.length}-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
           <div><dt>Ends Year 1 at</dt><dd className={t.end < 0 ? "neg" : ""}>{fmt$(t.end, { k: true, plus: true })}</dd><span>{t.end < 0 ? "still owed" : "debt paid back"}</span></div>
           <div><dt>Lowest point</dt><dd className={Math.min(opening, t.low.cum) < 0 ? "neg" : ""}>{fmt$(Math.min(opening, t.low.cum), { k: true, plus: true })}</dd><span>{t.low.cum < opening ? t.low.label : "at the start"}</span></div>
         </dl>
       ) : (
         <dl className="cash-stats">
-          <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
+          <div><dt>{rows.length}-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
           <div><dt>Lowest point</dt><dd className={Math.min(opening, t.low.cum) < 0 ? "neg" : ""}>{fmt$(Math.min(0, opening, t.low.cum), { k: true, plus: true })}</dd><span>{Math.min(opening, t.low.cum) >= 0 ? "never below zero" : opening < t.low.cum ? "at the start of the period" : t.low.label}</span></div>
           <div><dt>Costs</dt><dd>{fmt$(t.cost, { k: true })}</dd></div>
           <div><dt>Revenue{opt.includeSetup ? " + setup, net" : ""}</dt><dd>{fmt$(t.revenue + t.setup - t.credit, { k: true })}</dd></div>
@@ -212,17 +212,14 @@ function Toggles({ opt, setOpt }: { opt: CashOptions; setOpt: React.Dispatch<Rea
 // headline figures, and the monthly tables folded away.
 export function MonthlySummary() {
   const { hires, cashOpt: opt, setCashOpt: setOpt } = useModel();
-  const first12 = useMemo(() => first12Cash(PLAN_DEFAULTS, opt, hires), [opt, hires]);
-  const year1 = useMemo(() => year1Cash(PLAN_DEFAULTS, opt, hires, -buildCost(PLAN_DEFAULTS)), [opt, hires]);
+  // One view of the whole span: building, the pilot and Year 1 (Nov 2026 – Jun 2028).
+  const all = useMemo(() => allMonths(PLAN_DEFAULTS, opt, hires, 19), [opt, hires]);
   const M = C.monthly;
   return (
     <>
       <Toggles opt={opt} setOpt={setOpt} />
       <HiringDisplay inputs={PLAN_DEFAULTS} />
-      <div className="cash-pair">
-        <View id="sum-first12" title={M.first12Title} intro={M.first12Short} rows={first12} opt={opt} mark={{ index: 7, text: "Revenue starts" }} compact />
-        <View id="sum-year1" title={M.year1Title} intro={M.year1Short} rows={year1} opt={opt} opening={-buildCost(PLAN_DEFAULTS)} compact />
-      </div>
+      <View id="sum-all" title={M.allTitle} intro={M.allShort} rows={all} opt={opt} mark={{ index: 7, text: "Revenue starts" }} compact />
       <p className="small"><Link href="/model">Change the settings, timeframe and hires on the financial model →</Link></p>
     </>
   );

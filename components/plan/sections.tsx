@@ -28,6 +28,14 @@ export function Summary({ children }: { children: React.ReactNode }) {
           ))}
         </div>
         <p className="tag-note muted small">{S.tagNote}</p>
+        <div className="quick-timeline" aria-labelledby="qt-h">
+          <h2 id="qt-h">{S.timelineTitle}</h2>
+          <ol>
+            {S.timeline.map((t) => (
+              <li key={t.when}><span className="qt-when">{t.when}</span><b>{t.label}</b><span className="qt-detail">{t.detail}</span></li>
+            ))}
+          </ol>
+        </div>
         <details className="fold glossary" open>
           <summary>{S.glossaryTitle}</summary>
           <dl className="fold-body">{S.glossary.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>

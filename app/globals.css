@@ -693,3 +693,14 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .month-dialog { overflow-y: auto; }
 @media (max-width: 560px) { .md-price { display: none; } .md-table { font-size: .8rem; } .md-table th, .md-table td { padding: 6px 7px; } }
 .md-table tr.md-group th { background: var(--panel); font-size: .72rem; font-weight: 700; color: var(--ink-3); padding-top: 9px; }
+
+/* summary: standalone explanations */
+.facts { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; }
+.facts div:nth-child(4) { grid-column: span 2; }
+@media (max-width: 980px) { .facts { grid-template-columns: 1fr !important; } .facts div:nth-child(4) { grid-column: auto; } }
+.tag-note { margin: var(--s2) 0 0; }
+.glossary { margin-top: var(--s5); }
+.glossary dl { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: var(--s3) var(--s5); }
+.glossary dt { font-weight: 650; font-size: .88rem; }
+.glossary dd { margin: 2px 0 0; font-size: .86rem; color: var(--ink-2); }
+.fold-note { margin: 0; padding: 0 var(--s4) var(--s3); }

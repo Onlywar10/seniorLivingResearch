@@ -17,20 +17,32 @@ export const CONTENT = {
     ],
     question: "Your question on 11 Oct: assuming the MVP is built, where are we one year from now?",
     facts: [
-      ["What", "The website and the family engagement system for senior living communities, on Catapult’s platform"],
-      ["Who first", "California assisted living and memory care operators with 2–20 communities"],
-      ["Team", "Adam, Tim, Hubert and a sales associate from launch; Dave mentoring from Catapult"],
-      ["Catapult covers", "The platform, hosting, texting registration, insurance, legal, bookkeeping, payroll, and the build and alpha"]
+      ["What it is", "One system that runs a senior living community’s public website and keeps families in touch by text, email and print. Built on Catapult’s existing website platform, which already runs hundreds of school districts’ sites."],
+      ["Who it’s for first", "California assisted living and memory care operators that run 2–20 communities."],
+      ["What Catapult provides", "The platform, hosting, texting registration, insurance, legal, bookkeeping and payroll, and the costs of building the product before it earns money."],
+      ["How it’s sold", "Monthly, per community, in three plans. Each plan includes everything in the one before. Website: $349, the community’s website on its own. Community Life: $649, the website plus family messaging, large-print print and the family app. Complete: $1,149, adds marketing tools to fill apartments, available from about mid-2028. New customers also pay a one-time setup fee, about $9,500 for an operator with five communities."],
+      ["Who’s doing it", "Adam (Head of Senior Living: product, sales and operations), Hubert (developer), Tim (customer success, unpaid for now) and a sales associate, with Dave from Catapult as technical mentor. Adam, Hubert and the sales associate go full-time as revenue covers each of them."]
     ],
     cards: [
-      { value: "$349–1,149", label: "Per community per month: Website $349 · Community Life $649 · Complete $1,149", tag: "draft" },
-      { value: "100 paying", label: "Target by June 2028: 20 alpha, 30 from the beta waitlist at launch, the rest signed through Year 1 (after churn)", tag: "estimate" },
-      { value: "≈$684k", label: "Annual recurring revenue at June 2028, expected case", tag: "derived" },
-      { value: "≈48 communities", label: "Break-even with the full team and Adam paid; reached at the beta launch in July 2027, when the waitlist joins", tag: "derived" },
-      { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
-      { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
-      { value: "≈45%", label: "Operating margin in June 2028, after every cost including Adam", tag: "derived" },
-      { value: "≈53%", label: "Operating margin at about $1M ARR, the spin-out point (Tim free for now)", tag: "derived" }
+      { value: "$349 / $649 / $1,149", label: "Website / Community Life (website + families) / Complete (adds marketing), per community per month. Each plan includes the one before", tag: "draft" },
+      { value: "100 paying", label: "Communities paying by June 2028: 20 from the free pilot, 30 from the waitlist at launch, the rest signed month by month", tag: "estimate" },
+      { value: "≈$684k", label: "Annual recurring revenue (12 × monthly subscription revenue) in June 2028", tag: "derived" },
+      { value: "≈48 communities", label: "Paying communities needed to cover every monthly cost once the whole team is paid. Reached at launch in July 2027", tag: "derived" },
+      { value: "Jul 2027 – Jun 2028", label: "Year 1, the first 12 months of sales. Building starts Nov 2026; the free pilot runs Mar–Jun 2027", tag: "estimate" },
+      { value: "≈$27k", label: "Cost of building and piloting, Nov 2026 – Jun 2027, paid by Catapult (≈$19k after the pilot’s first month of fees)", tag: "estimate" },
+      { value: "≈45%", label: "Operating margin in June 2028: what’s left of revenue after every cost, all salaries included", tag: "derived" },
+      { value: "≈53%", label: "Operating margin at about $1M a year in revenue, the point where it could become its own company", tag: "derived" }
+    ],
+    tagNote: "Tags: draft = a stated plan figure not yet tested with buyers · estimate = a planning assumption · derived = calculated from the other figures.",
+    glossaryTitle: "Terms used on this page",
+    glossary: [
+      ["Alpha (free pilot)", "Up to five California operators use Kinward free for 90 days from March 2027. If it meets the results agreed with them, they start paying in June 2027 at a founding price (Community Life $519, Website $349)."],
+      ["Beta launch", "July 2027, when Kinward goes on sale to everyone. It’s the start of Year 1."],
+      ["Waitlist", "About 30 communities expected to sign up before launch and start paying in July 2027."],
+      ["Beta offer", "The waitlist pays its setup fee up front and gets it back as a discount spread over its first 12 months of subscription."],
+      ["Setup fee", "One-time charge for building each operator’s sites and loading their content: $2,500 for the main site, $1,000 per community, plus $1,000 and $250 per community for family set-up on Community Life."],
+      ["Churn", "Communities that cancel. The plan assumes 1% a month."],
+      ["Running total", "Every month’s result added up since building started in November 2026: how far behind or ahead the business is overall."],
     ],
     needTitle: "What we need from Catapult",
     need: [
@@ -299,10 +311,10 @@ export const CONTENT = {
     creditNote: "The first 30 communities (the beta waitlist) pay setup up front and get it back as a discount spread evenly over their first 12 months of subscription.",
     first12Title: "The first 12 months: Nov 2026 – Oct 2027",
     first12Intro: "From the day development starts. Eight months of build and alpha (Catapult pays these costs; alpha is free until it converts in June), then the first four months of sales.",
-    first12Short: "From development start: eight months of build and alpha, with the alpha communities paying from June, then the first four months of sales.",
-    year1Short: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha debt.",
+    first12Short: "From the day building starts: eight months of building and the free pilot (the pilot communities start paying in June), then the first four months of sales.",
+    year1Short: "The 12 months from the July 2027 launch. The running total starts from what building and the pilot cost before launch.",
     summaryTitle: "Month by month",
-    summaryIntro: "The plan’s expected case: 100 paying communities by June 2028. The 20 alpha communities start paying in June 2027 (80% Community Life at $519, 20% Website at $349), the beta waitlist of 30 joins at the launch in July with the beta offer (setup returned as a discount over their first 12 months), and new signings follow each month. Bars are each month’s result; the line is the running total; click any month for its revenue and costs. Hires are staged, Adam first, then Hubert, then the sales associate, each from the first month revenue covers them. Start months can be changed on the financial model page.",
+    summaryIntro: "Money in and out each month in the expected case, aiming for 100 paying communities by June 2028: the 20 pilot communities pay from June 2027, the 30 waitlist communities join at the July launch, and new ones sign each month. Bars show each month’s result (revenue minus costs); the line is the running total. Click any month to see its revenue and costs line by line.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",
     year1Intro: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha costs carried in (Nov 2026 – Jun 2027), so it shows when that debt is paid back."
   },

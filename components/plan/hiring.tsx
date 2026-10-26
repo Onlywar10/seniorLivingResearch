@@ -9,7 +9,7 @@ import { useModel } from "./model-state";
 const SLOTS = [...MONTH_NAMES.map((n) => n.replace(" 20", " ’")), "Later"]; // 12 Year-1 months + after Year 1
 
 const PEOPLE: Record<StaffKey, { name: string; role: string; salary: string; cost: (i: Inputs) => string; tone: string }> = {
-  hubert: { name: "Hubert", role: "Developer, full-time", salary: "$62k salary", cost: (i) => `${fmt$(i.hubertFT)}/mo (part-time ${fmt$(i.hubertPT)} until then)`, tone: "#2563eb" },
+  hubert: { name: "Hubert", role: "Developer", salary: "$62k salary", cost: (i) => `${fmt$(i.hubertFT)}/mo (part-time ${fmt$(i.hubertPT)} until then)`, tone: "#2563eb" },
   sales: { name: "Sales associate", role: "Demos, proposals, closing", salary: "$55k base + commission", cost: (i) => `${fmt$(i.salesCost)}/mo + ${i.commission}% of their communities’ monthly fees`, tone: "#9333ea" },
   adam: { name: "Adam", role: "Head of Senior Living", salary: "$62k salary", cost: (i) => `${fmt$(i.adam)}/mo`, tone: "#ea580c" },
 };
@@ -132,15 +132,15 @@ export function HiringDisplay({ inputs }: { inputs: Inputs }) {
             <li key={k}>
               <PersonIcon k={k} size={26} />
               <div>
-                <b>{PEOPLE[k].name}</b>
-                <span>{slot ? `From ${MONTH_NAMES[slot - 1]}` : "Not in Year 1"} · {PEOPLE[k].salary}</span>
+                <b>{PEOPLE[k].name} · {PEOPLE[k].role}</b>
+                <span>{slot ? `Full-time from ${MONTH_NAMES[slot - 1]}` : "Not full-time in Year 1"} · {PEOPLE[k].salary}</span>
               </div>
             </li>
           );
         })}
       </ul>
       <p className="muted small">
-        {anyChosen ? "Using the start months set on the financial model page." : "Each starts the first month revenue (and setup fees) covers them."}{" "}
+        {anyChosen ? "Using the start months set on the financial model page." : "Each joins full-time in the first month the business can afford them, in this order. Until then Adam is unpaid and Hubert works part-time."}{" "}
         <Link href="/model">Change start months →</Link>
       </p>
     </div>

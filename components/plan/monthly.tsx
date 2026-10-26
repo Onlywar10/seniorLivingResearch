@@ -105,7 +105,7 @@ export function CashTable({ rows, opt, compact = false, opening = 0, onRowClick 
             {compact ? null : <th scope="col">Stage</th>}
             <th scope="col" className="r pay">Paying</th>
             <th scope="col" className="r">Revenue</th>
-            {showSetup ? <th scope="col" className="r">{compact ? "Setup net" : "Setup fees"}</th> : null}
+            {showSetup ? <th scope="col" className="r">{compact ? "Setup (net)" : "Setup fees"}</th> : null}
             {showCredit ? <th scope="col" className="r">Setup discount</th> : null}
             <th scope="col" className="r">Total costs</th><th scope="col" className="r">Result</th><th scope="col" className="r">Running total</th>
           </tr>
@@ -171,7 +171,7 @@ function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 
       ) : (
         <dl className="cash-stats">
           <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
-          <div><dt>Lowest point</dt><dd className={t.low.cum < 0 ? "neg" : ""}>{fmt$(Math.min(0, t.low.cum), { k: true, plus: true })}</dd><span>{t.low.cum < 0 ? t.low.label : "never below zero"}</span></div>
+          <div><dt>Lowest point</dt><dd className={Math.min(opening, t.low.cum) < 0 ? "neg" : ""}>{fmt$(Math.min(0, opening, t.low.cum), { k: true, plus: true })}</dd><span>{Math.min(opening, t.low.cum) >= 0 ? "never below zero" : opening < t.low.cum ? "at the start of the period" : t.low.label}</span></div>
           <div><dt>Costs</dt><dd>{fmt$(t.cost, { k: true })}</dd></div>
           <div><dt>Revenue{opt.includeSetup ? " + setup, net" : ""}</dt><dd>{fmt$(t.revenue + t.setup - t.credit, { k: true })}</dd></div>
         </dl>
@@ -183,6 +183,7 @@ function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 
       {compact ? (
         <details className="fold cash-fold">
           <summary>Costs and revenue for each month</summary>
+          <p className="small muted fold-note">Setup (net) is one-time setup fees collected, less the beta-offer discount. Click a month for its full breakdown.</p>
           <div className="fold-body"><CashTable rows={rows} opt={opt} opening={opening} compact onRowClick={setOpen} /></div>
         </details>
       ) : <CashTable rows={rows} opt={opt} opening={opening} onRowClick={setOpen} />}

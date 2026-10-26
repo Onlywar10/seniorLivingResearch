@@ -27,6 +27,11 @@ export function Summary({ children }: { children: React.ReactNode }) {
             </div>
           ))}
         </div>
+        <p className="tag-note muted small">{S.tagNote}</p>
+        <details className="fold glossary" open>
+          <summary>{S.glossaryTitle}</summary>
+          <dl className="fold-body">{S.glossary.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>
+        </details>
         <div className="projection">
           <div className="projection-head">
             <h2>{C.monthly.summaryTitle}</h2>

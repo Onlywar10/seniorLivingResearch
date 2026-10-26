@@ -144,16 +144,16 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   const sched = signings(inp, e);
   const sold = sched.slice(2, Math.max(2, e + 1));
   const joined = e >= 1 ? sched.slice(1, e + 1) : [];
-  const avgNew = sold.length ? sold.reduce((a, b) => a + b, 0) / sold.length : paceNew(inp);
   const extra = inp.catapultCovers ? 0 : 1500;
   const mix = inp.mix / 100, churn = inp.churn / 100;
   const avgPrice = mix * inp.clPrice + (1 - mix) * inp.websitePrice;
-  // Commission at the planned signing rate (the waitlist pays none), for break-even maths.
-  const planCommission = avgNew * avgPrice * 12 * (inp.commission / 100);
-  const fullTeam = nonStaff(inp) + inp.hubertFT + inp.salesCost + planCommission + extra;
+  const rate = inp.commission / 100;
+  const fullTeam = nonStaff(inp) + inp.hubertFT + inp.salesCost + extra;
   const fixedPre = inp.staged ? fullTeam : inp.p2Fixed + extra;
   const fixedPost = inp.staged ? fullTeam + inp.adam : inp.p2Fixed + inp.adam + extra;
-  const contrib = avgPrice - inp.runCost;
+  // Commission is 10% of the monthly fees of communities the sales associate signed, so for
+  // break-even it counts as a share of each community’s fee (a slightly cautious approximation).
+  const contrib = inp.staged ? avgPrice * (1 - rate) - inp.runCost : avgPrice - inp.runCost;
   // Alpha communities pay founding prices: Community Life $519, Website at list.
   const alphaPrice = (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
   const newTotal = joined.reduce((a, b) => a + b, 0);
@@ -167,6 +167,7 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   const R = inp.whole ? Math.round : (x: number) => x;
   let alphaN = R(inp.alpha), otherN = 0;
   let signedSoFar = 0, signedExact = 0, lostA = 0, lostAExact = 0, lostO = 0, lostOExact = 0;
+  let salesKept = 0; // communities the sales associate signed that are still paying
   let adamMonth: number | null = null;
   const hired: Record<StaffKey, number | null> = { hubert: null, sales: null, adam: null };
   const months: Month[] = [];
@@ -196,10 +197,15 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
     const starts: StaffKey[] = [];
     let staffLines: MonthDetail["costs"] = [];
     if (inp.staged) {
-      // Waitlist communities join without a sale, so no commission on them.
-      const commissionNow = (m > 1 ? newSigned : 0) * avgPrice * 12 * (inp.commission / 100);
-      const staff = () => (hired.hubert ? inp.hubertFT : inp.hubertPT) + (hired.sales ? inp.salesCost + commissionNow : 0) + (hired.adam ? inp.adam : 0);
-      const extraCost = (k: StaffKey) => (k === "hubert" ? inp.hubertFT - inp.hubertPT : k === "sales" ? inp.salesCost + commissionNow : inp.adam);
+      // Commission: each month, 10% of the monthly fees of every community the sales associate has
+      // signed and that is still paying. It stacks as they sign more. Alpha and waitlist communities
+      // joined without a sale, so they earn none.
+      if (m > 1) salesKept *= 1 - churn;
+      const newSale = m > 1 ? newSigned : 0;
+      const commissionFor = (n: number) => n * avgPrice * rate;
+      const commission = () => (hired.sales ? commissionFor(salesKept + newSale) : 0);
+      const staff = () => (hired.hubert ? inp.hubertFT : inp.hubertPT) + (hired.sales ? inp.salesCost : 0) + commission() + (hired.adam ? inp.adam : 0);
+      const extraCost = (k: StaffKey) => (k === "hubert" ? inp.hubertFT - inp.hubertPT : k === "sales" ? inp.salesCost + commissionFor(newSale) : inp.adam);
       const start = (k: StaffKey) => { hired[k] = m; starts.push(k); };
       // Chosen months first, then automatic hires in order, each only once revenue covers it.
       for (const k of STAFF_ORDER) if (hired[k] === null && hires[k] === m) start(k);
@@ -211,11 +217,14 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
       }
       fixed = nonStaff(inp) + extra + staff();
       adamMonth = hired.adam;
+      const commissionNow = commission();
+      const onCommission = hired.sales ? salesKept + newSale : 0;
+      if (hired.sales) salesKept += newSale;
       staffLines = [
         { group: "Team", label: "Adam", note: hired.adam ? "full-time" : "unpaid until revenue covers it", amount: hired.adam ? inp.adam : 0 },
         { group: "Team", label: "Hubert", note: hired.hubert ? "full-time" : "part-time contractor", amount: hired.hubert ? inp.hubertFT : inp.hubertPT },
         { group: "Team", label: "Sales associate", note: hired.sales ? "base pay" : "not hired yet", amount: hired.sales ? inp.salesCost : 0 },
-        { group: "Team", label: "Sales commission", note: hired.sales ? `${inp.commission}% of first-year value on ${m > 1 ? newSigned : 0} new communities` : "—", amount: hired.sales ? commissionNow : 0 },
+        { group: "Team", label: "Sales commission", note: hired.sales ? `${inp.commission}% of monthly fees on the ${Math.round(onCommission)} communities they’ve signed` : "—", amount: commissionNow },
         { group: "Ads and marketing", label: "Ads/Marketing", amount: inp.ads },
         { group: "Ads and marketing", label: "Trade shows", note: "including travel", amount: inp.showsTravel },
         { group: "Running the business", label: "Software and tools", amount: inp.tools },

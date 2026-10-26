@@ -21,7 +21,7 @@ export const CONTENT = {
       { value: "$349–1,149", label: "Per community per month: Website $349 · Community Life $649 · Complete $1,149", tag: "draft" },
       { value: "100 paying", label: "Target by June 2028: 20 alpha, 30 from the beta waitlist at launch, the rest signed through Year 1 (after churn)", tag: "estimate" },
       { value: "≈$684k", label: "Annual recurring revenue at June 2028, expected case", tag: "derived" },
-      { value: "≈49 communities", label: "Break-even with the full team and Adam paid; reached at the beta launch in July 2027, when the waitlist joins", tag: "derived" },
+      { value: "≈48 communities", label: "Break-even with the full team and Adam paid; reached at the beta launch in July 2027, when the waitlist joins", tag: "derived" },
       { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
       { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
       { value: "≈45%", label: "Operating margin in June 2028, after every cost including Adam", tag: "derived" },

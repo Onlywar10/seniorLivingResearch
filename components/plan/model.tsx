@@ -10,7 +10,7 @@ import { SectionHead, Tag } from "./ui";
 
 Chart.register(...registerables);
 
-type NumKey = Exclude<keyof Inputs, "catapultCovers">;
+type NumKey = Exclude<keyof Inputs, "catapultCovers" | "staged">;
 type Control = { key: NumKey; label: string; min: number; max: number; step: number; f: (v: number) => string; why?: boolean };
 
 const money = (v: number) => fmt$(v);
@@ -34,7 +34,11 @@ const GROUPS: { group: string; items: Control[] }[] = [
   { group: "Costs (per month)", items: [
     { key: "runCost", label: "Running cost + card fees per community", min: 30, max: 120, step: 1, f: money },
     { key: "p1Fixed", label: "Build and alpha cost (Nov 2026 – Jun 2027)", min: 0, max: 10000, step: 100, f: money },
-    { key: "p2Fixed", label: "Phase 2 fixed cost before Adam is paid", min: 10000, max: 60000, step: 10, f: money, why: true },
+    { key: "otherFixed", label: "Tools, ads, trade shows and travel (from launch)", min: 0, max: 15000, step: 10, f: money },
+    { key: "hubertPT", label: "Hubert part-time, until full-time", min: 0, max: 6000, step: 100, f: money },
+    { key: "hubertFT", label: "Hubert full-time ($62k + taxes and health)", min: 3000, max: 12000, step: 100, f: money },
+    { key: "salesCost", label: "Sales associate ($60k base + taxes and health)", min: 3000, max: 12000, step: 100, f: money },
+    { key: "commission", label: "Sales commission on first-year contracts", min: 0, max: 20, step: 1, f: pctf },
     { key: "adam", label: "Adam’s monthly cost once paid", min: 0, max: 12000, step: 100, f: money },
     { key: "p3Fixed", label: "Phase 3 fixed cost (Year 2)", min: 20000, max: 80000, step: 10, f: money },
   ]},

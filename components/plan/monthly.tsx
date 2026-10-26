@@ -8,6 +8,7 @@ import { cashTotals, first12Cash, year1Cash, PLAN_DEFAULTS, type CashOptions, ty
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { useModel } from "./model-state";
 import { SectionHead, Tag } from "./ui";
+import { HiringPlanner } from "./hiring";
 
 Chart.register(...registerables);
 
@@ -174,15 +175,16 @@ function Toggles({ opt, setOpt }: { opt: CashOptions; setOpt: React.Dispatch<Rea
 const NO_SETUP: CashOptions = { includeSetup: false, creditFirst10: false };
 
 export function MonthlySection() {
-  const { state } = useModel();
+  const { state, hires } = useModel();
   const [opt, setOpt] = useState<CashOptions>(NO_SETUP);
-  const first12 = useMemo(() => first12Cash(state, opt), [state, opt]);
-  const year1 = useMemo(() => year1Cash(state, opt), [state, opt]);
+  const first12 = useMemo(() => first12Cash(state, opt, hires), [state, opt, hires]);
+  const year1 = useMemo(() => year1Cash(state, opt, hires), [state, opt, hires]);
   const M = C.monthly;
   return (
     <section className="section" id="monthly" aria-labelledby="monthly-h">
       <div className="inner">
         <SectionHead id="monthly" title="Month by month" intro={M.intro} />
+        <HiringPlanner inputs={state} />
         <Toggles opt={opt} setOpt={setOpt} />
         <View id="first12" title={M.first12Title} intro={M.first12Intro} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} />
         <View id="year1" title={M.year1Title} intro={M.year1Intro} rows={year1} opt={opt} />
@@ -191,14 +193,17 @@ export function MonthlySection() {
   );
 }
 
-// The summary page version: plan settings, charts and headline figures, no tables.
+// The summary page version: plan settings (with the shared hiring plan), charts and
+// headline figures, and the monthly tables folded away.
 export function MonthlySummary() {
+  const { hires } = useModel();
   const [opt, setOpt] = useState<CashOptions>(NO_SETUP);
-  const first12 = useMemo(() => first12Cash(PLAN_DEFAULTS, opt), [opt]);
-  const year1 = useMemo(() => year1Cash(PLAN_DEFAULTS, opt), [opt]);
+  const first12 = useMemo(() => first12Cash(PLAN_DEFAULTS, opt, hires), [opt, hires]);
+  const year1 = useMemo(() => year1Cash(PLAN_DEFAULTS, opt, hires), [opt, hires]);
   const M = C.monthly;
   return (
     <>
+      <HiringPlanner inputs={PLAN_DEFAULTS} />
       <Toggles opt={opt} setOpt={setOpt} />
       <div className="cash-pair">
         <View id="sum-first12" title={M.first12Title} intro={M.first12Short} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} compact />

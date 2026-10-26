@@ -483,3 +483,39 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
   .cash-table.compact { font-size: .74rem; }
   .cash-table.compact th, .cash-table.compact td { padding: 6px 4px; }
 }
+
+/* ---------- hiring planner ---------- */
+.hiring { border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s5); margin-bottom: var(--s5); display: grid; gap: var(--s4); background: var(--ground); }
+.hiring-top { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s4); }
+.hiring-top h3 { font-size: 1.05rem; margin-bottom: 4px; }
+.hiring-top p { max-width: 70ch; }
+.hire-grid { display: grid; gap: 6px; }
+.hire-head, .hire-row { display: grid; grid-template-columns: minmax(200px, 270px) minmax(0, 1fr); gap: var(--s4); align-items: center; }
+.hire-slots { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); font-size: .68rem; color: var(--ink-3); text-align: center; }
+.hire-slots span:last-child { font-weight: 600; }
+.hire-who { display: flex; gap: var(--s3); align-items: center; min-width: 0; }
+.hire-who div { display: grid; gap: 1px; min-width: 0; }
+.hire-who b { font-size: .9rem; }
+.hire-who span { font-size: .74rem; color: var(--ink-2); line-height: 1.35; }
+.hire-status { color: var(--ink-3) !important; }
+.hire-status.chosen { color: var(--ink) !important; font-weight: 600; }
+.linkish { font: inherit; color: var(--accent-ink); background: none; border: 0; padding: 0; text-decoration: underline; text-underline-offset: .2em; cursor: pointer; font-weight: 500; }
+.hire-avatar { display: inline-grid; place-items: center; border-radius: 50%; flex: none; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
+.hire-track { position: relative; display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); height: 46px; border-radius: var(--radius-sm); background: var(--panel); cursor: pointer; touch-action: none; user-select: none; }
+.hire-cell { border-left: 1px solid var(--ground); }
+.hire-cell:first-child { border-left: 0; }
+.hire-cell.on { background: color-mix(in srgb, var(--tone) 14%, transparent); }
+.hire-cell:last-child { background-image: repeating-linear-gradient(135deg, transparent 0 6px, rgba(0,0,0,.04) 6px 12px); }
+.hire-chip { position: absolute; top: 50%; transform: translate(-50%, -50%); cursor: grab; border-radius: 50%; transition: left .18s var(--ease); z-index: 2; }
+.hire-chip:active { cursor: grabbing; }
+.hire-chip:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+.hire-ghost { position: absolute; top: 50%; width: 14px; height: 14px; border-radius: 50%; border: 2px dashed; transform: translate(-50%, -50%); pointer-events: none; opacity: .7; }
+@media (max-width: 980px) {
+  .hire-head { display: none; }
+  .hire-row { grid-template-columns: 1fr; gap: 6px; }
+  .hiring-top { flex-direction: column; }
+  .hire-track { margin-bottom: 16px; }
+  .hire-track::after { content: "Jul ’27 → Jun ’28 · Later"; position: absolute; bottom: -16px; right: 0; font-size: .66rem; color: var(--ink-3); }
+  .hire-row + .hire-row { margin-top: var(--s3); }
+}
+@media print { .hiring { break-inside: avoid; } .hire-chip { transition: none; } }

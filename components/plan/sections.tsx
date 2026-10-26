@@ -3,7 +3,6 @@ import { CONTENT as C } from "@/lib/plan/content";
 import { SectionHead, Tag } from "./ui";
 import { RolloutCalendar } from "./rollout";
 import { AgreementButton } from "./agreement";
-import { EditablePitch } from "./pitch-editor";
 
 // The landing page: core facts, headline numbers and the month-by-month view (a client component, passed as children).
 export function Summary({ children }: { children: React.ReactNode }) {
@@ -12,7 +11,10 @@ export function Summary({ children }: { children: React.ReactNode }) {
     <section className="section summary" id="summary" aria-labelledby="summary-h">
       <div className="inner">
         <h1 id="summary-h">{S.pitch}</h1>
-        <EditablePitch initial={S.elevator} />
+        <blockquote className="elevator" aria-label="Elevator pitch">
+          <span className="elevator-tag">Elevator pitch</span>
+          {S.elevator.map((para) => <p key={para}>{para}</p>)}
+        </blockquote>
         <div className="meta-line"><span>{C.meta.title}</span><span>{C.meta.subtitle}</span><span>{C.meta.date}</span></div>
         <dl className="facts">
           {S.facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}

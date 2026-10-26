@@ -722,13 +722,3 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
   .quick-timeline li::before { left: -26px; top: 2px; }
 }
 @media print { .quick-timeline li { break-inside: avoid; } }
-
-/* summary: elevator pitch editable while it's being refined */
-.elevator-text { display: grid; gap: var(--s2); border-radius: 6px; outline: 1px dashed color-mix(in srgb, var(--accent-ink) 35%, transparent); outline-offset: 6px; cursor: text; }
-.elevator-text p { margin: 0; }
-.elevator-text:focus { outline: 2px solid var(--accent-ink); }
-.elevator-tools { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s2) var(--s3); margin-top: var(--s2); font-size: .78rem; color: var(--accent-ink); }
-.elevator-tools span { margin-right: auto; }
-.elevator-tools button { font: inherit; font-weight: 650; padding: 4px 10px; border-radius: 999px; border: 1px solid color-mix(in srgb, var(--accent-ink) 40%, transparent); background: var(--surface, #fff); color: var(--accent-ink); cursor: pointer; }
-.elevator-tools button:hover { background: var(--accent-ink); color: #fff; }
-@media print { .elevator-tools { display: none; } .elevator-text { outline: 0; } }

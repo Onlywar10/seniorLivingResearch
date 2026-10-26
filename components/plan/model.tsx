@@ -7,6 +7,8 @@ import { runPlanChecks, MONTH_NAMES, PLAN_DEFAULTS, type Inputs, type ModelResul
 import { useModel } from "./model-state";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { SectionHead, Tag } from "./ui";
+import { HiringPlanner } from "./hiring";
+import { Explorer } from "./explorer";
 
 Chart.register(...registerables);
 
@@ -76,22 +78,6 @@ function useChart(make: (canvas: HTMLCanvasElement) => Chart, update: (chart: Ch
 
 type MarkedChart = Chart & { $markIndex?: number | null; $margins?: string[] };
 
-const vline: Plugin = {
-  id: "vline",
-  afterDatasetsDraw(chart) {
-    const i = (chart as MarkedChart).$markIndex;
-    if (i == null) return;
-    const x = chart.scales.x.getPixelForValue(i);
-    const { top, bottom, right } = chart.chartArea;
-    const c = chart.ctx;
-    c.save(); c.strokeStyle = ACC; c.setLineDash([4, 4]); c.lineWidth = 1.5;
-    c.beginPath(); c.moveTo(x, top); c.lineTo(x, bottom); c.stroke(); c.setLineDash([]);
-    c.fillStyle = ACC; c.font = `600 11px ${Chart.defaults.font.family}`;
-    const alignRight = x > right - 90; c.textAlign = alignRight ? "right" : "left";
-    c.fillText(`Covered from M${i + 1}`, x + (alignRight ? -6 : 6), top + 10); c.restore();
-  },
-};
-
 const barLabels: Plugin = {
   id: "barLabels",
   afterDatasetsDraw(chart) {
@@ -128,7 +114,7 @@ function setDefaults() {
 }
 
 export function ModelSection() {
-  const { state, setState, plan, r, changed } = useModel();
+  const { state, setState, plan, r, changed, cashOpt, setCashOpt } = useModel();
   const isTest = useSyncExternalStore(noSubscribe, () => new URLSearchParams(location.search).has("test"), () => false);
   const test = useMemo(() => (isTest ? runPlanChecks() : null), [isTest]);
   const narrow = useSyncExternalStore(subscribeResize, () => window.innerWidth < 600, () => false);
@@ -137,27 +123,6 @@ export function ModelSection() {
   useEffect(() => {
     if (test) console.log(`[plan-test] ${test.pass ? "PASS" : "FAIL"}`, test.checks);
   }, [test]);
-
-  const c1Ref = useChart((cv) => new Chart(cv, { type: "line", data: { labels: X_LABELS, datasets: [
-    { label: "Paying", data: [], borderColor: ACC, backgroundColor: "rgba(44,102,80,.08)", fill: true, tension: .25, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2.5 },
-    { label: "Break-even before Adam", data: [], borderColor: GREY, borderDash: [5, 5], pointRadius: 0, borderWidth: 1.5, fill: false },
-    { label: "Break-even with Adam", data: [], borderColor: INK, borderDash: [5, 5], pointRadius: 0, borderWidth: 1.5, fill: false },
-  ]}, options: { interaction: { mode: "index", intersect: false }, scales: scales((v) => v), plugins: { tooltip: { callbacks: { title: xTitle, label: (c) => ` ${c.dataset.label}: ${fmtN(c.parsed.y ?? 0)}` } } } } }),
-  (ch) => {
-    ch.data.datasets[0].data = r.months.map((m) => m.paying);
-    ch.data.datasets[1].data = r.months.map(() => (isFinite(r.breakEvenPre) ? r.breakEvenPre : null));
-    ch.data.datasets[2].data = r.months.map(() => (isFinite(r.breakEvenPost) ? r.breakEvenPost : null));
-  });
-
-  const c2Ref = useChart((cv) => new Chart(cv, { type: "line", data: { labels: X_LABELS, datasets: [
-    { label: "Revenue", data: [], borderColor: ACC, backgroundColor: ACC, tension: .25, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2.5 },
-    { label: "Cost", data: [], borderColor: GREY, backgroundColor: GREY, tension: 0, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2.5 },
-  ]}, options: { interaction: { mode: "index", intersect: false }, scales: scales(k$), plugins: { tooltip: { callbacks: { title: xTitle, label: (c) => ` ${c.dataset.label}: ${fmt$(c.parsed.y ?? 0)}` } } } }, plugins: [vline] }),
-  (ch) => {
-    ch.data.datasets[0].data = r.months.map((m) => m.revenue);
-    ch.data.datasets[1].data = r.months.map((m) => m.cost);
-    (ch as MarkedChart).$markIndex = r.adamMonth ? r.adamMonth - 1 : null;
-  });
 
   const c3Ref = useChart((cv) => new Chart(cv, { type: "bar", data: { labels: [], datasets: [
     { label: "Monthly revenue", data: [], backgroundColor: ACC, borderRadius: 4, maxBarThickness: 46 },
@@ -204,6 +169,17 @@ export function ModelSection() {
                   ) : null}
                 </fieldset>
               ))}
+              <fieldset>
+                <legend>Setup fees</legend>
+                <label className="toggle">
+                  <input type="checkbox" checked={cashOpt.includeSetup} onChange={(e) => setCashOpt((o) => ({ ...o, includeSetup: e.target.checked }))} />
+                  <span>{C.monthly.setupLabel}<small>{C.monthly.setupNote}</small></span>
+                </label>
+                <label className={`toggle ${cashOpt.includeSetup ? "" : "off"}`}>
+                  <input type="checkbox" checked={cashOpt.creditFirst10} disabled={!cashOpt.includeSetup} onChange={(e) => setCashOpt((o) => ({ ...o, creditFirst10: e.target.checked }))} />
+                  <span>{C.monthly.creditLabel}<small>{C.monthly.creditNote}</small></span>
+                </label>
+              </fieldset>
             </form>
             <div className="outputs">
               {test ? (
@@ -223,17 +199,9 @@ export function ModelSection() {
                 ))}
               </div>
               <p id="readout" className={`readout ${r.adamMonth ? "" : "warn"}`}>{readout}</p>
+              <HiringPlanner inputs={state} />
+              <Explorer />
               <div className="charts">
-                <figure className="chart" style={{ margin: 0 }}>
-                  <h4>Paying communities by month</h4>
-                  <div className="legend"><span><i style={{ background: ACC }} />Paying</span><span><i className="dash" style={{ color: GREY }} />Break-even before Adam</span><span><i className="dash" style={{ color: INK }} />Break-even with Adam</span></div>
-                  <div className="canvas-box"><canvas ref={c1Ref} role="img" aria-label="Line chart of paying communities by month against break-even lines" /></div>
-                </figure>
-                <figure className="chart" style={{ margin: 0 }}>
-                  <h4>Monthly revenue vs monthly cost</h4>
-                  <div className="legend"><span><i style={{ background: ACC }} />Revenue</span><span><i style={{ background: GREY }} />Cost</span><span><i className="dash" style={{ color: ACC }} />All costs covered, Adam included</span></div>
-                  <div className="canvas-box"><canvas ref={c2Ref} role="img" aria-label="Chart of monthly revenue against monthly cost, with the month all costs are covered marked" /></div>
-                </figure>
                 <figure className="chart wide" style={{ margin: 0 }}>
                   <h4>Operating margin by phase <Tag k="derived" /></h4>
                   <p className="c-note">Phase 1 is cost only (Catapult). Break-even at {be(r.breakEvenPost)} communities; end of beta at $600k ARR; spin-out at $1M ARR on the Phase 3 cost of {fmt$(state.p3Fixed + (state.catapultCovers ? 0 : 1500))} a month. Average price {fmt$(r.avgPrice)}.</p>

@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
     agentFeedback: true,
   },
   cacheComponents: true,
+  // Month by month was merged into the financial model.
+  async redirects() {
+    return [{ source: "/monthly", destination: "/model", permanent: false }];
+  },
   partialPrefetching: true,
   turbopack: {
     rules: {

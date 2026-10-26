@@ -531,3 +531,25 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .hiring-display li b { font-size: .88rem; }
 .hiring-display li span { font-size: .78rem; color: var(--ink-2); }
 @media (max-width: 720px) { .hiring-display ul { grid-template-columns: 1fr; } }
+
+/* ---------- financial model: customisable chart and table ---------- */
+.explorer { display: grid; gap: var(--s4); }
+.explorer-controls { display: grid; gap: var(--s3); background: var(--panel); border-radius: var(--radius); padding: var(--s4) var(--s5); }
+.timeframe, .series { display: flex; flex-wrap: wrap; align-items: center; gap: 8px var(--s3); }
+.ctl-label { font-size: .75rem; font-weight: 700; color: var(--ink-3); min-width: 76px; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font: inherit; font-size: .8rem; padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line-2); background: var(--ground); color: var(--ink-2); cursor: pointer; transition: background .2s var(--ease), border-color .2s var(--ease); }
+.chip:hover { border-color: var(--ink-3); }
+.chip.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+.chip input { position: absolute; opacity: 0; pointer-events: none; }
+.chip:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.chip i { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
+.chip i.dash { height: 0; border-top: 2px dashed; }
+.chip.on i.dash { color: #93c5fd !important; }
+.timeframe label { font-size: .82rem; color: var(--ink-2); display: inline-flex; align-items: center; gap: 6px; }
+.timeframe select { font: inherit; font-size: .82rem; padding: 4px 8px; border: 1px solid var(--line-2); border-radius: var(--radius-sm); background: var(--ground); color: var(--ink); }
+.explorer-canvas { height: 340px !important; }
+.explorer .cash-stats { margin-top: var(--s2); }
+.model-wrap .hiring { margin-bottom: 0; }
+@media (max-width: 720px) { .explorer-canvas { height: 260px !important; } .ctl-label { min-width: 0; width: 100%; } }
+.chip.on i:not(.dash) { box-shadow: 0 0 0 1.5px #fff; }

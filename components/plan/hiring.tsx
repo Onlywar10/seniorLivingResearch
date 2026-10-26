@@ -45,7 +45,7 @@ export function HiringPlanner({ inputs }: { inputs: Inputs }) {
       <div className="hiring-top">
         <div>
           <h3>Who joins full-time, and when</h3>
-          <p className="muted small">Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Adam, then Hubert, then the sales associate. Setup fees count towards that when they’re switched on above. The faint dot marks that month.</p>
+          <p className="muted small">Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Adam, then Hubert, then the sales associate. Setup fees count towards that when they’re switched on. The faint dot marks that month.</p>
         </div>
         <button type="button" className="btn" disabled={!anyChosen} onClick={() => setHires({})}>Reset to automatic</button>
       </div>
@@ -140,8 +140,8 @@ export function HiringDisplay({ inputs }: { inputs: Inputs }) {
         })}
       </ul>
       <p className="muted small">
-        {anyChosen ? "Using the start months set on the Month by month page." : "Each starts the first month revenue (and setup fees) covers them."}{" "}
-        <Link href="/monthly">Change start months →</Link>
+        {anyChosen ? "Using the start months set on the financial model page." : "Each starts the first month revenue (and setup fees) covers them."}{" "}
+        <Link href="/model">Change start months →</Link>
       </p>
     </div>
   );

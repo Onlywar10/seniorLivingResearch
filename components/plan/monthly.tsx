@@ -7,8 +7,8 @@ import { CONTENT as C } from "@/lib/plan/content";
 import { buildCost, cashTotals, first12Cash, year1Cash, PLAN_DEFAULTS, type CashOptions, type CashRow } from "@/lib/plan/model";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { useModel } from "./model-state";
-import { SectionHead, Tag } from "./ui";
-import { HiringDisplay, HiringPlanner } from "./hiring";
+import { Tag } from "./ui";
+import { HiringDisplay } from "./hiring";
 
 Chart.register(...registerables);
 
@@ -77,7 +77,7 @@ function CashChart({ rows, mark, label, opening = 0 }: { rows: CashRow[]; mark?:
 // Revenue in green; every cost rolled into one Total costs column. The summary's compact
 // version fits half the page without scrolling: no Stage column, setup fees net of any
 // credit in one "Setup kept" column, and amounts in thousands.
-function CashTable({ rows, opt, compact = false, opening = 0 }: { rows: CashRow[]; opt: CashOptions; compact?: boolean; opening?: number }) {
+export function CashTable({ rows, opt, compact = false, opening = 0 }: { rows: CashRow[]; opt: CashOptions; compact?: boolean; opening?: number }) {
   const t = cashTotals(rows);
   const showSetup = opt.includeSetup, showCredit = !compact && opt.includeSetup && opt.creditFirst10;
   const f = (v: number, plus = false) => fmt$(v, { plus, k: compact });
@@ -100,7 +100,7 @@ function CashTable({ rows, opt, compact = false, opening = 0 }: { rows: CashRow[
         <tbody>
           {opening ? (
             <tr className="pre carried">
-              <th scope="row" colSpan={compact ? 1 : 2}>{compact ? "Carried in" : "Carried in from build and alpha (Nov 2026 – Jun 2027)"}</th>
+              <th scope="row" colSpan={compact ? 1 : 2}>{compact ? "Carried in" : `Carried in: running total before ${rows[0].label}`}</th>
               <td className="pay" />
               <td colSpan={2 + (showSetup ? 1 : 0) + (showCredit ? 1 : 0)} />
               <td className="r num strong" colSpan={2}>{money(opening, true)}</td>
@@ -122,7 +122,7 @@ function CashTable({ rows, opt, compact = false, opening = 0 }: { rows: CashRow[
         </tbody>
         <tfoot>
           <tr>
-            <th scope="row" colSpan={compact ? 1 : 2}>{compact ? "Total" : "12-month total"}</th>
+            <th scope="row" colSpan={compact ? 1 : 2}>{compact ? "Total" : `${rows.length}-month total`}</th>
             <td className="pay" />
             <td className="r num rev">{f(t.revenue)}</td>
             {showSetup ? <td className="r num rev">{f(setupCol(t.setup, t.credit))}</td> : null}
@@ -190,24 +190,6 @@ function Toggles({ opt, setOpt }: { opt: CashOptions; setOpt: React.Dispatch<Rea
   );
 }
 
-export function MonthlySection() {
-  const { state, hires, cashOpt: opt, setCashOpt: setOpt } = useModel();
-  const first12 = useMemo(() => first12Cash(state, opt, hires), [state, opt, hires]);
-  const year1 = useMemo(() => year1Cash(state, opt, hires, -buildCost(state)), [state, opt, hires]);
-  const M = C.monthly;
-  return (
-    <section className="section" id="monthly" aria-labelledby="monthly-h">
-      <div className="inner">
-        <SectionHead id="monthly" title="Month by month" intro={M.intro} />
-        <Toggles opt={opt} setOpt={setOpt} />
-        <HiringPlanner inputs={state} />
-        <View id="first12" title={M.first12Title} intro={M.first12Intro} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} />
-        <View id="year1" title={M.year1Title} intro={M.year1Intro} rows={year1} opt={opt} opening={-buildCost(state)} />
-      </div>
-    </section>
-  );
-}
-
 // The summary page version: plan settings (with the shared hiring plan), charts and
 // headline figures, and the monthly tables folded away.
 export function MonthlySummary() {
@@ -223,7 +205,7 @@ export function MonthlySummary() {
         <View id="sum-first12" title={M.first12Title} intro={M.first12Short} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} compact />
         <View id="sum-year1" title={M.year1Title} intro={M.year1Short} rows={year1} opt={opt} opening={-buildCost(PLAN_DEFAULTS)} compact />
       </div>
-      <p className="small"><Link href="/monthly">See every month in a table, with your own settings →</Link></p>
+      <p className="small"><Link href="/model">Change the settings, timeframe and hires on the financial model →</Link></p>
     </>
   );
 }

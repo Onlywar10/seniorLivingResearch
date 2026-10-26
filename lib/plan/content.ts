@@ -282,7 +282,7 @@ export const CONTENT = {
   },
 
   model: {
-    intro: "Move any input and every number, chart and sentence below recalculates. The marks on each slider show where the plan sits. Everything is a planning estimate.",
+    intro: "Move any input, drag a hire or change the timeframe, and every number, chart and table recalculates. The marks on each slider show where the plan sits. Everything is a planning estimate.",
     phase2Breakdown: [
       ["Staff", "$17,800", "Hubert $7,400 · sales associate $6,200 + commission ≈$4,200 · Tim $0"],
       ["Software and tools", "$1,000", ""],
@@ -302,7 +302,7 @@ export const CONTENT = {
     first12Short: "From development start: eight months of build and alpha (no revenue), then the first four months of sales.",
     year1Short: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha debt.",
     summaryTitle: "Month by month",
-    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. Hires are staged: Adam comes on full-time first, then Hubert, then the sales associate, each in the first month revenue (plus setup fees, when switched on) covers them. Start months can be changed on the Month by month page.",
+    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. Hires are staged: Adam comes on full-time first, then Hubert, then the sales associate, each in the first month revenue (plus setup fees, when switched on) covers them. Start months can be changed on the financial model page.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",
     year1Intro: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha costs carried in (Nov 2026 – Jun 2027), so it shows when that debt is paid back."
   },

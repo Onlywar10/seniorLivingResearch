@@ -12,6 +12,6 @@ export const fmtN = (v: number, d = 0) =>
 export const PAGES: [string, string][] = [
   ["/", "Summary"], ["/product", "The product"], ["/market", "Market and competitors"],
   ["/pricing", "Tiers and pricing"], ["/offers", "Offers we’re exploring"], ["/timeline", "Timeline"],
-  ["/team", "Team and roles"], ["/model", "Financial model"], ["/monthly", "Month by month"], ["/scenarios", "Scenarios"],
+  ["/team", "Team and roles"], ["/model", "Financial model"], ["/scenarios", "Scenarios"],
   ["/risks", "Risks"], ["/asks", "Asks of Jason"],
 ];

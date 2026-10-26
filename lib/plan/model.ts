@@ -243,3 +243,10 @@ export function runPlanChecks() {
   const list = checks.map(([name, value, pass]) => ({ name, value, pass }));
   return { pass: list.every((c) => c.pass), checks: list };
 }
+
+// Every month the model covers, Nov 2026 – Jun 2028: build and alpha, then Year 1, with one
+// running total throughout. The financial model page shows any window of these.
+export function allMonths(inp: Inputs, opt: CashOptions, hires: Hires = {}): CashRow[] {
+  const build = first12Cash(inp, opt, hires).slice(0, BUILD_MONTHS.length);
+  return [...build, ...year1Cash(inp, opt, hires, -buildCost(inp))];
+}

@@ -84,7 +84,7 @@ function CashTable({ rows, opt }: { rows: CashRow[]; opt: CashOptions }) {
             <th scope="col" className="r">Revenue</th>
             {showSetup ? <th scope="col" className="r">Setup fees</th> : null}
             {showCredit ? <th scope="col" className="r">Owed back</th> : null}
-            <th scope="col" className="r">Cost</th><th scope="col" className="r">Result</th><th scope="col" className="r">Running total</th>
+            <th scope="col" className="r">Team and fixed</th><th scope="col" className="r">Running</th><th scope="col" className="r">Total cost</th><th scope="col" className="r">Result</th><th scope="col" className="r">Running total</th>
           </tr>
         </thead>
         <tbody>
@@ -95,6 +95,8 @@ function CashTable({ rows, opt }: { rows: CashRow[]; opt: CashOptions }) {
               <td className="r num">{fmt$(r.revenue)}</td>
               {showSetup ? <td className="r num">{r.setup ? fmt$(r.setup) : "—"}</td> : null}
               {showCredit ? <td className="r num">{r.credit ? money(-r.credit) : "—"}</td> : null}
+              <td className="r num">{fmt$(r.fixed)}</td>
+              <td className="r num">{r.running ? fmt$(r.running) : "—"}</td>
               <td className="r num">{fmt$(r.cost)}</td>
               <td className="r num">{money(r.result, true)}</td>
               <td className="r num strong">{money(r.cum, true)}</td>
@@ -107,6 +109,8 @@ function CashTable({ rows, opt }: { rows: CashRow[]; opt: CashOptions }) {
             <td className="r num">{fmt$(t.revenue)}</td>
             {showSetup ? <td className="r num">{fmt$(t.setup)}</td> : null}
             {showCredit ? <td className="r num">{money(-t.credit)}</td> : null}
+            <td className="r num">{fmt$(t.fixed)}</td>
+            <td className="r num">{fmt$(t.running)}</td>
             <td className="r num">{fmt$(t.cost)}</td>
             <td className="r num" colSpan={2}>{money(t.result, true)}</td>
           </tr>
@@ -135,7 +139,12 @@ function View({ id, title, intro, rows, opt, mark, compact = false }: { id: stri
         <div className="legend"><span><i style={{ background: ACC }} />Month in profit</span><span><i style={{ background: NEG }} />Month at a loss</span><span><i style={{ background: INK }} />Running total</span></div>
         <CashChart rows={rows} mark={mark} label={`${title}: monthly result as bars and running total as a line`} />
       </figure>
-      {compact ? null : <CashTable rows={rows} opt={opt} />}
+      {compact ? (
+        <details className="fold cash-fold">
+          <summary>Costs and revenue for each month</summary>
+          <div className="fold-body"><CashTable rows={rows} opt={opt} /></div>
+        </details>
+      ) : <CashTable rows={rows} opt={opt} />}
     </section>
   );
 }

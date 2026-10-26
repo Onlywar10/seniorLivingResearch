@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { Chart, registerables, type Plugin } from "chart.js";
 import { CONTENT as C } from "@/lib/plan/content";
-import { computeModel, runPlanChecks, MONTH_NAMES, PLAN_DEFAULTS, type Inputs, type ModelResult } from "@/lib/plan/model";
+import { runPlanChecks, MONTH_NAMES, PLAN_DEFAULTS, type Inputs, type ModelResult } from "@/lib/plan/model";
 import { useModel } from "./model-state";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { SectionHead, Tag } from "./ui";
@@ -21,6 +21,7 @@ const GROUPS: { group: string; items: Control[] }[] = [
   { group: "Customers", items: [
     { key: "signed", label: "Paying communities signed by month 12", min: 20, max: 200, step: 1, f: count },
     { key: "alpha", label: "Alpha communities converting at month 1", min: 0, max: 30, step: 1, f: count },
+    { key: "alphaMix", label: "Alpha share on Community Life (founding price)", min: 0, max: 100, step: 5, f: pctf },
     { key: "mix", label: "Share on Community Life (vs Website)", min: 0, max: 100, step: 5, f: pctf },
     { key: "churn", label: "Monthly churn", min: 0, max: 7, step: 0.5, f: pctf },
     { key: "perOrg", label: "Average communities per organisation", min: 1, max: 20, step: 1, f: count },
@@ -260,17 +261,6 @@ export function ScenariosSection() {
   );
 }
 
-// The summary page's projection: always the plan's own settings.
-export function PlanProjection() {
-  const sc = useMemo(() => [50, 80, 110].map((s) => ({ s, r: computeModel({ ...PLAN_DEFAULTS, signed: s }) })), []);
-  return (
-    <div className="scen-wrap">
-      <div className="table-wrap"><ScenarioTable sc={sc} churn={PLAN_DEFAULTS.churn} compact /></div>
-      <ScenarioChart sc={sc} />
-    </div>
-  );
-}
-
 function ScenarioChart({ sc }: { sc: { s: number; r: ModelResult }[] }) {
   const ref = useChart((cv) => new Chart(cv, { type: "line", data: { labels: X_LABELS, datasets: [
     { label: "Slow", data: [], borderColor: GREY, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, tension: .25 },
@@ -351,9 +341,7 @@ function outputCards(r: ModelResult, plan: ModelResult, state: Inputs) {
   ];
 }
 
-const COMPACT_ROWS = ["Communities signed (before churn)", "Annual recurring revenue", "Monthly result", "Adam’s salary covered from", "Operating result over Year 1"];
-
-function ScenarioTable({ sc, churn, compact = false }: { sc: { s: number; r: ModelResult }[]; churn: number; compact?: boolean }) {
+function ScenarioTable({ sc, churn }: { sc: { s: number; r: ModelResult }[]; churn: number }) {
   const rows: [string, (x: { s: number; r: ModelResult }) => React.ReactNode][] = [
     ["Communities signed (before churn)", (x) => fmtN(x.s)],
     [`Paying after ${churn}% monthly churn`, (x) => `≈${fmtN(x.r.paying12)}`],
@@ -368,10 +356,10 @@ function ScenarioTable({ sc, churn, compact = false }: { sc: { s: number; r: Mod
   return (
     <table className="scen-table">
       <thead><tr><th scope="col">At month 12</th><th scope="col" className="r">Slow</th><th scope="col" className="r exp">Expected</th><th scope="col" className="r">Fast</th></tr></thead>
-      <tbody>{rows.filter(([label]) => !compact || COMPACT_ROWS.includes(label) || label.startsWith("Paying")).map(([label, f]) => (
+      <tbody>{rows.map(([label, f]) => (
         <tr key={label}><th scope="row">{label}</th>{sc.map((x, i) => <td key={x.s} className={`r num ${i === 1 ? "exp" : ""}`}>{f(x)}</td>)}</tr>
       ))}</tbody>
-      <caption>{compact ? "Month 12 of Year 1, at the plan’s settings. All figures are planning estimates." : "Recalculated live from the model’s inputs. At the plan’s settings these match the business plan."}</caption>
+      <caption>Recalculated live from the model’s inputs.</caption>
     </table>
   );
 }

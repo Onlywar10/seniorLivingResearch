@@ -17,16 +17,14 @@ export const CONTENT = {
       ["Team", "Adam, Tim, Hubert and a sales associate from launch; Dave mentoring from Catapult"],
       ["Catapult covers", "The platform, hosting, texting registration, insurance, legal, bookkeeping, payroll, and the build and alpha"]
     ],
-    projectionTitle: "Year-1 projection",
-    projectionIntro: "Month 12 (about July 2028) under the plan’s three cases. Only the number of communities signed changes between them.",
     cards: [
       { value: "$349–1,149", label: "Per community per month: Website $349 · Community Life $649 · Complete $1,149", tag: "draft" },
       { value: "≈75 paying", label: "Communities at month 12: 80 signed, after about 1% leave each month", tag: "estimate" },
-      { value: "≈$525k", label: "Annual recurring revenue at month 12, expected case", tag: "derived" },
+      { value: "≈$508k", label: "Annual recurring revenue at month 12, expected case", tag: "derived" },
       { value: "≈54 communities", label: "Break-even with Adam paid, reached around month 8–9", tag: "derived" },
       { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
       { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
-      { value: "≈25%", label: "Operating margin at month 12, after every cost including Adam", tag: "derived" },
+      { value: "≈23%", label: "Operating margin at month 12, after every cost including Adam", tag: "derived" },
       { value: "≈47%", label: "Operating margin at about $1M ARR, the spin-out point", tag: "derived" }
     ],
     needTitle: "What we need from Catapult",
@@ -303,7 +301,7 @@ export const CONTENT = {
     first12Short: "From development start: eight months of build and alpha (no revenue), then the first four months of sales.",
     year1Short: "The 12 months from beta launch, when revenue starts.",
     summaryTitle: "Month by month",
-    summaryIntro: "The plan’s expected case (80 communities signed). Bars are each month’s result; the line is the running total.",
+    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. The step down in July is the Phase 2 team (full-time developer, sales associate, ads and trade shows) starting as sales begin.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",
     year1Intro: "The 12 months from beta launch, when revenue starts. This is the period behind “operating result over Year 1”."
   },
@@ -315,7 +313,7 @@ export const CONTENT = {
       "But the first 10 organisations’ setup is credited back in Year 2, so treat most of that cash as borrowed from Year 2.",
       "The slow case needs cover for its losses, or a later sales hire. The fast case needs the Phase 3 hires sooner."
     ],
-    share: "About 75 paying communities is roughly 0.5% of the 14,000 assisted living and memory care communities with 26+ beds, and $524k is about 0.3% of the $153M engagement market."
+    share: "About 75 paying communities is roughly 0.5% of the 14,000 assisted living and memory care communities with 26+ beds, and $508k is about 0.3% of the $153M engagement market."
   },
 
   risks: [

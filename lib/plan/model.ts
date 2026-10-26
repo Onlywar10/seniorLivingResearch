@@ -3,6 +3,7 @@
 export type Inputs = {
   signed: number; // paying communities signed by month 12 (before churn)
   alpha: number; // alpha communities converting at month 1
+  alphaMix: number; // % of alpha communities on Community Life (the rest on Website), at founding prices
   mix: number; // % of new communities on Community Life
   websitePrice: number;
   clPrice: number;
@@ -19,7 +20,8 @@ export type Inputs = {
 
 export const PLAN_DEFAULTS: Inputs = {
   signed: 80,
-  alpha: 12,
+  alpha: 20,
+  alphaMix: 80,
   mix: 80,
   websitePrice: 349,
   clPrice: 649,
@@ -36,7 +38,7 @@ export const PLAN_DEFAULTS: Inputs = {
 
 export const MONTH_NAMES = ["Jul 2027", "Aug 2027", "Sep 2027", "Oct 2027", "Nov 2027", "Dec 2027", "Jan 2028", "Feb 2028", "Mar 2028", "Apr 2028", "May 2028", "Jun 2028"];
 
-export type Month = { m: number; label: string; paying: number; revenue: number; cost: number; result: number; adamPaid: boolean };
+export type Month = { m: number; label: string; paying: number; revenue: number; fixed: number; running: number; cost: number; result: number; adamPaid: boolean };
 export type Milestone = { name: string; n: number; revenue: number; cost: number; margin: number | null };
 
 export function computeModel(inp: Inputs) {
@@ -46,6 +48,8 @@ export function computeModel(inp: Inputs) {
   const fixedPost = inp.p2Fixed + inp.adam + extra;
   const avgPrice = mix * inp.clPrice + (1 - mix) * inp.websitePrice;
   const contrib = avgPrice - inp.runCost;
+  // Alpha communities pay founding prices: Community Life $519, Website at list.
+  const alphaPrice = (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
   const newTotal = Math.max(0, inp.signed - inp.alpha);
   const newPerMonth = newTotal / 11;
 
@@ -55,14 +59,14 @@ export function computeModel(inp: Inputs) {
   for (let m = 1; m <= 12; m++) {
     if (m > 1) { alphaN *= 1 - churn; otherN = otherN * (1 - churn) + newPerMonth; }
     const paying = alphaN + otherN;
-    const revenue = alphaN * inp.foundingPrice + otherN * avgPrice;
+    const revenue = alphaN * alphaPrice + otherN * avgPrice;
     const running = paying * inp.runCost;
     if (adamMonth === null && revenue - running >= fixedPost) adamMonth = m;
     const fixed = adamMonth !== null ? fixedPost : fixedPre;
     const cost = fixed + running;
     const result = revenue - cost;
     cum += result;
-    months.push({ m, label: MONTH_NAMES[m - 1], paying, revenue, cost, result, adamPaid: adamMonth !== null });
+    months.push({ m, label: MONTH_NAMES[m - 1], paying, revenue, fixed, running, cost, result, adamPaid: adamMonth !== null });
   }
   const last = months[11];
   const be = (f: number) => (contrib > 0 ? Math.ceil(f / contrib) : Infinity);
@@ -84,7 +88,7 @@ export function computeModel(inp: Inputs) {
   ];
 
   return {
-    months, avgPrice, contrib, fixedPre, fixedPost, newPerMonth, newTotal,
+    months, avgPrice, alphaPrice, contrib, fixedPre, fixedPost, newPerMonth, newTotal,
     paying12: last.paying, revenue12: last.revenue, arr12: last.revenue * 12,
     cost12: last.cost, result12: last.result, margin12: last.revenue > 0 ? last.result / last.revenue : 0,
     adamMonth, cumResult: cum, breakEvenPre, breakEvenPost,
@@ -103,7 +107,7 @@ export type CashOptions = {
 
 export type CashRow = {
   label: string; phase: string; paying: number; revenue: number;
-  setup: number; credit: number; cost: number; result: number; cum: number;
+  setup: number; credit: number; fixed: number; running: number; cost: number; result: number; cum: number;
 };
 
 export const CREDIT_ORGS = 10; // the offer covers the first 10 paying organisations…
@@ -128,7 +132,7 @@ export function year1Cash(inp: Inputs, opt: CashOptions): CashRow[] {
     const credit = opt.includeSetup && opt.creditFirst10 ? credited * setupPerOrg : 0;
     const result = m.revenue + setup - credit - m.cost;
     cum += result;
-    return { label: m.label, phase: `Year 1 · M${m.m}`, paying: m.paying, revenue: m.revenue, setup, credit, cost: m.cost, result, cum };
+    return { label: m.label, phase: `Year 1 · M${m.m}${m.adamPaid ? " · Adam paid" : ""}`, paying: m.paying, revenue: m.revenue, setup, credit, fixed: m.fixed, running: m.running, cost: m.cost, result, cum };
   });
 }
 
@@ -139,7 +143,7 @@ export function first12Cash(inp: Inputs, opt: CashOptions): CashRow[] {
   const build = BUILD_MONTHS.map((label, i): CashRow => {
     const result = -inp.p1Fixed;
     cum += result;
-    return { label, phase: i < 4 ? "Build" : "Alpha live", paying: 0, revenue: 0, setup: 0, credit: 0, cost: inp.p1Fixed, result, cum };
+    return { label, phase: i < 4 ? "Build" : "Alpha live", paying: 0, revenue: 0, setup: 0, credit: 0, fixed: inp.p1Fixed, running: 0, cost: inp.p1Fixed, result, cum };
   });
   const y1 = year1Cash(inp, opt).slice(0, 4).map((row) => {
     cum += row.result;
@@ -151,16 +155,20 @@ export function first12Cash(inp: Inputs, opt: CashOptions): CashRow[] {
 export function cashTotals(rows: CashRow[]) {
   const sum = (k: keyof CashRow) => rows.reduce((a, r) => a + (r[k] as number), 0);
   const low = rows.reduce((a, r) => (r.cum < a.cum ? r : a), rows[0]);
-  return { revenue: sum("revenue"), setup: sum("setup"), credit: sum("credit"), cost: sum("cost"), result: sum("result"), low };
+  return { revenue: sum("revenue"), setup: sum("setup"), credit: sum("credit"), fixed: sum("fixed"), running: sum("running"), cost: sum("cost"), result: sum("result"), low };
 }
+
+// The written business plan assumed 12 alpha communities, all on Community Life at $519.
+// The checks run the model with those inputs to prove the method still reproduces the plan.
+export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100 };
 
 // The plan's published numbers. The model must reproduce them (±1 community, ±2%).
 export function runPlanChecks() {
   const near = (a: number, b: number, tol: number) => Math.abs(a - b) <= tol;
   const pct = (a: number, b: number) => Math.abs(a - b) <= Math.abs(b) * 0.02;
-  const d = computeModel(PLAN_DEFAULTS);
-  const s50 = computeModel({ ...PLAN_DEFAULTS, signed: 50 });
-  const s110 = computeModel({ ...PLAN_DEFAULTS, signed: 110 });
+  const d = computeModel(WRITTEN_PLAN);
+  const s50 = computeModel({ ...WRITTEN_PLAN, signed: 50 });
+  const s110 = computeModel({ ...WRITTEN_PLAN, signed: 110 });
   const checks: [string, number | null, boolean][] = [
     ["Expected: ≈75 paying at month 12", d.paying12, near(d.paying12, 75, 1)],
     ["Expected: ARR ≈$524k", d.arr12, pct(d.arr12, 524000)],

@@ -2,8 +2,8 @@ import { Fragment } from "react";
 import { CONTENT as C } from "@/lib/plan/content";
 import { SectionHead, Tag } from "./ui";
 
-// The landing page: core facts and the Year-1 projection only. The projection (a client chart) comes in as children.
-export function Summary({ children, monthly }: { children: React.ReactNode; monthly?: React.ReactNode }) {
+// The landing page: core facts, headline numbers and the month-by-month view (a client component, passed as children).
+export function Summary({ children }: { children: React.ReactNode }) {
   const S = C.summary;
   return (
     <section className="section summary" id="summary" aria-labelledby="summary-h">
@@ -24,20 +24,11 @@ export function Summary({ children, monthly }: { children: React.ReactNode; mont
         </div>
         <div className="projection">
           <div className="projection-head">
-            <h2>{S.projectionTitle}</h2>
-            <p className="muted small">{S.projectionIntro}</p>
+            <h2>{C.monthly.summaryTitle}</h2>
+            <p className="muted small">{C.monthly.summaryIntro}</p>
           </div>
           {children}
         </div>
-        {monthly ? (
-          <div className="projection">
-            <div className="projection-head">
-              <h2>{C.monthly.summaryTitle}</h2>
-              <p className="muted small">{C.monthly.summaryIntro}</p>
-            </div>
-            {monthly}
-          </div>
-        ) : null}
       </div>
     </section>
   );

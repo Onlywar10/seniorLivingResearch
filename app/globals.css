@@ -463,3 +463,9 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .cash-view.compact .cash-stats div:nth-child(3) { padding-left: 0; border-left: 0; }
 .cash-view.compact .cash-stats dd { font-size: 1.15rem; }
 @media (max-width: 1180px) { .cash-pair { grid-template-columns: 1fr; } }
+
+.cash-fold { margin-top: 0; }
+.cash-fold .fold-body { padding: 0; }
+.cash-fold .table-wrap { border: 0; border-top: 1px solid var(--line); border-radius: 0 0 var(--radius) var(--radius); }
+
+.cash-pair > *, .cash-view, .cash-view > *, .projection, .projection > * { min-width: 0; }

@@ -42,7 +42,7 @@ const GROUPS: { group: string; items: Control[] }[] = [
     { key: "salesCost", label: "Sales associate ($60k base + taxes and health)", min: 3000, max: 12000, step: 100, f: money },
     { key: "commission", label: "Sales commission on first-year contracts", min: 0, max: 20, step: 1, f: pctf },
     { key: "adam", label: "Adam’s monthly cost once paid", min: 0, max: 12000, step: 100, f: money },
-    { key: "p3Fixed", label: "Phase 3 fixed cost (Year 2)", min: 20000, max: 80000, step: 10, f: money },
+    { key: "p3Fixed", label: "Phase 3 fixed cost (Year 2, Tim free for now)", min: 20000, max: 80000, step: 10, f: money },
   ]},
 ];
 

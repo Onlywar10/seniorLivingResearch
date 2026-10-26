@@ -25,7 +25,7 @@ export const CONTENT = {
       { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
       { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
       { value: "≈28%", label: "Operating margin at month 12, after every cost including Adam", tag: "derived" },
-      { value: "≈47%", label: "Operating margin at about $1M ARR, the spin-out point", tag: "derived" }
+      { value: "≈54%", label: "Operating margin at about $1M ARR, the spin-out point (Tim free for now)", tag: "derived" }
     ],
     needTitle: "What we need from Catapult",
     need: [
@@ -268,7 +268,7 @@ export const CONTENT = {
     columns: ["Person", "Role", "Build and alpha (Phase 1)", "Year 1 (Phase 2)", "Year 2 (Phase 3)"],
     rows: [
       ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "First full-time hire: $62k salary once revenue and setup fees cover it (about Aug 2027)", "$62k (for now)"],
-      ["Tim", "Customer success: onboarding, training, support, research", "Unpaid", "Free for the first year", "$55k"],
+      ["Tim", "Customer success: onboarding, training, support, research", "Unpaid", "Free (for now)", "Free (for now)"],
       ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue and setup fees cover it, after Adam (about Aug 2027)", "Full-time; more developers as needed"],
       ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue and setup fees cover it, after Hubert (about Oct 2027): $60k base + about 10% commission", "Same"],
       ["Dave (Catapult)", "Mentor and technical guidance; platform decisions", "From 1 Nov", "Catapult’s call", "Catapult’s call"]

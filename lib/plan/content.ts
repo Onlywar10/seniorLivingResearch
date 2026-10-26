@@ -300,11 +300,11 @@ export const CONTENT = {
     first12Title: "The first 12 months: Nov 2026 – Oct 2027",
     first12Intro: "From the day development starts. Eight months of build and alpha (no revenue; alpha is free and Catapult pays these costs), then the first four months of sales.",
     first12Short: "From development start: eight months of build and alpha (no revenue), then the first four months of sales.",
-    year1Short: "The 12 months from beta launch, when revenue starts.",
+    year1Short: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha debt.",
     summaryTitle: "Month by month",
-    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. Hires are staged: Adam comes on full-time first, then Hubert, then the sales associate, each in the first month revenue (plus setup fees, when switched on) covers them. Drag them to test other dates.",
+    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. Hires are staged: Adam comes on full-time first, then Hubert, then the sales associate, each in the first month revenue (plus setup fees, when switched on) covers them. Start months can be changed on the Month by month page.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",
-    year1Intro: "The 12 months from beta launch, when revenue starts. This is the period behind “operating result over Year 1”."
+    year1Intro: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha costs carried in (Nov 2026 – Jun 2027), so it shows when that debt is paid back."
   },
 
   scenarios: {

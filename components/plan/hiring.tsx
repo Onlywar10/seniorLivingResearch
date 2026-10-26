@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useRef } from "react";
 import { AFTER_YEAR_1, computeModel, MONTH_NAMES, STAFF_ORDER, type Inputs, type StaffKey } from "@/lib/plan/model";
 import { fmt$ } from "@/lib/plan/format";
@@ -111,6 +112,37 @@ function HireRow({ k, inputs, slot, autoSlot, chosen, onMove, onAuto }: {
           <PersonIcon k={k} size={34} />
         </span>
       </div>
+    </div>
+  );
+}
+
+// The summary's read-only view of the hiring plan: who starts full-time, when, and what they cost.
+// Changes are made on the Month by month page.
+export function HiringDisplay({ inputs }: { inputs: Inputs }) {
+  const { hires, cashOpt } = useModel();
+  const actual = useMemo(() => computeModel(inputs, hires, cashOpt).hired, [inputs, hires, cashOpt]);
+  const anyChosen = STAFF_ORDER.some((k) => hires[k] !== undefined);
+  return (
+    <div className="hiring-display">
+      <h3>Who joins full-time, and when</h3>
+      <ul>
+        {STAFF_ORDER.map((k) => {
+          const slot = actual[k];
+          return (
+            <li key={k}>
+              <PersonIcon k={k} size={26} />
+              <div>
+                <b>{PEOPLE[k].name}</b>
+                <span>{slot ? `From ${MONTH_NAMES[slot - 1]}` : "Not in Year 1"} · {PEOPLE[k].salary}</span>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      <p className="muted small">
+        {anyChosen ? "Using the start months set on the Month by month page." : "Each starts the first month revenue (and setup fees) covers them."}{" "}
+        <Link href="/monthly">Change start months →</Link>
+      </p>
     </div>
   );
 }

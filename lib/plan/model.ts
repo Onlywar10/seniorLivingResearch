@@ -176,9 +176,13 @@ const BUILD_MONTHS = ["Nov 2026", "Dec 2026", "Jan 2027", "Feb 2027", "Mar 2027"
 // as owed back: we collect it now but credit it against their second year, so it isn't ours to keep.
 const STARTS_LABEL: Record<StaffKey, string> = { hubert: "Hubert full-time", sales: "sales associate starts", adam: "Adam paid" };
 
-export function year1Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}): CashRow[] {
+// What the build and alpha months (Nov 2026 – Jun 2027) cost before any revenue: the debt Year 1 starts with.
+export const buildCost = (inp: Inputs) => BUILD_MONTHS.length * inp.p1Fixed;
+
+// opening: the running total carried into July (pass −buildCost to start Year 1 from the build debt).
+export function year1Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}, opening = 0): CashRow[] {
   const r = computeModel(inp, hires, opt);
-  let cum = 0;
+  let cum = opening;
   return r.months.map((m) => {
     const { setup, credit } = m;
     const result = m.revenue + setup - credit - m.cost;
@@ -206,7 +210,8 @@ export function first12Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}): C
 export function cashTotals(rows: CashRow[]) {
   const sum = (k: keyof CashRow) => rows.reduce((a, r) => a + (r[k] as number), 0);
   const low = rows.reduce((a, r) => (r.cum < a.cum ? r : a), rows[0]);
-  return { revenue: sum("revenue"), setup: sum("setup"), credit: sum("credit"), fixed: sum("fixed"), running: sum("running"), cost: sum("cost"), result: sum("result"), low };
+  const start = rows[0].cum - rows[0].result, end = rows[rows.length - 1].cum;
+  return { revenue: sum("revenue"), setup: sum("setup"), credit: sum("credit"), fixed: sum("fixed"), running: sum("running"), cost: sum("cost"), result: sum("result"), low, start, end };
 }
 
 // The written business plan assumed 12 alpha communities, all on Community Life at $519.

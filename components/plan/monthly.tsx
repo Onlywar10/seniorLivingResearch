@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef } from "react";
 import { Chart, registerables, type Plugin, type TooltipItem } from "chart.js";
 import { CONTENT as C } from "@/lib/plan/content";
-import { cashTotals, first12Cash, year1Cash, PLAN_DEFAULTS, type CashOptions, type CashRow } from "@/lib/plan/model";
+import { buildCost, cashTotals, first12Cash, year1Cash, PLAN_DEFAULTS, type CashOptions, type CashRow } from "@/lib/plan/model";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { useModel } from "./model-state";
 import { SectionHead, Tag } from "./ui";
-import { HiringPlanner } from "./hiring";
+import { HiringDisplay, HiringPlanner } from "./hiring";
 
 Chart.register(...registerables);
 
@@ -34,7 +34,7 @@ const markLine: Plugin = {
   },
 };
 
-function CashChart({ rows, mark, label }: { rows: CashRow[]; mark?: { index: number; text: string }; label: string }) {
+function CashChart({ rows, mark, label, opening = 0 }: { rows: CashRow[]; mark?: { index: number; text: string }; label: string; opening?: number }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const chart = useRef<Chart | null>(null);
   useEffect(() => {
@@ -63,10 +63,11 @@ function CashChart({ rows, mark, label }: { rows: CashRow[]; mark?: { index: num
   useEffect(() => {
     const ch = chart.current;
     if (!ch) return;
-    ch.data.labels = rows.map((r) => r.label.replace(" 20", " ’"));
-    ch.data.datasets[0].data = rows.map((r) => r.result);
-    (ch.data.datasets[0] as unknown as { backgroundColor: string[] }).backgroundColor = rows.map((r) => (r.result < 0 ? NEG : ACC));
-    ch.data.datasets[1].data = rows.map((r) => r.cum);
+    const lead = opening ? 1 : 0; // a "Start" point for the carried-in balance
+    ch.data.labels = [...(lead ? ["Start"] : []), ...rows.map((r) => r.label.replace(" 20", " ’"))];
+    ch.data.datasets[0].data = [...(lead ? [null] : []), ...rows.map((r) => r.result)];
+    (ch.data.datasets[0] as unknown as { backgroundColor: string[] }).backgroundColor = [...(lead ? [ACC] : []), ...rows.map((r) => (r.result < 0 ? NEG : ACC))];
+    ch.data.datasets[1].data = [...(lead ? [opening] : []), ...rows.map((r) => r.cum)];
     (ch as MarkedChart).$mark = mark ?? null;
     ch.update();
   });
@@ -76,7 +77,7 @@ function CashChart({ rows, mark, label }: { rows: CashRow[]; mark?: { index: num
 // Revenue in green; every cost rolled into one Total costs column. The summary's compact
 // version fits half the page without scrolling: no Stage column, setup fees net of any
 // credit in one "Setup kept" column, and amounts in thousands.
-function CashTable({ rows, opt, compact = false }: { rows: CashRow[]; opt: CashOptions; compact?: boolean }) {
+function CashTable({ rows, opt, compact = false, opening = 0 }: { rows: CashRow[]; opt: CashOptions; compact?: boolean; opening?: number }) {
   const t = cashTotals(rows);
   const showSetup = opt.includeSetup, showCredit = !compact && opt.includeSetup && opt.creditFirst10;
   const f = (v: number, plus = false) => fmt$(v, { plus, k: compact });
@@ -97,6 +98,14 @@ function CashTable({ rows, opt, compact = false }: { rows: CashRow[]; opt: CashO
           </tr>
         </thead>
         <tbody>
+          {opening ? (
+            <tr className="pre carried">
+              <th scope="row" colSpan={compact ? 1 : 2}>{compact ? "Carried in" : "Carried in from build and alpha (Nov 2026 – Jun 2027)"}</th>
+              <td className="pay" />
+              <td colSpan={2 + (showSetup ? 1 : 0) + (showCredit ? 1 : 0)} />
+              <td className="r num strong" colSpan={2}>{money(opening, true)}</td>
+            </tr>
+          ) : null}
           {rows.map((r) => (
             <tr key={r.label} className={r.paying === 0 ? "pre" : ""}>
               <th scope="row">{compact ? r.label.replace(" 20", " ’") : r.label}</th>
@@ -127,7 +136,7 @@ function CashTable({ rows, opt, compact = false }: { rows: CashRow[]; opt: CashO
   );
 }
 
-function View({ id, title, intro, rows, opt, mark, compact = false }: { id: string; title: string; intro: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string }; compact?: boolean }) {
+function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 }: { id: string; title: string; intro: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string }; compact?: boolean; opening?: number }) {
   const t = cashTotals(rows);
   const Heading = compact ? "h3" : "h2";
   return (
@@ -136,22 +145,31 @@ function View({ id, title, intro, rows, opt, mark, compact = false }: { id: stri
         <Heading id={`${id}-h`}>{title}</Heading>
         <p className="muted small">{intro}</p>
       </div>
-      <dl className="cash-stats">
-        <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
-        <div><dt>Lowest point</dt><dd className={t.low.cum < 0 ? "neg" : ""}>{fmt$(Math.min(0, t.low.cum), { k: true, plus: true })}</dd><span>{t.low.cum < 0 ? t.low.label : "never below zero"}</span></div>
-        <div><dt>Costs</dt><dd>{fmt$(t.cost, { k: true })}</dd></div>
-        <div><dt>Revenue{opt.includeSetup ? " + setup kept" : ""}</dt><dd>{fmt$(t.revenue + t.setup - t.credit, { k: true })}</dd></div>
-      </dl>
+      {opening ? (
+        <dl className="cash-stats">
+          <div><dt>Debt carried in</dt><dd className="neg">{fmt$(opening, { k: true })}</dd><span>build and alpha, Nov 2026 – Jun 2027</span></div>
+          <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
+          <div><dt>Ends Year 1 at</dt><dd className={t.end < 0 ? "neg" : ""}>{fmt$(t.end, { k: true, plus: true })}</dd><span>{t.end < 0 ? "still owed" : "debt paid back"}</span></div>
+          <div><dt>Lowest point</dt><dd className={Math.min(opening, t.low.cum) < 0 ? "neg" : ""}>{fmt$(Math.min(opening, t.low.cum), { k: true, plus: true })}</dd><span>{t.low.cum < opening ? t.low.label : "at the start"}</span></div>
+        </dl>
+      ) : (
+        <dl className="cash-stats">
+          <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
+          <div><dt>Lowest point</dt><dd className={t.low.cum < 0 ? "neg" : ""}>{fmt$(Math.min(0, t.low.cum), { k: true, plus: true })}</dd><span>{t.low.cum < 0 ? t.low.label : "never below zero"}</span></div>
+          <div><dt>Costs</dt><dd>{fmt$(t.cost, { k: true })}</dd></div>
+          <div><dt>Revenue{opt.includeSetup ? " + setup kept" : ""}</dt><dd>{fmt$(t.revenue + t.setup - t.credit, { k: true })}</dd></div>
+        </dl>
+      )}
       <figure className="chart" style={{ margin: 0 }}>
         <div className="legend"><span><i style={{ background: ACC }} />Month in profit</span><span><i style={{ background: NEG }} />Month at a loss</span><span><i style={{ background: INK }} />Running total</span></div>
-        <CashChart rows={rows} mark={mark} label={`${title}: monthly result as bars and running total as a line`} />
+        <CashChart rows={rows} mark={mark} opening={opening} label={`${title}: monthly result as bars and running total as a line`} />
       </figure>
       {compact ? (
         <details className="fold cash-fold">
           <summary>Costs and revenue for each month</summary>
-          <div className="fold-body"><CashTable rows={rows} opt={opt} compact /></div>
+          <div className="fold-body"><CashTable rows={rows} opt={opt} opening={opening} compact /></div>
         </details>
-      ) : <CashTable rows={rows} opt={opt} />}
+      ) : <CashTable rows={rows} opt={opt} opening={opening} />}
     </section>
   );
 }
@@ -175,7 +193,7 @@ function Toggles({ opt, setOpt }: { opt: CashOptions; setOpt: React.Dispatch<Rea
 export function MonthlySection() {
   const { state, hires, cashOpt: opt, setCashOpt: setOpt } = useModel();
   const first12 = useMemo(() => first12Cash(state, opt, hires), [state, opt, hires]);
-  const year1 = useMemo(() => year1Cash(state, opt, hires), [state, opt, hires]);
+  const year1 = useMemo(() => year1Cash(state, opt, hires, -buildCost(state)), [state, opt, hires]);
   const M = C.monthly;
   return (
     <section className="section" id="monthly" aria-labelledby="monthly-h">
@@ -184,7 +202,7 @@ export function MonthlySection() {
         <Toggles opt={opt} setOpt={setOpt} />
         <HiringPlanner inputs={state} />
         <View id="first12" title={M.first12Title} intro={M.first12Intro} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} />
-        <View id="year1" title={M.year1Title} intro={M.year1Intro} rows={year1} opt={opt} />
+        <View id="year1" title={M.year1Title} intro={M.year1Intro} rows={year1} opt={opt} opening={-buildCost(state)} />
       </div>
     </section>
   );
@@ -195,15 +213,15 @@ export function MonthlySection() {
 export function MonthlySummary() {
   const { hires, cashOpt: opt, setCashOpt: setOpt } = useModel();
   const first12 = useMemo(() => first12Cash(PLAN_DEFAULTS, opt, hires), [opt, hires]);
-  const year1 = useMemo(() => year1Cash(PLAN_DEFAULTS, opt, hires), [opt, hires]);
+  const year1 = useMemo(() => year1Cash(PLAN_DEFAULTS, opt, hires, -buildCost(PLAN_DEFAULTS)), [opt, hires]);
   const M = C.monthly;
   return (
     <>
       <Toggles opt={opt} setOpt={setOpt} />
-      <HiringPlanner inputs={PLAN_DEFAULTS} />
+      <HiringDisplay inputs={PLAN_DEFAULTS} />
       <div className="cash-pair">
         <View id="sum-first12" title={M.first12Title} intro={M.first12Short} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} compact />
-        <View id="sum-year1" title={M.year1Title} intro={M.year1Short} rows={year1} opt={opt} compact />
+        <View id="sum-year1" title={M.year1Title} intro={M.year1Short} rows={year1} opt={opt} opening={-buildCost(PLAN_DEFAULTS)} compact />
       </div>
       <p className="small"><Link href="/monthly">See every month in a table, with your own settings →</Link></p>
     </>

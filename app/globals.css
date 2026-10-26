@@ -519,3 +519,15 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
   .hire-row + .hire-row { margin-top: var(--s3); }
 }
 @media print { .hiring { break-inside: avoid; } .hire-chip { transition: none; } }
+
+.cash-table tr.carried th, .cash-table tr.carried td { font-style: italic; color: var(--ink-2); }
+
+/* summary: read-only hiring display */
+.hiring-display { border: 1px solid var(--line); border-radius: var(--radius); padding: var(--s4) var(--s5); margin-bottom: var(--s5); display: grid; gap: var(--s3); }
+.hiring-display h3 { font-size: .95rem; }
+.hiring-display ul { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s3) var(--s5); }
+.hiring-display li { display: flex; gap: var(--s3); align-items: center; }
+.hiring-display li div { display: grid; gap: 1px; }
+.hiring-display li b { font-size: .88rem; }
+.hiring-display li span { font-size: .78rem; color: var(--ink-2); }
+@media (max-width: 720px) { .hiring-display ul { grid-template-columns: 1fr; } }

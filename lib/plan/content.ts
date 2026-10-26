@@ -120,19 +120,20 @@ export const CONTENT = {
       { name: "App Phase 4 · prospects and voice", when: "Stage 6 on", body: "A prospect view, public event RSVP, voice assistants and an AI assistant that answers from live content." }
     ],
     alphaTerms: {
-      title: "How alpha works (draft agreement)",
+      title: "How alpha works",
       steps: [
         { name: "Pre-alpha", body: "We build the new site alongside the old one, load calendars, menus and apartments, import family contacts, train staff and take baselines." },
         { name: "Day 0", body: "Once the agreed acceptance list is met, the organisation switches its DNS within the agreed number of days. The 90-day clock starts." },
         { name: "90 days live", body: "Success criteria measured; feedback calls every two weeks; check-ins at day 30, 60 and 90; a day-90 decision." }
       ],
       terms: [
-        "Free through alpha, with no setup fee, until the results we control are met. Then the monthly fee simply starts at the founding price: Community Life $519, Website $349.",
-        "In return: a named decision-maker, a staff champion per community, short feedback calls, and a committed DNS switch.",
-        "If they don’t switch after the list is met, alpha ends and they lose the service. If they miss their own adoption targets, the guarantee ends but we keep working to win them over.",
-        "Anonymised, aggregated activity data may improve the product; nothing that identifies a resident, family member or staff member leaves their organisation.",
-        "A planning draft: any real contract gets a lawyer’s review first."
+        "Free through alpha, with no setup fee, until the success criteria are met. Then a 24-month subscription starts at the founding price (Community Life $519, Website $349), locked for the term; increases are capped at 5% a year after it.",
+        "Not met at day 90: alpha extends free in 30-day steps, up to 180 days after go-live. After that they convert or leave owing nothing.",
+        "They can cancel any time before converting, or decline within 10 business days of the results, and owe nothing. After converting, leaving early takes 60 days’ notice and three months’ fees.",
+        "In return: a named decision-maker, a champion per community, baselines, feedback calls, and the DNS switch within the agreed days. Miss the switch and alpha ends; miss their own commitments and the free extension doesn’t apply.",
+        "They own their content and can export it any time. Anonymised, aggregated activity data may improve the product; nothing that identifies a resident, family member or staff member leaves their organisation."
       ]
+
     }
   },
 

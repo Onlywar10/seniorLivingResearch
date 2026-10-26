@@ -43,7 +43,7 @@ export const PLAN_DEFAULTS: Inputs = {
   hubertFT: 6200,
   salesCost: 6200,
   commission: 10,
-  adam: 6300,
+  adam: 5600, // $62k salary plus payroll taxes (the plan loaded $70k to $6,300, about 8%)
   p3Fixed: 35770,
   catapultCovers: true,
 };
@@ -206,7 +206,7 @@ export function cashTotals(rows: CashRow[]) {
 // The written business plan assumed 12 alpha communities, all on Community Life at $519.
 // The checks run the model with those inputs to prove the method still reproduces the plan.
 // It also hired the whole Phase 2 team at launch rather than in stages.
-export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100, staged: false };
+export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100, staged: false, adam: 6300 };
 
 // The plan's published numbers. The model must reproduce them (±1 community, ±2%).
 export function runPlanChecks() {

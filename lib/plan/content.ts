@@ -21,10 +21,10 @@ export const CONTENT = {
       { value: "$349–1,149", label: "Per community per month: Website $349 · Community Life $649 · Complete $1,149", tag: "draft" },
       { value: "≈75 paying", label: "Communities at month 12: 80 signed, after about 1% leave each month", tag: "estimate" },
       { value: "≈$508k", label: "Annual recurring revenue at month 12, expected case", tag: "derived" },
-      { value: "≈51 communities", label: "Break-even with the full team and Adam paid; Adam’s salary starts about month 8", tag: "derived" },
+      { value: "≈50 communities", label: "Break-even with the full team and Adam paid; Adam’s salary starts about month 8", tag: "derived" },
       { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
       { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
-      { value: "≈26%", label: "Operating margin at month 12, after every cost including Adam", tag: "derived" },
+      { value: "≈28%", label: "Operating margin at month 12, after every cost including Adam", tag: "derived" },
       { value: "≈47%", label: "Operating margin at about $1M ARR, the spin-out point", tag: "derived" }
     ],
     needTitle: "What we need from Catapult",
@@ -267,7 +267,7 @@ export const CONTENT = {
     intro: "The split you described: Catapult contributes the platform; Adam brings sales, marketing, scaling and operations. Each hire waits until revenue can carry it.",
     columns: ["Person", "Role", "Build and alpha (Phase 1)", "Year 1 (Phase 2)", "Year 2 (Phase 3)"],
     rows: [
-      ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "$70k salary once revenue covers it, after Hubert and the sales associate (about Feb 2028)", "$70k"],
+      ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "$62k salary once revenue covers it, after Hubert and the sales associate", "$62k (for now)"],
       ["Tim", "Customer success: onboarding, training, support, research", "Unpaid", "Free for the first year", "$55k"],
       ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue covers it (about Aug 2027)", "Full-time; more developers as needed"],
       ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue covers it (about Dec 2027): $60k base + about 10% commission", "Same"],

@@ -19,12 +19,12 @@ export const CONTENT = {
     ],
     cards: [
       { value: "$349–1,149", label: "Per community per month: Website $349 · Community Life $649 · Complete $1,149", tag: "draft" },
-      { value: "≈75 paying", label: "Communities at month 12: 80 signed, after about 1% leave each month", tag: "estimate" },
-      { value: "≈$508k", label: "Annual recurring revenue at month 12, expected case", tag: "derived" },
-      { value: "≈50 communities", label: "Break-even with the full team and Adam paid; Adam is the first full-time hire, about month 2", tag: "derived" },
+      { value: "100 paying", label: "Target by June 2028: 20 alpha, 30 from the beta waitlist at launch, the rest signed through Year 1 (after churn)", tag: "estimate" },
+      { value: "≈$684k", label: "Annual recurring revenue at June 2028, expected case", tag: "derived" },
+      { value: "≈49 communities", label: "Break-even with the full team and Adam paid; reached at the beta launch in July 2027, when the waitlist joins", tag: "derived" },
       { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
       { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
-      { value: "≈28%", label: "Operating margin at month 12, after every cost including Adam", tag: "derived" },
+      { value: "≈44%", label: "Operating margin in June 2028, after every cost including Adam", tag: "derived" },
       { value: "≈54%", label: "Operating margin at about $1M ARR, the spin-out point (Tim free for now)", tag: "derived" }
     ],
     needTitle: "What we need from Catapult",
@@ -186,12 +186,12 @@ export const CONTENT = {
         ["Commitment", "Named contact, a champion per community, feedback calls, a committed DNS switch"],
         ["Why", "De-risks the switch for them; we earn proof and case studies"]
       ]},
-      { name: "First 10 Organisations", rows: [
-        ["Who", "The first 10 paying organisations after alpha, up to 100 communities in total"],
-        ["Setup", "Paid up front, then credited back in Year 2 on a two-year contract"],
+      { name: "Beta offer · the waitlist", rows: [
+        ["Who", "The first 30 communities: the beta waitlist, joining at the beta launch in July 2027"],
+        ["Setup", "Paid up front, then returned as a discount spread across their first 12 months of subscription"],
         ["Monthly", "List price ($349 / $649)"],
         ["Commitment", "Two-year contract (suggested); leaving early breaks it and its penalties apply"],
-        ["Why", "Real scarcity and a reason to sign early in Year 1"]
+        ["Why", "Real scarcity and a reason to join the waitlist before launch"]
       ]}
     ],
     overTime: [
@@ -267,10 +267,10 @@ export const CONTENT = {
     intro: "The split you described: Catapult contributes the platform; Adam brings sales, marketing, scaling and operations. Each hire waits until revenue can carry it.",
     columns: ["Person", "Role", "Build and alpha (Phase 1)", "Year 1 (Phase 2)", "Year 2 (Phase 3)"],
     rows: [
-      ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "First full-time hire: $62k salary once revenue and setup fees cover it (about Aug 2027)", "$62k (for now)"],
+      ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "First full-time hire: $62k salary once revenue covers it (from the beta launch, Jul 2027)", "$62k (for now)"],
       ["Tim", "Customer success: onboarding, training, support, research", "Unpaid", "Free (for now)", "Free (for now)"],
-      ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue and setup fees cover it, after Adam (about Aug 2027)", "Full-time; more developers as needed"],
-      ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue and setup fees cover it, after Hubert (about Oct 2027): $60k base + about 10% commission", "Same"],
+      ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue covers it, after Adam (from Jul 2027)", "Full-time; more developers as needed"],
+      ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue covers it, after Hubert (from Jul 2027): $60k base + about 10% commission", "Same"],
       ["Dave (Catapult)", "Mentor and technical guidance; platform decisions", "From 1 Nov", "Catapult’s call", "Catapult’s call"]
     ],
     capacity: [
@@ -295,14 +295,14 @@ export const CONTENT = {
     intro: "The same model, month by month. Each month’s result is revenue minus every cost; the running total adds them up. Moves with the sliders on the financial model page.",
     setupLabel: "Include setup fees",
     setupNote: "One-time fees paid up front by each new organisation: about $9,500 for five communities on Community Life.",
-    creditLabel: "First 10 Organisations: setup credited back",
-    creditNote: "Setup from the first 10 paying organisations (up to 100 communities) is credited against their second year, so it is shown as owed back rather than kept.",
+    creditLabel: "Beta offer: setup returned as a discount",
+    creditNote: "The first 30 communities (the beta waitlist) pay setup up front and get it back as a discount spread evenly over their first 12 months of subscription.",
     first12Title: "The first 12 months: Nov 2026 – Oct 2027",
     first12Intro: "From the day development starts. Eight months of build and alpha (Catapult pays these costs; alpha is free until it converts in June), then the first four months of sales.",
     first12Short: "From development start: eight months of build and alpha, with the alpha communities paying from June, then the first four months of sales.",
     year1Short: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha debt.",
     summaryTitle: "Month by month",
-    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. Hires are staged: Adam comes on full-time first, then Hubert, then the sales associate, each in the first month revenue (plus setup fees, when switched on) covers them. Start months can be changed on the financial model page.",
+    summaryIntro: "The plan’s expected case: 100 paying communities by June 2028. The 20 alpha communities start paying in June 2027 (80% Community Life at $519, 20% Website at $349), the beta waitlist of 30 joins at the launch in July with the beta offer (setup returned as a discount over their first 12 months), and new signings follow each month. Bars are each month’s result; the line is the running total. Hires are staged, Adam first, then Hubert, then the sales associate, each from the first month revenue covers them. Start months can be changed on the financial model page.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",
     year1Intro: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha costs carried in (Nov 2026 – Jun 2027), so it shows when that debt is paid back."
   },
@@ -311,7 +311,7 @@ export const CONTENT = {
     intro: "The plan’s three cases differ only in how many communities sign by month 12. They recalculate from the model’s other inputs, so change a price or a cost above and these move too.",
     reading: [
       "In the expected case setup fees cover the early-month losses, so Year 1 needs no outside money (Catapult carries the build and alpha).",
-      "But the first 10 organisations’ setup is credited back in Year 2, so treat most of that cash as borrowed from Year 2.",
+      "But the beta waitlist’s setup comes back to them as a discount over their first 12 months, so treat that cash as an advance on their subscription.",
       "The slow case needs cover for its losses, or a later sales hire. The fast case needs the Phase 3 hires sooner."
     ],
     share: "About 75 paying communities is roughly 0.5% of the 14,000 assisted living and memory care communities with 26+ beds, and $508k is about 0.3% of the $153M engagement market."

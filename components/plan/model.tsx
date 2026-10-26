@@ -9,7 +9,7 @@ import { SectionHead } from "./ui";
 import { HiringPlanner } from "./hiring";
 import { DEFAULT_SERIES, Explorer, ExplorerControls, type SeriesKey } from "./explorer";
 
-type NumKey = Exclude<keyof Inputs, "catapultCovers" | "staged" | "target" | "curve">;
+type NumKey = Exclude<keyof Inputs, "catapultCovers" | "staged" | "target" | "curve" | "planPaying">;
 type Control = { key: NumKey; label: string; min: number; max: number; step: number; f: (v: number) => string };
 
 const money = (v: number) => fmt$(v);
@@ -18,7 +18,8 @@ const pctf = (v: number) => `${v}%`;
 
 const GROUPS: { id: string; group: string; items: Control[] }[] = [
   { id: "customers", group: "Customers", items: [
-    { key: "alpha", label: "Alpha communities converting in July 2027", min: 0, max: 30, step: 1, f: count },
+    { key: "alpha", label: "Alpha communities converting in June 2027", min: 0, max: 30, step: 1, f: count },
+    { key: "waitlist", label: "Beta waitlist joining at launch (July 2027)", min: 0, max: 80, step: 1, f: count },
     { key: "alphaMix", label: "Alpha share on Community Life (founding price)", min: 0, max: 100, step: 5, f: pctf },
     { key: "mix", label: "Share on Community Life (vs Website)", min: 0, max: 100, step: 5, f: pctf },
     { key: "churn", label: "Monthly churn", min: 0, max: 7, step: 0.5, f: pctf },
@@ -45,11 +46,11 @@ const GROUPS: { id: string; group: string; items: Control[] }[] = [
 ];
 const TABS = [...GROUPS.map((g) => ({ id: g.id, label: g.group })), { id: "hiring", label: "Hiring dates" }, { id: "setup", label: "Setup fees" }];
 
-// The plan's three cases are paces of signing (50, 80 or 110 by Jun 2028), applied to the chosen period.
+// The plan's three cases are paces of signing: 70, 100 or 130 paying by Jun 2028, applied to the chosen period.
 const SCENARIOS = [
-  { id: "slow", label: "Slow", note: "62% of plan pace", inputs: { ...PLAN_DEFAULTS, signed: 50 } },
-  { id: "expected", label: "Expected", note: "plan pace", inputs: PLAN_DEFAULTS },
-  { id: "fast", label: "Fast", note: "138% of plan pace", inputs: { ...PLAN_DEFAULTS, signed: 110 } },
+  { id: "slow", label: "Slow", note: "70 paying by Jun 2028", inputs: { ...PLAN_DEFAULTS, planPaying: 70 } },
+  { id: "expected", label: "Expected", note: "100 by Jun 2028", inputs: PLAN_DEFAULTS },
+  { id: "fast", label: "Fast", note: "130 by Jun 2028", inputs: { ...PLAN_DEFAULTS, planPaying: 130 } },
 ];
 const CURVES: { id: Curve; label: string; note: string }[] = [
   { id: "linear", label: "Linear", note: "the same number of new communities each month" },
@@ -89,7 +90,7 @@ export function ModelSection() {
   const touched = (items: Control[]) => items.some((it) => state[it.key] !== PLAN_DEFAULTS[it.key]);
   const tabChanged: Record<string, boolean> = {
     ...Object.fromEntries(GROUPS.map((g) => [g.id, touched(g.items)])),
-    customers: touched(GROUPS[0].items) || state.target !== null || state.curve !== PLAN_DEFAULTS.curve || state.growth !== PLAN_DEFAULTS.growth || state.signed !== PLAN_DEFAULTS.signed,
+    customers: touched(GROUPS[0].items) || state.target !== null || state.curve !== PLAN_DEFAULTS.curve || state.growth !== PLAN_DEFAULTS.growth || state.planPaying !== PLAN_DEFAULTS.planPaying,
     costs: touched(GROUPS[2].items) || state.catapultCovers !== PLAN_DEFAULTS.catapultCovers,
     hiring: Object.keys(hires).length > 0,
     setup: cashOpt.includeSetup !== DEFAULT_CASH.includeSetup || cashOpt.creditFirst10 !== DEFAULT_CASH.creditFirst10,
@@ -267,7 +268,7 @@ function outputCards(r: ModelResult, plan: ModelResult, rows: CashRow[], planRow
     { label: "Break-even, full team and Adam paid", value: <>{be(r.breakEvenPost)} <span className="o-sub">communities</span></>, sub: `${be(r.breakEvenPre)} before Adam is paid`, delta: <Delta v={r.breakEvenPost} p={plan.breakEvenPost} kind="n" betterHigh={false} /> },
     { label: "Adam’s salary covered from", value: inPeriod(r.adamMonth) ? MONTH_NAMES[r.adamMonth! - 1] : "Not in this period", sub: inPeriod(r.adamMonth) ? `Year-1 month ${r.adamMonth}` : "revenue doesn’t reach it", delta: adamDelta },
     { label: "Operating result over the period", value: <span className={op < 0 ? "neg" : ""}>{fmt$(op, { k: true, plus: true })}</span>, sub: "before setup fees", delta: <Delta v={op} p={planOp} kind="$" /> },
-    { label: "Setup fees collected in the period", value: fmt$(setup, { k: true }), sub: "one-time; partly credited back in Year 2", delta: <Delta v={setup} p={planSetup} kind="$" /> },
+    { label: "Setup fees collected in the period", value: fmt$(setup, { k: true }), sub: "one-time; the waitlist’s comes back as a discount", delta: <Delta v={setup} p={planSetup} kind="$" /> },
     { label: "New organisations needed in the period", value: fmtN(orgs, 1), sub: sellingMonths ? `about ${fmtN(orgs / sellingMonths, 1)} a month` : "no selling months in this period", delta: <Delta v={orgs} p={planOrgs} kind="n" betterHigh={false} /> },
   ];
 }

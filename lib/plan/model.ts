@@ -3,7 +3,9 @@
 export type Curve = "linear" | "exponential" | "scurve";
 
 export type Inputs = {
-  signed: number; // the plan's pace: communities signed by Jun 2028 (before churn). Sets the default target
+  signed: number; // written plan only: communities signed by Jun 2028 (before churn), used when planPaying is null
+  planPaying: number | null; // the plan's pace: paying communities by Jun 2028. Sets the default target
+  waitlist: number; // beta waitlist: communities that join at the beta launch (Jul 2027), with setup fees
   target: number | null; // paying communities wanted at the end of the chosen period; null = the plan's pace
   curve: Curve; // how new signings build up to the target
   growth: number; // % monthly growth in new signings, for the exponential curve
@@ -31,6 +33,8 @@ export type Inputs = {
 
 export const PLAN_DEFAULTS: Inputs = {
   signed: 80,
+  planPaying: 100,
+  waitlist: 30,
   target: null,
   curve: "linear",
   growth: 20,
@@ -69,14 +73,22 @@ export const AFTER_YEAR_1 = 13;
 export type Month = { m: number; label: string; paying: number; newSigned: number; revenue: number; setupGross: number; setup: number; credit: number; fixed: number; running: number; cost: number; result: number; adamPaid: boolean; starts: StaffKey[] };
 export type Milestone = { name: string; n: number; revenue: number; cost: number; margin: number | null };
 
-// The plan's pace: (signed − alpha) ÷ 11 new communities a month from Year-1 month 2.
-const paceNew = (inp: Inputs) => Math.max(0, inp.signed - inp.alpha) / 11;
+// The plan's pace: new communities a month from Year-1 month 2. With planPaying set, it's the
+// steady rate that reaches that many paying communities by Jun 2028 (after the alpha and waitlist
+// communities and churn); otherwise the written plan's (signed − alpha − waitlist) ÷ 11.
+const paceNew = (inp: Inputs) => {
+  if (inp.planPaying === null) return Math.max(0, inp.signed - inp.alpha - inp.waitlist) / 11;
+  const keep = 1 - inp.churn / 100;
+  let reach = 0;
+  for (let m = 2; m <= 12; m++) reach += keep ** (12 - m);
+  return Math.max(0, (inp.planPaying - (inp.alpha + inp.waitlist) * keep ** 11) / reach);
+};
 
 // Paying communities at Year-1 month e if signings follow the plan's pace (the default target).
 export function paceTarget(inp: Inputs, e: number) {
   if (e < 1) return 0;
   const keep = 1 - inp.churn / 100;
-  let paying = inp.alpha * keep ** (e - 1);
+  let paying = (inp.alpha + inp.waitlist) * keep ** (e - 1);
   for (let m = 2; m <= e; m++) paying += paceNew(inp) * keep ** (e - m);
   return paying;
 }
@@ -86,6 +98,7 @@ export function paceTarget(inp: Inputs, e: number) {
 export function signings(inp: Inputs, e: number): number[] {
   const out = new Array(13).fill(0);
   const end = Math.min(12, Math.max(1, e));
+  out[1] = inp.waitlist; // the beta waitlist joins at launch
   if (inp.target === null && inp.curve === "linear") {
     for (let m = 2; m <= 12; m++) out[m] = paceNew(inp);
     return out;
@@ -102,24 +115,25 @@ export function signings(inp: Inputs, e: number): number[] {
   const W = w.reduce((a, b) => a + b, 0);
   const target = inp.target ?? paceTarget(inp, end);
   const reach = w.reduce((a, wk, k) => a + (wk / W) * keep ** (end - (k + 2)), 0);
-  const total = Math.max(0, (target - inp.alpha * keep ** (end - 1)) / reach);
+  const total = Math.max(0, (target - (inp.alpha + inp.waitlist) * keep ** (end - 1)) / reach);
   w.forEach((wk, k) => { out[k + 2] = (total * wk) / W; });
   for (let m = end + 1; m <= 12; m++) out[m] = out[end];
   return out;
 }
 
-// cash: whether one-time setup fees (less any First 10 credit) count as income. When they do,
+// cash: whether one-time setup fees (less any beta-offer credit) count as income. When they do,
 // they also count towards whether a month can cover the next hire.
 // end: the Year-1 month the chosen period ends on (12 = Jun 2028; 0 or less = before sales start).
 export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions = NO_SETUP, end = 12) {
   const e = Math.min(12, end);
   const sched = signings(inp, e);
   const sold = sched.slice(2, Math.max(2, e + 1));
+  const joined = e >= 1 ? sched.slice(1, e + 1) : [];
   const avgNew = sold.length ? sold.reduce((a, b) => a + b, 0) / sold.length : paceNew(inp);
   const extra = inp.catapultCovers ? 0 : 1500;
   const mix = inp.mix / 100, churn = inp.churn / 100;
   const avgPrice = mix * inp.clPrice + (1 - mix) * inp.websitePrice;
-  // Commission at the planned signing rate, for break-even maths.
+  // Commission at the planned signing rate (the waitlist pays none), for break-even maths.
   const planCommission = avgNew * avgPrice * 12 * (inp.commission / 100);
   const fullTeam = inp.otherFixed + inp.hubertFT + inp.salesCost + planCommission + extra;
   const fixedPre = inp.staged ? fullTeam : inp.p2Fixed + extra;
@@ -127,10 +141,11 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   const contrib = avgPrice - inp.runCost;
   // Alpha communities pay founding prices: Community Life $519, Website at list.
   const alphaPrice = (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
-  const newTotal = sold.reduce((a, b) => a + b, 0);
+  const newTotal = joined.reduce((a, b) => a + b, 0);
   const setupPerOrg = 2500 + 1000 * inp.perOrg + 1000 + mix * 250 * inp.perOrg;
-  const creditOrgCap = Math.min(CREDIT_ORGS, CREDIT_COMMUNITIES / inp.perOrg);
+  const creditOrgCap = CREDIT_COMMUNITIES / inp.perOrg;
   let orgsSoFar = 0;
+  const discount = new Array(13 + 12).fill(0); // beta-offer discount due in each Year-1 month
 
   let alphaN = inp.alpha, otherN = 0;
   let adamMonth: number | null = null;
@@ -138,7 +153,7 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   const months: Month[] = [];
   for (let m = 1; m <= 12; m++) {
     const newSigned = sched[m];
-    if (m > 1) { alphaN *= 1 - churn; otherN = otherN * (1 - churn) + newSigned; }
+    if (m > 1) { alphaN *= 1 - churn; otherN = otherN * (1 - churn) + newSigned; } else otherN = newSigned;
     const paying = alphaN + otherN;
     const revenue = alphaN * alphaPrice + otherN * avgPrice;
     const running = paying * inp.runCost;
@@ -146,13 +161,17 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
     const newOrgs = newSigned / inp.perOrg;
     const credited = Math.max(0, Math.min(newOrgs, creditOrgCap - orgsSoFar));
     orgsSoFar += newOrgs;
+    if (cash.includeSetup && cash.creditFirst10 && credited > 0) {
+      for (let k = 0; k < 12; k++) discount[m + k] += (credited * setupPerOrg) / 12;
+    }
     const setupGross = newOrgs * setupPerOrg;
     const setup = cash.includeSetup ? setupGross : 0;
-    const credit = cash.includeSetup && cash.creditFirst10 ? credited * setupPerOrg : 0;
+    const credit = discount[m];
     let fixed: number;
     const starts: StaffKey[] = [];
     if (inp.staged) {
-      const commissionNow = newSigned * avgPrice * 12 * (inp.commission / 100);
+      // Waitlist communities join without a sale, so no commission on them.
+      const commissionNow = (m > 1 ? newSigned : 0) * avgPrice * 12 * (inp.commission / 100);
       const staff = () => (hired.hubert ? inp.hubertFT : inp.hubertPT) + (hired.sales ? inp.salesCost + commissionNow : 0) + (hired.adam ? inp.adam : 0);
       const extraCost = (k: StaffKey) => (k === "hubert" ? inp.hubertFT - inp.hubertPT : k === "sales" ? inp.salesCost + commissionNow : inp.adam);
       const start = (k: StaffKey) => { hired[k] = m; starts.push(k); };
@@ -204,14 +223,14 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
 
 export type ModelResult = ReturnType<typeof computeModel>;
 
-// ---- Month by month, with setup fees and the First 10 Organisations credit ----
+// ---- Month by month, with setup fees and the beta-offer credit ----
 
 export const NO_SETUP: CashOptions = { includeSetup: false, creditFirst10: false };
-export const DEFAULT_CASH: CashOptions = { includeSetup: true, creditFirst10: false };
+export const DEFAULT_CASH: CashOptions = { includeSetup: true, creditFirst10: true };
 
 export type CashOptions = {
   includeSetup: boolean; // count one-time setup fees as income in the month they're paid
-  creditFirst10: boolean; // First 10 Organisations offer: their setup is credited back, so it isn't kept
+  creditFirst10: boolean; // beta offer: the first 30 communities' setup comes back as a discount over their first 12 months
 };
 
 export type CashRow = {
@@ -219,14 +238,14 @@ export type CashRow = {
   newSigned: number; setupGross: number; setup: number; credit: number; fixed: number; running: number; cost: number; result: number; cum: number;
 };
 
-export const CREDIT_ORGS = 10; // the offer covers the first 10 paying organisations…
-export const CREDIT_COMMUNITIES = 100; // …up to 100 communities in total
+// The beta offer credits setup back for the first 30 communities: the beta waitlist.
+export const CREDIT_COMMUNITIES = 30;
 
 const BUILD_MONTHS = ["Nov 2026", "Dec 2026", "Jan 2027", "Feb 2027", "Mar 2027", "Apr 2027", "May 2027", "Jun 2027"];
 
 // Year-1 rows (Jul 2027 – Jun 2028). New organisations sign from month 2 and pay setup up front.
-// With the credit on, setup from the first 10 organisations (up to 100 communities) is shown
-// as owed back: we collect it now but credit it against their second year, so it isn't ours to keep.
+// With the credit on, setup from the first 30 communities (the beta waitlist) comes back
+// as a discount: collected up front, then returned evenly across their first 12 months of subscription.
 const STARTS_LABEL: Record<StaffKey, string> = { hubert: "Hubert full-time", sales: "sales associate starts", adam: "Adam paid" };
 
 // What the build and alpha months (Nov 2026 – Jun 2027) cost before any revenue: the debt Year 1 starts with.
@@ -283,7 +302,8 @@ export function cashTotals(rows: CashRow[]) {
 // The written business plan assumed 12 alpha communities, all on Community Life at $519.
 // The checks run the model with those inputs to prove the method still reproduces the plan.
 // It also hired the whole Phase 2 team at launch rather than in stages.
-export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100, staged: false, adam: 6300, p3Fixed: 35770 };
+// It had no beta waitlist and paced signings from 80 signed by Jun 2028.
+export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100, staged: false, adam: 6300, p3Fixed: 35770, planPaying: null, waitlist: 0 };
 
 // The plan's published numbers. The model must reproduce them (±1 community, ±2%).
 export function runPlanChecks() {

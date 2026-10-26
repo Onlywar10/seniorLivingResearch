@@ -18,7 +18,7 @@ export const DEFAULT_SERIES: Record<SeriesKey, boolean> = { result: true, cum: t
 const SERIES: { key: SeriesKey; label: string; color: string; dash?: boolean }[] = [
   { key: "result", label: "Monthly result", color: PROFIT },
   { key: "cum", label: "Running total", color: INK },
-  { key: "revenue", label: "Revenue (incl. setup kept)", color: REVENUE },
+  { key: "revenue", label: "Revenue (incl. setup, net)", color: REVENUE },
   { key: "cost", label: "Total costs", color: COSTS },
   { key: "paying", label: "Paying communities", color: PAYING, dash: true },
 ];
@@ -137,7 +137,7 @@ function ExplorerChart({ rows, opening, show, marks }: { rows: ReturnType<typeof
       data: { labels: [], datasets: [
         { type: "bar", label: "Monthly result", data: [], backgroundColor: [], borderRadius: 3, maxBarThickness: 26, order: 3 },
         { type: "line", label: "Running total", data: [], borderColor: INK, backgroundColor: INK, borderWidth: 2, pointRadius: 2.5, tension: 0.2, order: 1 },
-        { type: "line", label: "Revenue (incl. setup kept)", data: [], borderColor: REVENUE, backgroundColor: REVENUE, borderWidth: 2, pointRadius: 0, tension: 0.2, order: 2 },
+        { type: "line", label: "Revenue (incl. setup, net)", data: [], borderColor: REVENUE, backgroundColor: REVENUE, borderWidth: 2, pointRadius: 0, tension: 0.2, order: 2 },
         { type: "line", label: "Total costs", data: [], borderColor: COSTS, backgroundColor: COSTS, borderWidth: 2, pointRadius: 0, tension: 0, stepped: "middle", order: 2 },
         { type: "line", label: "Paying communities", data: [], borderColor: PAYING, backgroundColor: PAYING, borderWidth: 2, borderDash: [5, 4], pointRadius: 0, tension: 0.2, yAxisID: "y1", order: 2 },
       ]},

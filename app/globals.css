@@ -431,7 +431,7 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .cash-toggles { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s4) var(--s6); background: var(--panel); border-radius: var(--radius); padding: var(--s5); margin-bottom: var(--s6); }
 .toggle.off { opacity: .5; }
 .toggle input:disabled { cursor: not-allowed; }
-.cash-view { display: grid; gap: var(--s4); margin-bottom: var(--s8); }
+.cash-view { display: grid; gap: var(--s4); align-content: start; margin-bottom: var(--s8); }
 .cash-head { display: grid; gap: 4px; max-width: var(--measure); }
 .cash-head h2 { font-size: 1.3rem; }
 .cash-stats { margin: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
@@ -456,7 +456,7 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .summary .meta-line { margin: var(--s5) 0 0; padding-top: var(--s3); border-top: 1px solid var(--line); }
 
 /* summary: both month-by-month views side by side */
-.cash-pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); }
+.cash-pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); align-items: start; }
 .cash-view.compact { margin-bottom: 0; }
 .cash-view.compact .cash-head h3 { font-size: 1.05rem; }
 .cash-view.compact .cash-stats { grid-template-columns: 1fr 1fr; }

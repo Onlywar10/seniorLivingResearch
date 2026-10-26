@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { CONTENT as C } from "@/lib/plan/content";
 import { SectionHead, Tag } from "./ui";
+import { RolloutCalendar } from "./rollout";
 
 // The landing page: core facts, headline numbers and the month-by-month view (a client component, passed as children).
 export function Summary({ children }: { children: React.ReactNode }) {
@@ -34,12 +35,13 @@ export function Summary({ children }: { children: React.ReactNode }) {
   );
 }
 
+// Product, plans and rollout on one page. The rollout calendar is a client component.
 export function Product() {
   const P = C.product;
   return (
     <section className="section" id="product" aria-labelledby="product-h">
       <div className="inner">
-        <SectionHead id="product" title="The product" intro={P.intro} />
+        <SectionHead id="product" title="Product" intro={P.intro} />
         <div className="halves">
           {P.halves.map((h) => <div className="half" key={h.title}><h3>{h.title}</h3><p>{h.body}</p></div>)}
         </div>
@@ -51,39 +53,14 @@ export function Product() {
             </div>
           ))}
         </div>
-        <h3 className="sub-h">Alpha: the MVP</h3>
-        <p className="lede" style={{ maxWidth: "var(--measure)", marginBottom: "var(--s5)" }}>{P.alphaIntro}</p>
-        <div className="phases">
-          {[P.phase1, P.phase2].map((ph) => (
-            <div className="phase" key={ph.title}>
-              <h3>{ph.title}</h3><p className="note">{ph.note}</p>
-              <ul className="ticks">{ph.items.map((i) => <li key={i}>{i}</li>)}</ul>
-            </div>
-          ))}
-        </div>
-        <h3 className="sub-h">From alpha to the end of beta</h3>
-        <div className="stages" role="list">
-          {P.stages.map((s, i) => (
-            <div className={`stage ${i < 2 ? "alpha" : ""}`} role="listitem" key={s.name}>
-              <div className="s-name">{s.name}</div><div className="s-when">{s.when}</div><div className="s-what">{s.what}</div>
-            </div>
-          ))}
-        </div>
-        <div className="stage-legend"><span><i />Alpha (MVP): prove it works</span><span><i className="b" />Beta (Year 1): make money</span></div>
-        <p className="small muted" style={{ marginTop: "var(--s4)", maxWidth: "var(--measure)" }}>{P.stagesNote}</p>
-        <details className="fold">
-          <summary>The app, phase by phase</summary>
-          <div className="fold-body"><div className="app-grid">
-            {P.app.map((a) => <div key={a.name}><h4>{a.name}</h4><span className="when">{a.when}</span><p>{a.body}</p></div>)}
-          </div></div>
-        </details>
-        <div className="alpha-terms">
-          <div>
-            <h3>{P.alphaTerms.title}</h3>
-            <ol className="steps">{P.alphaTerms.steps.map((s) => <li key={s.name}><b>{s.name}</b><p>{s.body}</p></li>)}</ol>
-          </div>
-          <ul className="terms">{P.alphaTerms.terms.map((t) => <li key={t}>{t}</li>)}</ul>
-        </div>
+
+        <h2 className="page-h2">Three plans</h2>
+        <p className="lede" style={{ maxWidth: "var(--measure)", marginBottom: "var(--s5)" }}>{C.tiers.intro}</p>
+        <Plans />
+
+        <h2 className="page-h2">Rollout calendar</h2>
+        <p className="lede" style={{ maxWidth: "var(--measure)", marginBottom: "var(--s5)" }}>{P.alphaIntro} Scroll through the months and select any phase to see what it delivers. {P.stagesNote}</p>
+        <RolloutCalendar />
       </div>
     </section>
   );
@@ -118,12 +95,10 @@ function Mark({ v }: { v: string }) {
   return <><span className="no" aria-hidden="true" /><span className="sr">Not included</span></>;
 }
 
-export function Pricing() {
+function Plans() {
   const T = C.tiers;
   return (
-    <section className="section" id="pricing" aria-labelledby="pricing-h">
-      <div className="inner">
-        <SectionHead id="pricing" title="Tiers and pricing" intro={T.intro} />
+    <>
         <div className="tiers">
           {T.cards.map((t) => (
             <article className={`tier ${"featured" in t && t.featured ? "featured" : ""}`} key={t.name}>
@@ -155,8 +130,7 @@ export function Pricing() {
           <tbody>{T.setup.map((s) => <tr key={s.fee}><th scope="row">{s.fee}</th><td>{s.amount}</td><td>{s.applies}</td><td>{s.covers}</td></tr>)}</tbody>
           <caption>{T.setupNote}</caption>
         </table></div>
-      </div>
-    </section>
+    </>
   );
 }
 
@@ -196,68 +170,6 @@ export function Offers() {
         </div>
         <h3 className="sub-h">Guarantees</h3>
         <div className="guarantees">{O.guarantees.map((g) => <div className="guarantee" key={g[0]}><b>{g[0]}</b><p>{g[1]}</p></div>)}</div>
-      </div>
-    </section>
-  );
-}
-
-export function Timeline() {
-  const TL = C.timeline;
-  const monthLabel = (i: number) => {
-    const d = new Date(TL.start.year, TL.start.month + i, 1);
-    return { m: d.toLocaleString("en-US", { month: "short" }), y: d.getFullYear() };
-  };
-  const when = (it: { from: number; to: number }) => {
-    const a = monthLabel(it.from), b = monthLabel(it.to);
-    return it.from === it.to ? `${a.m} ${a.y}` : `${a.m} ${a.y === b.y ? "" : a.y + " "}– ${b.m} ${b.y}`;
-  };
-  const cells: React.ReactNode[] = [<div className="tl-corner" key="corner" />];
-  for (let i = 0; i < TL.months; i++) {
-    const ml = monthLabel(i);
-    if (i === 0 || ml.m === "Jan") {
-      const span = Math.min(TL.months - i, i === 0 ? 2 : 12);
-      cells.push(<div className="tl-y" key={`y${i}`} style={{ gridColumn: `${i + 2} / span ${span}` }}>{ml.y}</div>);
-    }
-    cells.push(<div className={`tl-m ${i >= 8 && i <= 19 ? "y1" : ""}`} key={`m${i}`} style={{ gridColumn: i + 2 }}>{ml.m}</div>);
-  }
-  let rowCursor = 3;
-  TL.lanes.forEach((lane, li) => {
-    const items = TL.items.filter((it) => it.lane === li);
-    const rows = Math.max(...items.map((it) => it.row)) + 1;
-    cells.push(<div className="tl-lane" key={`lane${li}`} style={{ gridRow: `${rowCursor} / span ${rows}` }}>{lane}</div>);
-    for (let r = 0; r < rows; r++)
-      for (let i = 0; i < TL.months; i++)
-        cells.push(<div className="tl-cell" key={`c${li}-${r}-${i}`} style={{ gridRow: rowCursor + r, gridColumn: i + 2, borderBottomColor: r < rows - 1 ? "transparent" : undefined }} />);
-    items.forEach((it, k) => {
-      const ms = "milestone" in it && it.milestone;
-      const strong = "strong" in it && it.strong;
-      const atEnd = ms && it.from >= TL.months - 3;
-      const span = ms ? 4 : it.to - it.from + 1;
-      const y1 = (li === 0 && it.from >= 8) || (li === 1 && it.from === 8);
-      const cls = ms ? `ms ${strong ? "strong" : ""} ${atEnd ? "end" : ""}` : `bar ${y1 ? "y1" : ""}`;
-      const col = atEnd ? `${it.from + 2 - 3} / span 4` : `${it.from + 2} / span ${Math.min(span, TL.months - it.from)}`;
-      cells.push(<div className={`tl-item ${cls}`} key={`i${li}-${k}`} style={{ gridRow: rowCursor + it.row, gridColumn: col }} title={`${it.label} · ${when(it)}`}>{it.label}</div>);
-    });
-    rowCursor += rows;
-  });
-  return (
-    <section className="section" id="timeline" aria-labelledby="timeline-h">
-      <div className="inner">
-        <SectionHead id="timeline" title="Timeline: development to month 12" intro={TL.intro} />
-        <div className="tl" role="img" aria-label="Timeline from November 2026 to July 2028 in three lanes: product, customers and sales, team and money. The same items are listed in text below.">
-          <div className="tl-grid" style={{ gridTemplateRows: `auto auto repeat(${rowCursor - 3}, 34px)` }}>{cells}</div>
-        </div>
-        <div className="tl-list">
-          {TL.lanes.map((lane, li) => (
-            <div key={lane}>
-              <h4>{lane}</h4>
-              <ol>{[...TL.items].filter((it) => it.lane === li).sort((a, b) => a.from - b.from).map((it) => (
-                <li key={it.label} className={"strong" in it && it.strong ? "strong" : ""}>{it.label}<span>{when(it)}</span></li>
-              ))}</ol>
-            </div>
-          ))}
-        </div>
-        <p className="tl-note">{TL.note} Highlighted months are Year 1.</p>
       </div>
     </section>
   );

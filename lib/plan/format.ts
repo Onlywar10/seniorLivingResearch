@@ -10,8 +10,8 @@ export const fmtN = (v: number, d = 0) =>
 
 // One page per section, in reading order. [path, nav label]
 export const PAGES: [string, string][] = [
-  ["/", "Summary"], ["/product", "The product"], ["/market", "Market and competitors"],
-  ["/pricing", "Tiers and pricing"], ["/offers", "Offers we’re exploring"], ["/timeline", "Timeline"],
+  ["/", "Summary"], ["/product", "Product"], ["/market", "Market and competitors"],
+  ["/offers", "Offers we’re exploring"],
   ["/team", "Team and roles"], ["/model", "Financial model"], ["/scenarios", "Scenarios"],
   ["/risks", "Risks"], ["/asks", "Asks of Jason"],
 ];

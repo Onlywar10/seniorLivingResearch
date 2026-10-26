@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart, registerables, type Plugin, type TooltipItem } from "chart.js";
 import { CONTENT as C } from "@/lib/plan/content";
 import { buildCost, cashTotals, first12Cash, year1Cash, PLAN_DEFAULTS, type CashOptions, type CashRow } from "@/lib/plan/model";
@@ -9,6 +9,7 @@ import { fmt$, fmtN } from "@/lib/plan/format";
 import { useModel } from "./model-state";
 import { Tag } from "./ui";
 import { HiringDisplay } from "./hiring";
+import { MonthDetail } from "./month-detail";
 
 Chart.register(...registerables);
 
@@ -34,9 +35,14 @@ const markLine: Plugin = {
   },
 };
 
-function CashChart({ rows, mark, label, opening = 0 }: { rows: CashRow[]; mark?: { index: number; text: string }; label: string; opening?: number }) {
+function CashChart({ rows, mark, label, opening = 0, onMonth }: { rows: CashRow[]; mark?: { index: number; text: string }; label: string; opening?: number; onMonth?: (i: number) => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const chart = useRef<Chart | null>(null);
+  // The chart is created once, so clicks go through a ref that always holds the latest handler.
+  const click = useRef<(i: number) => void>(() => {});
+  useEffect(() => {
+    click.current = (i: number) => { const lead = opening ? 1 : 0; if (onMonth && i - lead >= 0) onMonth(i - lead); };
+  });
   useEffect(() => {
     const ff = getComputedStyle(document.body).fontFamily;
     chart.current = new Chart(ref.current!, {
@@ -47,6 +53,13 @@ function CashChart({ rows, mark, label, opening = 0 }: { rows: CashRow[]; mark?:
       options: {
         maintainAspectRatio: false, animation: { duration: 260 },
         interaction: { mode: "index", intersect: false },
+        // Work out the month from the click position, wherever on the plot it lands.
+        onClick: (e: { x: number | null }, _items: unknown, ch: Chart) => {
+          if (e.x === null) return;
+          const i = Math.round(ch.scales.x.getValueForPixel(e.x) ?? -1);
+          if (i >= 0 && i < (ch.data.labels?.length ?? 0)) click.current(i);
+        },
+        onHover: (e: { native?: Event | null }, items: unknown[]) => { const t = e.native?.target as HTMLElement | undefined; if (t) t.style.cursor = items.length ? "pointer" : "default"; },
         plugins: {
           legend: { display: false },
           tooltip: { backgroundColor: INK, padding: 10, cornerRadius: 6, callbacks: { label: (c: TooltipItem<"bar">) => ` ${c.dataset.label}: ${fmt$(c.parsed.y ?? 0, { plus: true })}` } },
@@ -139,6 +152,7 @@ export function CashTable({ rows, opt, compact = false, opening = 0, onRowClick 
 }
 
 function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 }: { id: string; title: string; intro: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string }; compact?: boolean; opening?: number }) {
+  const [open, setOpen] = useState<number | null>(null); // month detail pop-up (view only)
   const t = cashTotals(rows);
   const Heading = compact ? "h3" : "h2";
   return (
@@ -164,14 +178,15 @@ function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 
       )}
       <figure className="chart" style={{ margin: 0 }}>
         <div className="legend"><span><i style={{ background: ACC }} />Month in profit</span><span><i style={{ background: NEG }} />Month at a loss</span><span><i style={{ background: INK }} />Running total</span></div>
-        <CashChart rows={rows} mark={mark} opening={opening} label={`${title}: monthly result as bars and running total as a line`} />
+        <CashChart rows={rows} mark={mark} opening={opening} onMonth={setOpen} label={`${title}: monthly result as bars and running total as a line. Select a month for its details.`} />
       </figure>
       {compact ? (
         <details className="fold cash-fold">
           <summary>Costs and revenue for each month</summary>
-          <div className="fold-body"><CashTable rows={rows} opt={opt} opening={opening} compact /></div>
+          <div className="fold-body"><CashTable rows={rows} opt={opt} opening={opening} compact onRowClick={setOpen} /></div>
         </details>
-      ) : <CashTable rows={rows} opt={opt} opening={opening} />}
+      ) : <CashTable rows={rows} opt={opt} opening={opening} onRowClick={setOpen} />}
+      <MonthDetail rows={rows} index={open !== null && open < rows.length ? open : null} onIndex={setOpen} onClose={() => setOpen(null)} />
     </section>
   );
 }

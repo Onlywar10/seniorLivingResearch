@@ -112,7 +112,7 @@ export function CashTable({ rows, opt, compact = false, opening = 0, onRowClick 
                 ? <button type="button" className="row-open" onClick={(e) => { e.stopPropagation(); onRowClick(i); }} aria-label={`Details for ${r.label}`}>{compact ? r.label.replace(" 20", " ’") : r.label}</button>
                 : compact ? r.label.replace(" 20", " ’") : r.label}</th>
               {compact ? null : <td className="muted">{r.phase}</td>}
-              <td className="r num pay">{r.paying ? fmtN(r.paying, compact ? 0 : 1) : "—"}</td>
+              <td className="r num pay">{r.paying ? fmtN(r.paying) : "—"}</td>
               <td className="r num rev">{f(r.revenue)}</td>
               {showSetup ? <td className="r num rev">{setupCol(r.setup, r.credit) ? f(setupCol(r.setup, r.credit)) : "—"}</td> : null}
               {showCredit ? <td className="r num">{r.credit ? money(-r.credit) : "—"}</td> : null}

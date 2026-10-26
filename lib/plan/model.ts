@@ -21,7 +21,9 @@ export type Inputs = {
   p1Fixed: number; // Phase 1 build and alpha cost per month, Nov 2026 – Jun 2027 (Catapult pays)
   p2Fixed: number; // Phase 2 fixed monthly cost before Adam is paid (written plan only: everyone hired at launch)
   staged: boolean; // bring Adam on full-time, then Hubert, then the sales associate, each once revenue covers them
-  otherFixed: number; // non-staff monthly costs from launch: tools, ads, trade shows, travel
+  tools: number; // software and tools, from launch
+  ads: number; // ads and marketing programmes, from launch
+  showsTravel: number; // trade shows ($10k a year) and travel ($10k a year), from launch
   hubertPT: number; // Hubert part-time (contractor) until he goes full-time
   hubertFT: number; // Hubert full-time: $62k salary plus taxes and health
   salesCost: number; // sales associate: $60k base plus taxes and health
@@ -29,6 +31,7 @@ export type Inputs = {
   adam: number; // Adam's monthly cost once paid
   p3Fixed: number; // Phase 3 (Year 2) fixed monthly cost
   catapultCovers: boolean;
+  whole: boolean; // count whole communities (on); off only to reproduce the written plan’s fractional arithmetic
 };
 
 export const PLAN_DEFAULTS: Inputs = {
@@ -50,7 +53,9 @@ export const PLAN_DEFAULTS: Inputs = {
   p1Fixed: 3400,
   p2Fixed: 21970,
   staged: true,
-  otherFixed: 4170,
+  tools: 1000,
+  ads: 1500,
+  showsTravel: 1670,
   hubertPT: 2400,
   hubertFT: 6200,
   salesCost: 6200,
@@ -58,6 +63,7 @@ export const PLAN_DEFAULTS: Inputs = {
   adam: 5600, // $62k salary plus payroll taxes (the plan loaded $70k to $6,300, about 8%)
   p3Fixed: 29970, // the plan's $35,770 less Tim ($55k, about $5,800 a month): Tim is free for now
   catapultCovers: true,
+  whole: true,
 };
 
 export const MONTH_NAMES = ["Jul 2027", "Aug 2027", "Sep 2027", "Oct 2027", "Nov 2027", "Dec 2027", "Jan 2028", "Feb 2028", "Mar 2028", "Apr 2028", "May 2028", "Jun 2028"];
@@ -73,11 +79,14 @@ export const AFTER_YEAR_1 = 13;
 // One month's line items, for the month detail pop-up. Counts are communities; amounts are $ a month.
 export type MonthDetail = {
   revenue: { label: string; count?: number; price?: number; amount: number }[];
-  costs: { label: string; note?: string; amount: number }[];
+  costs: { label: string; note?: string; amount: number; group: string }[];
 };
 
 export type Month = { m: number; label: string; paying: number; newSigned: number; revenue: number; setupGross: number; setup: number; credit: number; fixed: number; running: number; cost: number; result: number; adamPaid: boolean; starts: StaffKey[]; detail: MonthDetail };
 export type Milestone = { name: string; n: number; revenue: number; cost: number; margin: number | null };
+
+// Non-staff monthly costs from launch: tools, ads, trade shows and travel.
+const nonStaff = (inp: Inputs) => inp.tools + inp.ads + inp.showsTravel;
 
 // The plan's pace: new communities a month from Year-1 month 2. With planPaying set, it's the
 // steady rate that reaches that many paying communities by Jun 2028 (after the alpha and waitlist
@@ -141,7 +150,7 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   const avgPrice = mix * inp.clPrice + (1 - mix) * inp.websitePrice;
   // Commission at the planned signing rate (the waitlist pays none), for break-even maths.
   const planCommission = avgNew * avgPrice * 12 * (inp.commission / 100);
-  const fullTeam = inp.otherFixed + inp.hubertFT + inp.salesCost + planCommission + extra;
+  const fullTeam = nonStaff(inp) + inp.hubertFT + inp.salesCost + planCommission + extra;
   const fixedPre = inp.staged ? fullTeam : inp.p2Fixed + extra;
   const fixedPost = inp.staged ? fullTeam + inp.adam : inp.p2Fixed + inp.adam + extra;
   const contrib = avgPrice - inp.runCost;
@@ -153,15 +162,25 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   let orgsSoFar = 0;
   const discount = new Array(13 + 12).fill(0); // beta-offer discount due in each Year-1 month
 
-  let alphaN = inp.alpha, otherN = 0;
+  // Communities are whole: signings are rounded so the running total stays on schedule, and
+  // churn removes a whole community each time the expected losses add up to one.
+  const R = inp.whole ? Math.round : (x: number) => x;
+  let alphaN = R(inp.alpha), otherN = 0;
+  let signedSoFar = 0, signedExact = 0, lostA = 0, lostAExact = 0, lostO = 0, lostOExact = 0;
   let adamMonth: number | null = null;
   const hired: Record<StaffKey, number | null> = { hubert: null, sales: null, adam: null };
   const months: Month[] = [];
   for (let m = 1; m <= 12; m++) {
-    const newSigned = sched[m];
-    if (m > 1) { alphaN *= 1 - churn; otherN = otherN * (1 - churn) + newSigned; } else otherN = newSigned;
+    signedExact += sched[m];
+    const newSigned = R(signedExact) - signedSoFar;
+    signedSoFar += newSigned;
+    if (m > 1) {
+      lostAExact += alphaN * churn; const la = R(lostAExact) - lostA; lostA += la; alphaN -= la;
+      lostOExact += otherN * churn; const lo = R(lostOExact) - lostO; lostO += lo; otherN = otherN - lo + newSigned;
+    } else otherN = newSigned;
     const paying = alphaN + otherN;
-    const revenue = alphaN * alphaPrice + otherN * avgPrice;
+    const alphaCL = R(alphaN * (inp.alphaMix / 100)), otherCL = R(otherN * mix);
+    const revenue = alphaCL * inp.foundingPrice + (alphaN - alphaCL) * inp.websitePrice + otherCL * inp.clPrice + (otherN - otherCL) * inp.websitePrice;
     const running = paying * inp.runCost;
     // Setup fees: new organisations pay up front in the month they sign (from month 2).
     const newOrgs = newSigned / inp.perOrg;
@@ -188,36 +207,37 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
         if (hired[k] !== null || hires[k] !== undefined) continue;
         const earlier = STAFF_ORDER.slice(0, STAFF_ORDER.indexOf(k));
         if (earlier.some((e) => hired[e] === null)) break;
-        if (revenue + setup - credit - running - inp.otherFixed - extra - staff() >= extraCost(k)) start(k); else break;
+        if (revenue + setup - credit - running - nonStaff(inp) - extra - staff() >= extraCost(k)) start(k); else break;
       }
-      fixed = inp.otherFixed + extra + staff();
+      fixed = nonStaff(inp) + extra + staff();
       adamMonth = hired.adam;
       staffLines = [
-        { label: "Adam", note: hired.adam ? "full-time" : "unpaid until revenue covers it", amount: hired.adam ? inp.adam : 0 },
-        { label: "Hubert", note: hired.hubert ? "full-time" : "part-time contractor", amount: hired.hubert ? inp.hubertFT : inp.hubertPT },
-        { label: "Sales associate", note: hired.sales ? "base pay" : "not hired yet", amount: hired.sales ? inp.salesCost : 0 },
-        { label: "Sales commission", note: hired.sales ? `${inp.commission}% of first-year value on ${(m > 1 ? newSigned : 0).toFixed(1)} new communities` : "—", amount: hired.sales ? commissionNow : 0 },
-        { label: "Tools, ads, trade shows and travel", amount: inp.otherFixed },
-        ...(extra ? [{ label: "Insurance, legal, bookkeeping and payroll", note: "not covered by Catapult", amount: extra }] : []),
+        { group: "Team", label: "Adam", note: hired.adam ? "full-time" : "unpaid until revenue covers it", amount: hired.adam ? inp.adam : 0 },
+        { group: "Team", label: "Hubert", note: hired.hubert ? "full-time" : "part-time contractor", amount: hired.hubert ? inp.hubertFT : inp.hubertPT },
+        { group: "Team", label: "Sales associate", note: hired.sales ? "base pay" : "not hired yet", amount: hired.sales ? inp.salesCost : 0 },
+        { group: "Team", label: "Sales commission", note: hired.sales ? `${inp.commission}% of first-year value on ${m > 1 ? newSigned : 0} new communities` : "—", amount: hired.sales ? commissionNow : 0 },
+        { group: "Ads and marketing", label: "Ads and marketing programmes", amount: inp.ads },
+        { group: "Ads and marketing", label: "Trade shows and travel", amount: inp.showsTravel },
+        { group: "Running the business", label: "Software and tools", amount: inp.tools },
+        ...(extra ? [{ group: "Running the business", label: "Insurance, legal, bookkeeping and payroll", note: "not covered by Catapult", amount: extra }] : []),
       ];
     } else {
       if (adamMonth === null && revenue - running >= fixedPost) { adamMonth = m; starts.push("adam"); }
       fixed = adamMonth !== null ? fixedPost : fixedPre;
-      staffLines = [{ label: "Phase 2 team and fixed costs", note: adamMonth !== null ? "Adam paid" : "before Adam is paid", amount: fixed }];
+      staffLines = [{ group: "Team", label: "Phase 2 team and fixed costs", note: adamMonth !== null ? "Adam paid" : "before Adam is paid", amount: fixed }];
     }
     const cost = fixed + running;
     const result = revenue - cost;
-    const am = inp.alphaMix / 100;
     const detail: MonthDetail = {
       revenue: [
-        { label: "Alpha · Community Life (founding price)", count: alphaN * am, price: inp.foundingPrice, amount: alphaN * am * inp.foundingPrice },
-        { label: "Alpha · Website", count: alphaN * (1 - am), price: inp.websitePrice, amount: alphaN * (1 - am) * inp.websitePrice },
-        { label: "Community Life", count: otherN * mix, price: inp.clPrice, amount: otherN * mix * inp.clPrice },
-        { label: "Website", count: otherN * (1 - mix), price: inp.websitePrice, amount: otherN * (1 - mix) * inp.websitePrice },
-        { label: `Setup fees (${newOrgs.toFixed(1)} new organisations)`, amount: setup },
+        { label: "Alpha · Community Life (founding price)", count: alphaCL, price: inp.foundingPrice, amount: alphaCL * inp.foundingPrice },
+        { label: "Alpha · Website", count: alphaN - alphaCL, price: inp.websitePrice, amount: (alphaN - alphaCL) * inp.websitePrice },
+        { label: "Community Life", count: otherCL, price: inp.clPrice, amount: otherCL * inp.clPrice },
+        { label: "Website", count: otherN - otherCL, price: inp.websitePrice, amount: (otherN - otherCL) * inp.websitePrice },
+        { label: `Setup fees (${newSigned} new communities)`, amount: setup },
         { label: "Beta offer discount", amount: -credit },
       ],
-      costs: [...staffLines, { label: "Running costs and card fees", note: `${paying.toFixed(1)} communities × ${inp.runCost}`, amount: running }],
+      costs: [...staffLines, { group: "Running the business", label: "Running costs and card fees", note: `${paying} communities × $${inp.runCost}`, amount: running }],
     };
     months.push({ m, label: MONTH_NAMES[m - 1], paying, newSigned, revenue, setupGross, setup, credit, fixed, running, cost, result, adamPaid: adamMonth !== null, starts, detail });
   }
@@ -281,10 +301,11 @@ const STARTS_LABEL: Record<StaffKey, string> = { hubert: "Hubert full-time", sal
 // Alpha goes live at the beginning of March 2027 and converts after 90 days, so the alpha
 // communities start paying in June 2027, the last build month.
 const ALPHA_PAYS_FROM = BUILD_MONTHS.indexOf("Jun 2027");
-const alphaPriceOf = (inp: Inputs) => (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
 const buildRow = (inp: Inputs, i: number) => {
-  const paying = i >= ALPHA_PAYS_FROM ? inp.alpha : 0;
-  const revenue = paying * alphaPriceOf(inp), running = paying * inp.runCost;
+  const R = inp.whole ? Math.round : (x: number) => x;
+  const paying = i >= ALPHA_PAYS_FROM ? R(inp.alpha) : 0;
+  const cl = R(paying * (inp.alphaMix / 100));
+  const revenue = cl * inp.foundingPrice + (paying - cl) * inp.websitePrice, running = paying * inp.runCost;
   return { paying, revenue, running, cost: inp.p1Fixed + running, result: revenue - inp.p1Fixed - running };
 };
 // The net cost of build and alpha (Nov 2026 – Jun 2027), carried into Year 1 as debt.
@@ -312,15 +333,15 @@ export function first12Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}, en
     const b = buildRow(inp, i);
     cum += b.result;
     const phase = i < 4 ? "Build" : i < ALPHA_PAYS_FROM ? "Alpha live" : "Alpha converts";
-    const am = inp.alphaMix / 100;
+    const cl = inp.whole ? Math.round(b.paying * (inp.alphaMix / 100)) : b.paying * (inp.alphaMix / 100);
     const detail: MonthDetail = {
       revenue: [
-        { label: "Alpha · Community Life (founding price)", count: b.paying * am, price: inp.foundingPrice, amount: b.paying * am * inp.foundingPrice },
-        { label: "Alpha · Website", count: b.paying * (1 - am), price: inp.websitePrice, amount: b.paying * (1 - am) * inp.websitePrice },
+        { label: "Alpha · Community Life (founding price)", count: cl, price: inp.foundingPrice, amount: cl * inp.foundingPrice },
+        { label: "Alpha · Website", count: b.paying - cl, price: inp.websitePrice, amount: (b.paying - cl) * inp.websitePrice },
       ],
       costs: [
-        { label: "Build and alpha", note: "Hubert part-time and tools, paid by Catapult", amount: inp.p1Fixed },
-        { label: "Running costs and card fees", note: `${b.paying} communities × ${inp.runCost}`, amount: b.running },
+        { group: "Build and alpha", label: "Build and alpha", note: "Hubert part-time and tools, paid by Catapult", amount: inp.p1Fixed },
+        { group: "Running the business", label: "Running costs and card fees", note: `${b.paying} communities × $${inp.runCost}`, amount: b.running },
       ],
     };
     return { label, phase, detail, paying: b.paying, newSigned: 0, revenue: b.revenue, setupGross: 0, setup: 0, credit: 0, fixed: inp.p1Fixed, running: b.running, cost: b.cost, result: b.result, cum };
@@ -343,7 +364,7 @@ export function cashTotals(rows: CashRow[]) {
 // The checks run the model with those inputs to prove the method still reproduces the plan.
 // It also hired the whole Phase 2 team at launch rather than in stages.
 // It had no beta waitlist and paced signings from 80 signed by Jun 2028.
-export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100, staged: false, adam: 6300, p3Fixed: 35770, planPaying: null, waitlist: 0 };
+export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100, staged: false, adam: 6300, p3Fixed: 35770, planPaying: null, waitlist: 0, whole: false };
 
 // The plan's published numbers. The model must reproduce them (±1 community, ±2%).
 export function runPlanChecks() {

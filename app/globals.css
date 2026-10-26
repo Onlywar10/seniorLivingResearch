@@ -689,3 +689,4 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 @media (max-width: 760px) { .md-tables { grid-template-columns: 1fr; } .md-body { padding: var(--s4); } }
 .month-dialog { overflow-y: auto; }
 @media (max-width: 560px) { .md-price { display: none; } .md-table { font-size: .8rem; } .md-table th, .md-table td { padding: 6px 7px; } }
+.md-table tr.md-group th { background: var(--panel); font-size: .72rem; font-weight: 700; color: var(--ink-3); padding-top: 9px; }

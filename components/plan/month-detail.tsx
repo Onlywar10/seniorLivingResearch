@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { Fragment, useEffect, useRef } from "react";
 import type { CashRow } from "@/lib/plan/model";
 import { fmt$, fmtN } from "@/lib/plan/format";
 
@@ -31,7 +31,7 @@ export function MonthDetail({ rows, index, onIndex, onClose }: {
           <div className="md-head">
             <div>
               <h2 id="month-dialog-h">{row.label}</h2>
-              <span className="muted small">{row.phase} · {row.paying ? `${fmtN(row.paying, 1)} paying communities` : "no paying communities yet"}</span>
+              <span className="muted small">{row.phase} · {row.paying ? `${fmtN(row.paying)} paying communities` : "no paying communities yet"}</span>
             </div>
             <div className="md-nav">
               <button type="button" className="btn" disabled={index! <= 0} onClick={() => onIndex(index! - 1)}>← {index! > 0 ? rows[index! - 1].label : "Previous"}</button>
@@ -46,7 +46,7 @@ export function MonthDetail({ rows, index, onIndex, onClose }: {
               <thead><tr><th scope="col">Line</th><th scope="col" className="r">Communities</th><th scope="col" className="r md-price">Price</th><th scope="col" className="r">Amount</th></tr></thead>
               <tbody>
                 {revLines.length ? revLines.map((l) => (
-                  <tr key={l.label}><th scope="row">{l.label}</th><td className="r num">{l.count !== undefined ? fmtN(l.count, 1) : "—"}</td><td className="r num md-price">{l.price !== undefined ? fmt$(l.price) : "—"}</td><td className="r num rev">{money(l.amount)}</td></tr>
+                  <tr key={l.label}><th scope="row">{l.label}</th><td className="r num">{l.count !== undefined ? fmtN(l.count) : "—"}</td><td className="r num md-price">{l.price !== undefined ? fmt$(l.price) : "—"}</td><td className="r num rev">{money(l.amount)}</td></tr>
                 )) : <tr><td colSpan={4} className="muted">No revenue this month.</td></tr>}
               </tbody>
               <tfoot><tr><th scope="row" colSpan={2}>Total revenue</th><td className="md-price" /><td className="r num">{money(revTotal)}</td></tr></tfoot>
@@ -56,8 +56,11 @@ export function MonthDetail({ rows, index, onIndex, onClose }: {
               <caption>Costs</caption>
               <thead><tr><th scope="col">Line</th><th scope="col">Detail</th><th scope="col" className="r">Amount</th></tr></thead>
               <tbody>
-                {costLines.map((l) => (
-                  <tr key={l.label}><th scope="row">{l.label}</th><td className="muted">{l.note ?? ""}</td><td className="r num">{fmt$(l.amount)}</td></tr>
+                {costLines.map((l, i) => (
+                  <Fragment key={l.label}>
+                    {i === 0 || costLines[i - 1].group !== l.group ? <tr className="md-group"><th scope="rowgroup" colSpan={3}>{l.group}</th></tr> : null}
+                    <tr><th scope="row">{l.label}</th><td className="muted">{l.note ?? ""}</td><td className="r num">{fmt$(l.amount)}</td></tr>
+                  </Fragment>
                 ))}
               </tbody>
               <tfoot><tr><th scope="row" colSpan={2}>Total costs</th><td className="r num">{fmt$(costTotal)}</td></tr></tfoot>

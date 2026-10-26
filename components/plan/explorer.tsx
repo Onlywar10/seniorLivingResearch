@@ -163,7 +163,7 @@ function ExplorerChart({ rows, opening, show, marks, onMonth }: { rows: ReturnTy
         plugins: {
           legend: { display: false },
           tooltip: { backgroundColor: INK, padding: 10, cornerRadius: 6, callbacks: {
-            label: (c: TooltipItem<"bar">) => c.dataset.yAxisID === "y1" ? ` ${c.dataset.label}: ${fmtN(c.parsed.y ?? 0, 1)}` : ` ${c.dataset.label}: ${fmt$(c.parsed.y ?? 0, { plus: c.datasetIndex < 2 })}`,
+            label: (c: TooltipItem<"bar">) => c.dataset.yAxisID === "y1" ? ` ${c.dataset.label}: ${fmtN(c.parsed.y ?? 0)}` : ` ${c.dataset.label}: ${fmt$(c.parsed.y ?? 0, { plus: c.datasetIndex < 2 })}`,
           } },
         },
         scales: {

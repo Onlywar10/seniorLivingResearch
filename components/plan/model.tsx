@@ -9,7 +9,7 @@ import { SectionHead } from "./ui";
 import { HiringPlanner } from "./hiring";
 import { DEFAULT_SERIES, Explorer, ExplorerControls, type SeriesKey } from "./explorer";
 
-type NumKey = Exclude<keyof Inputs, "catapultCovers" | "staged" | "target" | "curve" | "planPaying">;
+type NumKey = Exclude<keyof Inputs, "catapultCovers" | "staged" | "target" | "curve" | "planPaying" | "whole">;
 type Control = { key: NumKey; label: string; min: number; max: number; step: number; f: (v: number) => string };
 
 const money = (v: number) => fmt$(v);
@@ -33,8 +33,12 @@ const GROUPS: { id: string; group: string; items: Control[] }[] = [
   { id: "costs", group: "Costs", items: [
     { key: "runCost", label: "Running cost + card fees per community", min: 30, max: 120, step: 1, f: money },
     { key: "p1Fixed", label: "Build and alpha cost (Nov 2026 – Jun 2027)", min: 0, max: 10000, step: 100, f: money },
-    { key: "otherFixed", label: "Tools, ads, trade shows and travel (from launch)", min: 0, max: 15000, step: 10, f: money },
+    { key: "tools", label: "Software and tools (from launch)", min: 0, max: 5000, step: 50, f: money },
+    { key: "showsTravel", label: "Trade shows and travel (from launch)", min: 0, max: 8000, step: 10, f: money },
     { key: "p3Fixed", label: "Phase 3 fixed cost (Year 2, Tim free for now)", min: 20000, max: 80000, step: 10, f: money },
+  ]},
+  { id: "ads", group: "Ads", items: [
+    { key: "ads", label: "Ads and marketing programmes (from launch)", min: 0, max: 15000, step: 50, f: money },
   ]},
   { id: "staff", group: "Staff pay", items: [
     { key: "adam", label: "Adam ($62k + payroll taxes)", min: 0, max: 12000, step: 100, f: money },
@@ -269,7 +273,7 @@ function outputCards(r: ModelResult, plan: ModelResult, rows: CashRow[], planRow
     { label: "Adam’s salary covered from", value: inPeriod(r.adamMonth) ? MONTH_NAMES[r.adamMonth! - 1] : "Not in this period", sub: inPeriod(r.adamMonth) ? `Year-1 month ${r.adamMonth}` : "revenue doesn’t reach it", delta: adamDelta },
     { label: "Operating result over the period", value: <span className={op < 0 ? "neg" : ""}>{fmt$(op, { k: true, plus: true })}</span>, sub: "before setup fees", delta: <Delta v={op} p={planOp} kind="$" /> },
     { label: "Setup fees collected in the period", value: fmt$(setup, { k: true }), sub: "one-time; the waitlist’s comes back as a discount", delta: <Delta v={setup} p={planSetup} kind="$" /> },
-    { label: "New organisations needed in the period", value: fmtN(orgs, 1), sub: sellingMonths ? `about ${fmtN(orgs / sellingMonths, 1)} a month` : "no selling months in this period", delta: <Delta v={orgs} p={planOrgs} kind="n" betterHigh={false} /> },
+    { label: "New organisations needed in the period", value: `≈${fmtN(orgs)}`, sub: sellingMonths ? `about ${fmtN(orgs / sellingMonths, 1)} a month` : "no selling months in this period", delta: <Delta v={orgs} p={planOrgs} kind="n" betterHigh={false} /> },
   ];
 }
 

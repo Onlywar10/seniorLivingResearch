@@ -634,3 +634,14 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .ctl-note { font-size: .74rem; color: var(--ink-3); margin-top: 2px; }
 .ctl.target.off { opacity: .55; }
 .ctl.target .linkish { justify-self: start; margin-top: 2px; }
+
+/* rollout: customers, milestones and trade shows */
+.rollout { --c-customers: #2c6650; --c-show: #7c3aed; }
+.rollout-legend .k-customers { background: var(--c-customers); } .rollout-legend .k-show { background: var(--c-show); border-radius: 50%; }
+.r-item.k-customers { background: var(--c-customers); }
+.r-item.k-milestone, .r-item.k-show { background: transparent; color: var(--ink); padding: 0 2px; white-space: normal; line-height: 1.15; font-size: .72rem; height: 36px; margin-top: 12px; overflow: visible; }
+.r-item.k-milestone span, .r-item.k-show span { overflow: visible; text-overflow: clip; }
+.r-item.k-show i { width: 11px; height: 11px; border-radius: 50%; background: var(--c-show); flex: none; }
+.r-item.k-show:hover { box-shadow: none; }
+.r-item.k-show.on { box-shadow: none; text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 2px; }
+.rollout-detail.k-customers { border-top-color: var(--c-customers); } .rollout-detail.k-show { border-top-color: var(--c-show); }

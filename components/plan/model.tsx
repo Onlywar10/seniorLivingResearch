@@ -111,7 +111,7 @@ export function ModelSection() {
   const withSetup = r.resultEnd + last.setup - last.credit;
   const setupNote = cashOpt.includeSetup && last.setup > 0 ? `, or ${fmt$(withSetup, { plus: true })} counting that month’s setup fees` : "";
   const readout = end < 1
-    ? `This period (${span}) ends before sales start in July 2027, so it’s build and alpha costs only: ${fmt$(-opResult, { k: true })}, paid by Catapult.`
+    ? `This period (${span}) ends before sales start in July 2027: build and alpha only, ${fmt$(opResult, { k: true, plus: true })} net (paid by Catapult)${endIndex >= 7 ? ", with the alpha communities paying from June" : ""}.`
     : `Over ${span}: ${adamIn ? `Adam’s salary is covered from ${MONTH_NAMES[r.adamMonth! - 1]}${cashOpt.includeSetup ? " (counting setup fees)" : ""}` : "Adam’s salary isn’t covered within this period"}, and the period ends with about ${fmtN(r.payingEnd)} paying communities and ${fmt$(r.arrEnd, { k: true })} ARR. In ${endLabel} the business runs at ${fmt$(r.resultEnd, { plus: true })} a month before setup fees${setupNote}.`;
   const pace = Math.round(paceTarget(state, end));
   const planPace = Math.round(paceTarget(PLAN_DEFAULTS, end));

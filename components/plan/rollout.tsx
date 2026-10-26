@@ -32,7 +32,7 @@ export function RolloutCalendar() {
     <div className="rollout">
       <div className="rollout-bar">
         <div className="rollout-legend">
-          <span><i className="k-build" />Build</span><span><i className="k-alpha" />Alpha customers</span><span><i className="k-beta" />Beta stages</span><span><i className="k-milestone" />Milestone</span>
+          <span><i className="k-build" />Alpha build</span><span><i className="k-beta" />Beta build</span><span><i className="k-customers" />Customers</span><span><i className="k-milestone" />Milestone</span><span><i className="k-show" />Trade show</span>
         </div>
         <div className="rollout-nav">
           <button type="button" className="btn icon" aria-label="Scroll the calendar earlier" onClick={() => scrollBy(-1)}>←</button>
@@ -57,9 +57,9 @@ export function RolloutCalendar() {
           ))}
           {ROLLOUT.map((p) => (
             <button key={p.id} type="button" className={`r-item k-${p.kind} ${p.id === selected ? "on" : ""}`}
-              style={{ gridRow: p.row + 3, gridColumn: p.kind === "milestone" ? `${p.from + 1} / span 2` : `${p.from + 1} / span ${p.to - p.from + 1}` }}
+              style={{ gridRow: p.row + 3, gridColumn: `${p.from + 1} / span ${p.to - p.from + 1}` }}
               aria-pressed={p.id === selected} aria-controls="rollout-detail" onClick={() => select(p.id)}>
-              {p.kind === "milestone" ? <i aria-hidden="true" /> : null}
+              {p.kind === "milestone" || p.kind === "show" ? <i aria-hidden="true" /> : null}
               <span>{p.name}</span>
             </button>
           ))}

@@ -230,7 +230,17 @@ const BUILD_MONTHS = ["Nov 2026", "Dec 2026", "Jan 2027", "Feb 2027", "Mar 2027"
 const STARTS_LABEL: Record<StaffKey, string> = { hubert: "Hubert full-time", sales: "sales associate starts", adam: "Adam paid" };
 
 // What the build and alpha months (Nov 2026 – Jun 2027) cost before any revenue: the debt Year 1 starts with.
-export const buildCost = (inp: Inputs) => BUILD_MONTHS.length * inp.p1Fixed;
+// Alpha goes live at the beginning of March 2027 and converts after 90 days, so the alpha
+// communities start paying in June 2027, the last build month.
+const ALPHA_PAYS_FROM = BUILD_MONTHS.indexOf("Jun 2027");
+const alphaPriceOf = (inp: Inputs) => (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
+const buildRow = (inp: Inputs, i: number) => {
+  const paying = i >= ALPHA_PAYS_FROM ? inp.alpha : 0;
+  const revenue = paying * alphaPriceOf(inp), running = paying * inp.runCost;
+  return { paying, revenue, running, cost: inp.p1Fixed + running, result: revenue - inp.p1Fixed - running };
+};
+// The net cost of build and alpha (Nov 2026 – Jun 2027), carried into Year 1 as debt.
+export const buildCost = (inp: Inputs) => -BUILD_MONTHS.reduce((a, _, i) => a + buildRow(inp, i).result, 0);
 // Year-1 month for a position in allMonths (Nov 2026 = 0 → −7; Jul 2027 = 8 → 1; Jun 2028 = 19 → 12).
 export const yearOneMonth = (index: number) => index - BUILD_MONTHS.length + 1;
 
@@ -247,13 +257,14 @@ export function year1Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}, open
 }
 
 // The first 12 calendar months from development start: 8 months of build and alpha
-// (no revenue; alpha is free), then the first 4 months of Year 1.
+// (alpha is free until it converts in June), then the first 4 months of Year 1.
 export function first12Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}, end = 12): CashRow[] {
   let cum = 0;
   const build = BUILD_MONTHS.map((label, i): CashRow => {
-    const result = -inp.p1Fixed;
-    cum += result;
-    return { label, phase: i < 4 ? "Build" : "Alpha live", paying: 0, newSigned: 0, revenue: 0, setupGross: 0, setup: 0, credit: 0, fixed: inp.p1Fixed, running: 0, cost: inp.p1Fixed, result, cum };
+    const b = buildRow(inp, i);
+    cum += b.result;
+    const phase = i < 4 ? "Build" : i < ALPHA_PAYS_FROM ? "Alpha live" : "Alpha converts";
+    return { label, phase, paying: b.paying, newSigned: 0, revenue: b.revenue, setupGross: 0, setup: 0, credit: 0, fixed: inp.p1Fixed, running: b.running, cost: b.cost, result: b.result, cum };
   });
   const y1 = year1Cash(inp, opt, hires, 0, end).slice(0, 4).map((row) => {
     cum += row.result;

@@ -202,7 +202,7 @@ export function MonthlySummary() {
       <Toggles opt={opt} setOpt={setOpt} />
       <HiringDisplay inputs={PLAN_DEFAULTS} />
       <div className="cash-pair">
-        <View id="sum-first12" title={M.first12Title} intro={M.first12Short} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} compact />
+        <View id="sum-first12" title={M.first12Title} intro={M.first12Short} rows={first12} opt={opt} mark={{ index: 7, text: "Revenue starts" }} compact />
         <View id="sum-year1" title={M.year1Title} intro={M.year1Short} rows={year1} opt={opt} opening={-buildCost(PLAN_DEFAULTS)} compact />
       </div>
       <p className="small"><Link href="/model">Change the settings, timeframe and hires on the financial model →</Link></p>

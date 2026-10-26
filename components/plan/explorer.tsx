@@ -10,7 +10,7 @@ import { CashTable } from "./monthly";
 Chart.register(...registerables);
 
 const INK = "#1d2422", PROFIT = "#16a34a", LOSS = "#dc2626", REVENUE = "#15803d", COSTS = "#9aa29f", PAYING = "#2563eb", GRID = "#eceeec";
-const JUL_2027 = 8; // index of the first Year-1 month in allMonths
+const REVENUE_STARTS = 7; // Jun 2027: alpha converts after 90 days live
 const HIRE_NAME: Record<StaffKey, string> = { adam: "Adam", hubert: "Hubert", sales: "Sales" };
 
 export type SeriesKey = "result" | "cum" | "revenue" | "cost" | "paying";
@@ -103,7 +103,7 @@ export function Explorer({ show }: { show: Record<SeriesKey, boolean> }) {
   const t = cashTotals(view);
   const hireIdx = ((): Marks => {
     const out: Marks = [];
-    if (from < JUL_2027 && to >= JUL_2027) out.push({ index: JUL_2027 - from, text: "Revenue starts" });
+    if (from < REVENUE_STARTS && to >= REVENUE_STARTS) out.push({ index: REVENUE_STARTS - from, text: "Revenue starts" });
     STAFF_ORDER.forEach((k) => {
       const name = HIRE_NAME[k];
       const i = view.findIndex((r) => r.phase.includes(k === "adam" ? "Adam paid" : k === "hubert" ? "Hubert full-time" : "sales associate starts"));

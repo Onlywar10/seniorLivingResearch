@@ -1,28 +1,18 @@
 import { Fragment } from "react";
 import { CONTENT as C } from "@/lib/plan/content";
+import { SectionHead, Tag } from "./ui";
 
-export function Tag({ k }: { k?: string }) {
-  if (!k) return null;
-  return <span className="tag" data-k={k}>{k}</span>;
-}
-
-export function SectionHead({ id, title, intro }: { id: string; title: string; intro?: string }) {
-  return (
-    <div className="section-head">
-      <h2 id={`${id}-h`}>{title}</h2>
-      {intro ? <p className="lede">{intro}</p> : null}
-    </div>
-  );
-}
-
-export function Summary() {
+// The landing page: core facts and the Year-1 projection only. The projection (a client chart) comes in as children.
+export function Summary({ children }: { children: React.ReactNode }) {
   const S = C.summary;
   return (
     <section className="section summary" id="summary" aria-labelledby="summary-h">
       <div className="inner">
         <div className="meta-line"><span>{C.meta.title}</span><span>{C.meta.subtitle}</span><span>{C.meta.date}</span></div>
         <h1 id="summary-h">{S.pitch}</h1>
-        <p className="pitch-sub">{S.sub}</p>
+        <dl className="facts">
+          {S.facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
+        </dl>
         <div className="stats" role="list">
           {S.cards.map((c) => (
             <div className="stat" role="listitem" key={c.label}>
@@ -31,11 +21,13 @@ export function Summary() {
             </div>
           ))}
         </div>
-        <aside className="need" aria-labelledby="need-h">
-          <h2 id="need-h">{S.needTitle}</h2>
-          <ul>{S.need.map((n) => <li key={n}>{n}</li>)}</ul>
-          <p className="need-note">{S.needNote}</p>
-        </aside>
+        <div className="projection">
+          <div className="projection-head">
+            <h2>{S.projectionTitle}</h2>
+            <p className="muted small">{S.projectionIntro}</p>
+          </div>
+          {children}
+        </div>
       </div>
     </section>
   );
@@ -310,6 +302,11 @@ export function Asks() {
     <section className="section asks-sec" id="asks" aria-labelledby="asks-h">
       <div className="inner">
         <SectionHead id="asks" title="Asks of Jason" intro="Seven things only you can answer. Each one changes a number or a date in this plan." />
+        <aside className="need" aria-labelledby="need-h">
+          <h2 id="need-h">{C.summary.needTitle}</h2>
+          <ul>{C.summary.need.map((n) => <li key={n}>{n}</li>)}</ul>
+          <p className="need-note">{C.summary.needNote}</p>
+        </aside>
         <ol className="asks">{C.asks.map((a) => <li key={a.title}><b>{a.title}</b><p>{a.body}</p></li>)}</ol>
       </div>
     </section>

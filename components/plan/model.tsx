@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { flushSync } from "react-dom";
+import { useEffect, useMemo, useRef, useSyncExternalStore } from "react";
 import { Chart, registerables, type Plugin } from "chart.js";
 import { CONTENT as C } from "@/lib/plan/content";
 import { computeModel, runPlanChecks, MONTH_NAMES, PLAN_DEFAULTS, type Inputs, type ModelResult } from "@/lib/plan/model";
+import { useModel } from "./model-state";
 import { fmt$, fmtN } from "@/lib/plan/format";
-import { SectionHead, Tag } from "./sections";
+import { SectionHead, Tag } from "./ui";
 
 Chart.register(...registerables);
 
@@ -59,6 +59,7 @@ function useChart(make: (canvas: HTMLCanvasElement) => Chart, update: (chart: Ch
   const ref = useRef<HTMLCanvasElement>(null);
   const chart = useRef<Chart | null>(null);
   useEffect(() => {
+    setDefaults();
     chart.current = make(ref.current!);
     return () => { chart.current?.destroy(); chart.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,36 +121,22 @@ function setDefaults() {
   Chart.defaults.plugins.tooltip.cornerRadius = 6;
 }
 
-export function ModelExplorer() {
-  const [state, setState] = useState<Inputs>(PLAN_DEFAULTS);
+export function ModelSection() {
+  const { state, setState, plan, r, changed } = useModel();
   const isTest = useSyncExternalStore(noSubscribe, () => new URLSearchParams(location.search).has("test"), () => false);
   const test = useMemo(() => (isTest ? runPlanChecks() : null), [isTest]);
   const narrow = useSyncExternalStore(subscribeResize, () => window.innerWidth < 600, () => false);
-  const plan = useMemo(() => computeModel(PLAN_DEFAULTS), []);
-  const r = useMemo(() => computeModel(state), [state]);
-  const sc = useMemo(() => [50, 80, 110].map((s) => ({ s, r: computeModel({ ...state, signed: s }) })), [state]);
-  const changed = (Object.keys(PLAN_DEFAULTS) as (keyof Inputs)[]).some((k) => state[k] !== PLAN_DEFAULTS[k]);
 
-  // ?test shows the plan reproduction checks; print always shows the plan's defaults.
+  // ?test shows the plan reproduction checks above the outputs.
   useEffect(() => {
-    if (!test) return;
-    console.log(`[plan-test] ${test.pass ? "PASS" : "FAIL"}`, test.checks);
-    document.getElementById("model")?.scrollIntoView();
+    if (test) console.log(`[plan-test] ${test.pass ? "PASS" : "FAIL"}`, test.checks);
   }, [test]);
-  useEffect(() => {
-    let saved: Inputs | null = null;
-    const before = () => { flushSync(() => setState((s) => { saved = s; return PLAN_DEFAULTS; })); };
-    const after = () => { if (saved) setState(saved); saved = null; };
-    window.addEventListener("beforeprint", before);
-    window.addEventListener("afterprint", after);
-    return () => { window.removeEventListener("beforeprint", before); window.removeEventListener("afterprint", after); };
-  }, []);
 
-  const c1Ref = useChart((cv) => { setDefaults(); return new Chart(cv, { type: "line", data: { labels: X_LABELS, datasets: [
+  const c1Ref = useChart((cv) => new Chart(cv, { type: "line", data: { labels: X_LABELS, datasets: [
     { label: "Paying", data: [], borderColor: ACC, backgroundColor: "rgba(44,102,80,.08)", fill: true, tension: .25, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2.5 },
     { label: "Break-even before Adam", data: [], borderColor: GREY, borderDash: [5, 5], pointRadius: 0, borderWidth: 1.5, fill: false },
     { label: "Break-even with Adam", data: [], borderColor: INK, borderDash: [5, 5], pointRadius: 0, borderWidth: 1.5, fill: false },
-  ]}, options: { interaction: { mode: "index", intersect: false }, scales: scales((v) => v), plugins: { tooltip: { callbacks: { title: xTitle, label: (c) => ` ${c.dataset.label}: ${fmtN(c.parsed.y ?? 0)}` } } } } }); },
+  ]}, options: { interaction: { mode: "index", intersect: false }, scales: scales((v) => v), plugins: { tooltip: { callbacks: { title: xTitle, label: (c) => ` ${c.dataset.label}: ${fmtN(c.parsed.y ?? 0)}` } } } } }),
   (ch) => {
     ch.data.datasets[0].data = r.months.map((m) => m.paying);
     ch.data.datasets[1].data = r.months.map(() => (isFinite(r.breakEvenPre) ? r.breakEvenPre : null));
@@ -178,19 +165,6 @@ export function ModelExplorer() {
     (ch as MarkedChart).$margins = r.phases.map((p) => p.margin == null ? "Cost only" : `${p.margin < 0 ? "−" : ""}${fmtN(Math.abs(p.margin) * 100)}%`);
   });
 
-  const c4Ref = useChart((cv) => new Chart(cv, { type: "line", data: { labels: X_LABELS, datasets: [
-    { label: "Slow", data: [], borderColor: GREY, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, tension: .25 },
-    { label: "Expected", data: [], borderColor: ACC, pointRadius: 0, pointHoverRadius: 4, borderWidth: 3, tension: .25 },
-    { label: "Fast", data: [], borderColor: INK, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, tension: .25 },
-    { label: "Break-even before Adam", data: [], borderColor: "#b6bcb9", borderDash: [5, 5], pointRadius: 0, borderWidth: 1.2 },
-    { label: "Break-even with Adam", data: [], borderColor: "#6b7471", borderDash: [5, 5], pointRadius: 0, borderWidth: 1.2 },
-  ]}, options: { interaction: { mode: "index", intersect: false }, scales: scales((v) => v), plugins: { tooltip: { callbacks: { title: xTitle, label: (c) => ` ${c.dataset.label}: ${fmtN(c.parsed.y ?? 0)}` } } } } }),
-  (ch) => {
-    sc.forEach((x, i) => { ch.data.datasets[i].data = x.r.months.map((m) => m.paying); });
-    ch.data.datasets[3].data = X_LABELS.map(() => (isFinite(sc[1].r.breakEvenPre) ? sc[1].r.breakEvenPre : null));
-    ch.data.datasets[4].data = X_LABELS.map(() => (isFinite(sc[1].r.breakEvenPost) ? sc[1].r.breakEvenPost : null));
-  });
-
   const set = (k: NumKey, v: number) => setState((s) => ({ ...s, [k]: v }));
   const cards = outputCards(r, plan, state);
   const readout = r.adamMonth
@@ -200,8 +174,7 @@ export function ModelExplorer() {
       : `At these settings Year 1 doesn’t cover its costs: month 12 still runs at ${fmt$(r.result12)} a month, and the year as a whole at ${fmt$(r.cumResult, { k: true })}.`;
 
   return (
-    <>
-      <section className="section" id="model" aria-labelledby="model-h">
+    <section className="section" id="model" aria-labelledby="model-h">
         <div className="inner">
           <SectionHead id="model" title="Financial model" intro={C.model.intro} />
           <div className="model-wrap">
@@ -265,24 +238,58 @@ export function ModelExplorer() {
             </div>
           </div>
         </div>
-      </section>
+    </section>
+  );
+}
 
-      <section className="section" id="scenarios" aria-labelledby="scenarios-h">
-        <div className="inner">
-          <SectionHead id="scenarios" title="Scenarios: slow, expected, fast" intro={C.scenarios.intro} />
-          <div className="scen-wrap">
-            <div className="table-wrap"><ScenarioTable sc={sc} churn={state.churn} /></div>
-            <figure className="chart" style={{ margin: 0 }}>
-              <h4>Paying communities by month</h4>
-              <div className="legend"><span><i style={{ background: GREY }} />Slow</span><span><i style={{ background: ACC }} />Expected</span><span><i style={{ background: INK }} />Fast</span><span><i className="dash" style={{ color: "#6b7471" }} />Break-even lines</span></div>
-              <div className="canvas-box"><canvas ref={c4Ref} role="img" aria-label="Paying communities by month for the slow, expected and fast cases" /></div>
-            </figure>
-          </div>
-          <div className="reading">{C.scenarios.reading.map((t) => <p key={t}>{t}</p>)}</div>
-          <p className="share">{C.scenarios.share} <Tag k="derived" /></p>
+export function ScenariosSection() {
+  const { state, sc } = useModel();
+  return (
+    <section className="section" id="scenarios" aria-labelledby="scenarios-h">
+      <div className="inner">
+        <SectionHead id="scenarios" title="Scenarios: slow, expected, fast" intro={C.scenarios.intro} />
+        <div className="scen-wrap">
+          <div className="table-wrap"><ScenarioTable sc={sc} churn={state.churn} /></div>
+          <ScenarioChart sc={sc} />
         </div>
-      </section>
-    </>
+        <div className="reading">{C.scenarios.reading.map((t) => <p key={t}>{t}</p>)}</div>
+        <p className="share">{C.scenarios.share} <Tag k="derived" /></p>
+      </div>
+    </section>
+  );
+}
+
+// The summary page's projection: always the plan's own settings.
+export function PlanProjection() {
+  const sc = useMemo(() => [50, 80, 110].map((s) => ({ s, r: computeModel({ ...PLAN_DEFAULTS, signed: s }) })), []);
+  return (
+    <div className="scen-wrap">
+      <div className="table-wrap"><ScenarioTable sc={sc} churn={PLAN_DEFAULTS.churn} compact /></div>
+      <ScenarioChart sc={sc} />
+    </div>
+  );
+}
+
+function ScenarioChart({ sc }: { sc: { s: number; r: ModelResult }[] }) {
+  const ref = useChart((cv) => new Chart(cv, { type: "line", data: { labels: X_LABELS, datasets: [
+    { label: "Slow", data: [], borderColor: GREY, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, tension: .25 },
+    { label: "Expected", data: [], borderColor: ACC, pointRadius: 0, pointHoverRadius: 4, borderWidth: 3, tension: .25 },
+    { label: "Fast", data: [], borderColor: INK, pointRadius: 0, pointHoverRadius: 4, borderWidth: 2, tension: .25 },
+    { label: "Break-even before Adam", data: [], borderColor: "#b6bcb9", borderDash: [5, 5], pointRadius: 0, borderWidth: 1.2 },
+    { label: "Break-even with Adam", data: [], borderColor: "#6b7471", borderDash: [5, 5], pointRadius: 0, borderWidth: 1.2 },
+  ]}, options: { interaction: { mode: "index", intersect: false }, scales: scales((v) => v), plugins: { tooltip: { callbacks: { title: xTitle, label: (c) => ` ${c.dataset.label}: ${fmtN(c.parsed.y ?? 0)}` } } } } }),
+  (ch) => {
+    sc.forEach((x, i) => { ch.data.datasets[i].data = x.r.months.map((m) => m.paying); });
+    ch.data.datasets[3].data = X_LABELS.map(() => (isFinite(sc[1].r.breakEvenPre) ? sc[1].r.breakEvenPre : null));
+    ch.data.datasets[4].data = X_LABELS.map(() => (isFinite(sc[1].r.breakEvenPost) ? sc[1].r.breakEvenPost : null));
+  });
+
+  return (
+    <figure className="chart" style={{ margin: 0 }}>
+      <h4>Paying communities by month</h4>
+      <div className="legend"><span><i style={{ background: GREY }} />Slow</span><span><i style={{ background: ACC }} />Expected</span><span><i style={{ background: INK }} />Fast</span><span><i className="dash" style={{ color: "#6b7471" }} />Break-even lines</span></div>
+      <div className="canvas-box"><canvas ref={ref} role="img" aria-label="Paying communities by month for the slow, expected and fast cases" /></div>
+    </figure>
   );
 }
 
@@ -343,7 +350,9 @@ function outputCards(r: ModelResult, plan: ModelResult, state: Inputs) {
   ];
 }
 
-function ScenarioTable({ sc, churn }: { sc: { s: number; r: ModelResult }[]; churn: number }) {
+const COMPACT_ROWS = ["Communities signed (before churn)", "Annual recurring revenue", "Monthly result", "Adam’s salary covered from", "Operating result over Year 1"];
+
+function ScenarioTable({ sc, churn, compact = false }: { sc: { s: number; r: ModelResult }[]; churn: number; compact?: boolean }) {
   const rows: [string, (x: { s: number; r: ModelResult }) => React.ReactNode][] = [
     ["Communities signed (before churn)", (x) => fmtN(x.s)],
     [`Paying after ${churn}% monthly churn`, (x) => `≈${fmtN(x.r.paying12)}`],
@@ -358,10 +367,10 @@ function ScenarioTable({ sc, churn }: { sc: { s: number; r: ModelResult }[]; chu
   return (
     <table className="scen-table">
       <thead><tr><th scope="col">At month 12</th><th scope="col" className="r">Slow</th><th scope="col" className="r exp">Expected</th><th scope="col" className="r">Fast</th></tr></thead>
-      <tbody>{rows.map(([label, f]) => (
+      <tbody>{rows.filter(([label]) => !compact || COMPACT_ROWS.includes(label) || label.startsWith("Paying")).map(([label, f]) => (
         <tr key={label}><th scope="row">{label}</th>{sc.map((x, i) => <td key={x.s} className={`r num ${i === 1 ? "exp" : ""}`}>{f(x)}</td>)}</tr>
       ))}</tbody>
-      <caption>Recalculated live from the model’s inputs. At the plan’s settings these match the business plan.</caption>
+      <caption>{compact ? "Month 12 of Year 1, at the plan’s settings. All figures are planning estimates." : "Recalculated live from the model’s inputs. At the plan’s settings these match the business plan."}</caption>
     </table>
   );
 }

@@ -9,8 +9,15 @@ export const CONTENT = {
 
   summary: {
     pitch: "CMS Plus brings families and the public into the daily life of a senior living community.",
-    sub: "Its live calendar, menus and event updates go out to families by text and email and appear on the community’s website by themselves, so staff keep everyone connected in a few minutes a week instead of hours. Built on Catapult’s platform; first market is California assisted living and memory care operators with 2–20 communities.",
     question: "Your question on 11 Oct: assuming the MVP is built, where are we one year from now?",
+    facts: [
+      ["What", "The website and the family engagement system for senior living communities, on Catapult’s platform"],
+      ["Who first", "California assisted living and memory care operators with 2–20 communities"],
+      ["Team", "Adam, Tim, Hubert and a sales associate from launch; Dave mentoring from Catapult"],
+      ["Catapult covers", "The platform, hosting, texting registration, insurance, legal, bookkeeping, payroll, and the build and alpha"]
+    ],
+    projectionTitle: "Year-1 projection",
+    projectionIntro: "Month 12 (about July 2028) under the plan’s three cases. Only the number of communities signed changes between them.",
     cards: [
       { value: "$349–1,149", label: "Per community per month: Website $349 · Community Life $649 · Complete $1,149", tag: "draft" },
       { value: "≈75 paying", label: "Communities at month 12: 80 signed, after about 1% leave each month", tag: "estimate" },
@@ -28,7 +35,7 @@ export const CONTENT = {
       "Insurance, legal, bookkeeping and payroll",
       "The build and alpha costs, about $24–27k from November to about June"
     ],
-    needNote: "Assumed in every number on this page. Equity and spin-out terms to be agreed over time."
+    needNote: "Assumed in every number in this plan. Equity and spin-out terms to be agreed over time."
   },
 
   product: {

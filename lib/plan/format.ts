@@ -8,9 +8,10 @@ export const fmt$ = (v: number, opts: { k?: boolean; plus?: boolean } = {}) => {
 export const fmtN = (v: number, d = 0) =>
   (Math.round(v * 10 ** d) / 10 ** d).toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
 
-export const SECTIONS: [string, string][] = [
-  ["summary", "Summary"], ["product", "The product"], ["market", "Market and competitors"],
-  ["pricing", "Tiers and pricing"], ["offers", "Offers we’re exploring"], ["timeline", "Timeline"],
-  ["team", "Team and roles"], ["model", "Financial model"], ["scenarios", "Scenarios"],
-  ["risks", "Risks"], ["asks", "Asks of Jason"],
+// One page per section, in reading order. [path, nav label]
+export const PAGES: [string, string][] = [
+  ["/", "Summary"], ["/product", "The product"], ["/market", "Market and competitors"],
+  ["/pricing", "Tiers and pricing"], ["/offers", "Offers we’re exploring"], ["/timeline", "Timeline"],
+  ["/team", "Team and roles"], ["/model", "Financial model"], ["/scenarios", "Scenarios"],
+  ["/risks", "Risks"], ["/asks", "Asks of Jason"],
 ];

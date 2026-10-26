@@ -1,7 +1,9 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { SECTIONS } from "@/lib/plan/format";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { PAGES } from "@/lib/plan/format";
 import { CONTENT as C } from "@/lib/plan/content";
 
 function Logo({ size = 22 }: { size?: number }) {
@@ -13,50 +15,52 @@ function Logo({ size = 22 }: { size?: number }) {
   );
 }
 
-function useActiveSection() {
-  const [active, setActive] = useState("summary");
-  useEffect(() => {
-    const io = new IntersectionObserver(
-      (entries) => entries.forEach((en) => { if (en.isIntersecting) setActive(en.target.id); }),
-      { rootMargin: "-35% 0px -60% 0px" },
-    );
-    SECTIONS.forEach(([id]) => { const el = document.getElementById(id); if (el) io.observe(el); });
-    return () => io.disconnect();
-  }, []);
-  return active;
+function NavLinks() {
+  const path = usePathname();
+  return PAGES.map(([href, t]) => (
+    <li key={href}><Link href={href} aria-current={path === href ? "page" : undefined}>{t}</Link></li>
+  ));
 }
 
 export function SideNav() {
-  const active = useActiveSection();
   return (
-    <nav className="sidenav" aria-label="Sections">
-      <div className="brand">
+    <nav className="sidenav" aria-label="Plan sections">
+      <Link href="/" className="brand">
         <div className="brand-mark"><Logo /><span>CMS Plus</span></div>
         <div className="brand-sub">One-year plan · draft</div>
-      </div>
-      <ul className="navlist">
-        {SECTIONS.map(([id, t]) => <li key={id}><a href={`#${id}`} aria-current={active === id ? "true" : undefined}>{t}</a></li>)}
-      </ul>
+      </Link>
+      <ul className="navlist"><NavLinks /></ul>
       <div className="nav-foot">Prepared for Jason Jeffery, Catapult.<br />{C.meta.date} · every figure is a planning estimate.</div>
     </nav>
   );
 }
 
 export function TopNav() {
-  const active = useActiveSection();
+  const path = usePathname();
   const list = useRef<HTMLUListElement>(null);
+  // Keep the current page's chip in view on small screens.
   useEffect(() => {
     const ul = list.current;
-    if (!ul || getComputedStyle(ul.parentElement!).display === "none") return;
-    const a = ul.querySelector<HTMLAnchorElement>(`a[href="#${active}"]`);
-    if (a) ul.scrollTo({ left: a.offsetLeft - ul.clientWidth / 2 + a.clientWidth / 2, behavior: "smooth" });
-  }, [active]);
+    const a = ul?.querySelector<HTMLAnchorElement>('a[aria-current="page"]');
+    if (ul && a) ul.scrollLeft = a.offsetLeft - ul.clientWidth / 2 + a.clientWidth / 2;
+  }, [path]);
   return (
-    <header className="topnav" aria-label="Sections">
-      <div className="topnav-in"><div className="brand-mark"><Logo size={20} /><span>CMS Plus · one-year plan</span></div></div>
-      <ul ref={list}>
-        {SECTIONS.map(([id, t]) => <li key={id}><a href={`#${id}`} aria-current={active === id ? "true" : undefined}>{t}</a></li>)}
-      </ul>
+    <header className="topnav" aria-label="Plan sections">
+      <div className="topnav-in"><Link href="/" className="brand-mark"><Logo size={20} /><span>CMS Plus · one-year plan</span></Link></div>
+      <ul ref={list}><NavLinks /></ul>
     </header>
+  );
+}
+
+export function Pager() {
+  const path = usePathname();
+  const i = PAGES.findIndex(([href]) => href === path);
+  if (i < 0) return null;
+  const prev = PAGES[i - 1], next = PAGES[i + 1];
+  return (
+    <nav className="pager" aria-label="Previous and next section">
+      {prev ? <Link href={prev[0]} className="pager-prev"><span>Previous</span>{prev[1]}</Link> : <span />}
+      {next ? <Link href={next[0]} className="pager-next"><span>Next</span>{next[1]}</Link> : <span />}
+    </nav>
   );
 }

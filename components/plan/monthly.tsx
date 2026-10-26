@@ -161,7 +161,7 @@ function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 
         <Heading id={`${id}-h`}>{title}</Heading>
         <p className="muted small">{intro}</p>
       </div>
-      {opening ? (
+      {opening && !compact ? (
         <dl className="cash-stats">
           <div><dt>Debt carried in</dt><dd className="neg">{fmt$(opening, { k: true })}</dd><span>build and alpha, Nov 2026 – Jun 2027</span></div>
           <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>

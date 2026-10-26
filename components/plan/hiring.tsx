@@ -44,7 +44,7 @@ export function HiringPlanner({ inputs }: { inputs: Inputs }) {
       <div className="hiring-top">
         <div>
           <h3>Who joins full-time, and when</h3>
-          <p className="muted small">Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Hubert, then the sales associate, then Adam. The faint dot marks that month.</p>
+          <p className="muted small">Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Adam, then Hubert, then the sales associate. The faint dot marks that month.</p>
         </div>
         <button type="button" className="btn" disabled={!anyChosen} onClick={() => setHires({})}>Reset to automatic</button>
       </div>

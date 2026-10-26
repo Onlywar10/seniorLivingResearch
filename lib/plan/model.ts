@@ -13,7 +13,7 @@ export type Inputs = {
   perOrg: number; // average communities per organisation
   p1Fixed: number; // Phase 1 build and alpha cost per month, Nov 2026 – Jun 2027 (Catapult pays)
   p2Fixed: number; // Phase 2 fixed monthly cost before Adam is paid (written plan only: everyone hired at launch)
-  staged: boolean; // hire Hubert, then the sales associate, then Adam, each once revenue covers them
+  staged: boolean; // bring Adam on full-time, then Hubert, then the sales associate, each once revenue covers them
   otherFixed: number; // non-staff monthly costs from launch: tools, ads, trade shows, travel
   hubertPT: number; // Hubert part-time (contractor) until he goes full-time
   hubertFT: number; // Hubert full-time: $62k salary plus taxes and health
@@ -52,7 +52,7 @@ export const MONTH_NAMES = ["Jul 2027", "Aug 2027", "Sep 2027", "Oct 2027", "Nov
 
 // Staged hiring: who joins full-time, in the order the plan wants them.
 export type StaffKey = "hubert" | "sales" | "adam";
-export const STAFF_ORDER: StaffKey[] = ["hubert", "sales", "adam"];
+export const STAFF_ORDER: StaffKey[] = ["adam", "hubert", "sales"];
 // Month each person starts full-time: 1–12 = Year 1 month, 13 = after Year 1. Missing = automatic
 // (the first month revenue, after every existing cost, also covers them).
 export type Hires = Partial<Record<StaffKey, number>>;

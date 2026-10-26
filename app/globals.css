@@ -659,3 +659,33 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .pdf-actions { display: flex; gap: 6px; flex-wrap: wrap; }
 .pdf-actions a.btn { text-decoration: none; }
 .pdf-frame { flex: 1; width: 100%; border: 0; background: #525659; }
+
+/* ---------- month detail pop-up ---------- */
+.click-hint { margin: 0; }
+.cash-table tr.clickable { cursor: pointer; }
+.cash-table tr.clickable:hover th, .cash-table tr.clickable:hover td { background: var(--accent-soft); }
+.row-open { font: inherit; font-weight: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-decoration-color: var(--line-2); text-underline-offset: 3px; }
+.row-open:hover { text-decoration-color: var(--accent); }
+.month-dialog { position: fixed; inset: 0; margin: auto; width: min(980px, 95vw); max-height: 90vh; padding: 0; border: 0; border-radius: var(--radius); box-shadow: 0 24px 60px -12px rgba(0,0,0,.45); }
+.month-dialog::backdrop { background: rgba(20, 26, 24, .55); backdrop-filter: blur(2px); }
+.md-body { padding: var(--s5); display: grid; gap: var(--s4); }
+.md-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--s3); flex-wrap: wrap; }
+.md-head h2 { font-size: 1.4rem; }
+.md-nav { display: flex; gap: 6px; flex-wrap: wrap; }
+.md-tables { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: var(--s4); align-items: start; }
+.md-table { width: 100%; border-collapse: collapse; font-size: .84rem; border: 1px solid var(--line); border-radius: var(--radius); }
+.md-table caption { caption-side: top; text-align: left; font-weight: 700; font-size: .95rem; padding: 0 0 var(--s2); color: var(--ink); border: 0; }
+.md-table th, .md-table td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.md-table thead th { background: var(--panel); font-size: .74rem; color: var(--ink-3); }
+.md-table tbody th { font-weight: 600; }
+.md-table td.r, .md-table th.r { text-align: right; }
+.md-table td.rev { color: var(--pos); font-weight: 600; }
+.md-table tfoot th, .md-table tfoot td { font-weight: 700; background: var(--panel); border-top: 1px solid var(--ink); border-bottom: 0; }
+.md-result { margin: 0; display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid var(--ink); }
+.md-result div { padding: var(--s3) 0; display: grid; gap: 2px; }
+.md-result div + div { padding-left: var(--s4); border-left: 1px solid var(--line); }
+.md-result dt { font-size: .78rem; color: var(--ink-2); }
+.md-result dd { margin: 0; font-size: 1.35rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) { .md-tables { grid-template-columns: 1fr; } .md-body { padding: var(--s4); } }
+.month-dialog { overflow-y: auto; }
+@media (max-width: 560px) { .md-price { display: none; } .md-table { font-size: .8rem; } .md-table th, .md-table td { padding: 6px 7px; } }

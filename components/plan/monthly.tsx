@@ -77,7 +77,7 @@ function CashChart({ rows, mark, label, opening = 0 }: { rows: CashRow[]; mark?:
 // Revenue in green; every cost rolled into one Total costs column. The summary's compact
 // version fits half the page without scrolling: no Stage column, setup fees net of any
 // discount in one "Setup net" column, and amounts in thousands.
-export function CashTable({ rows, opt, compact = false, opening = 0 }: { rows: CashRow[]; opt: CashOptions; compact?: boolean; opening?: number }) {
+export function CashTable({ rows, opt, compact = false, opening = 0, onRowClick }: { rows: CashRow[]; opt: CashOptions; compact?: boolean; opening?: number; onRowClick?: (i: number) => void }) {
   const t = cashTotals(rows);
   const showSetup = opt.includeSetup, showCredit = !compact && opt.includeSetup && opt.creditFirst10;
   const f = (v: number, plus = false) => fmt$(v, { plus, k: compact });
@@ -106,9 +106,11 @@ export function CashTable({ rows, opt, compact = false, opening = 0 }: { rows: C
               <td className="r num strong" colSpan={2}>{money(opening, true)}</td>
             </tr>
           ) : null}
-          {rows.map((r) => (
-            <tr key={r.label} className={r.paying === 0 ? "pre" : ""}>
-              <th scope="row">{compact ? r.label.replace(" 20", " ’") : r.label}</th>
+          {rows.map((r, i) => (
+            <tr key={r.label} className={`${r.paying === 0 ? "pre" : ""} ${onRowClick ? "clickable" : ""}`} onClick={onRowClick ? () => onRowClick(i) : undefined}>
+              <th scope="row">{onRowClick
+                ? <button type="button" className="row-open" onClick={(e) => { e.stopPropagation(); onRowClick(i); }} aria-label={`Details for ${r.label}`}>{compact ? r.label.replace(" 20", " ’") : r.label}</button>
+                : compact ? r.label.replace(" 20", " ’") : r.label}</th>
               {compact ? null : <td className="muted">{r.phase}</td>}
               <td className="r num pay">{r.paying ? fmtN(r.paying, compact ? 0 : 1) : "—"}</td>
               <td className="r num rev">{f(r.revenue)}</td>

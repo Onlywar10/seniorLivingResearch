@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart, registerables, type Plugin, type TooltipItem } from "chart.js";
 import { allMonths, cashTotals, STAFF_ORDER, type StaffKey } from "@/lib/plan/model";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { useModel } from "./model-state";
 import { CashTable } from "./monthly";
+import { MonthDetail } from "./month-detail";
 
 Chart.register(...registerables);
 
@@ -95,6 +96,7 @@ export function ExplorerControls({ show, setShow }: {
 export function Explorer({ show }: { show: Record<SeriesKey, boolean> }) {
   const { state, hires, cashOpt, win } = useModel();
   const endIndex = Math.max(win.from, win.to);
+  const [open, setOpen] = useState<number | null>(null); // month pop-up, as a position in the shown months
   const rows = useMemo(() => allMonths(state, cashOpt, hires, endIndex), [state, cashOpt, hires, endIndex]);
 
   const from = Math.min(win.from, win.to), to = Math.max(win.from, win.to);
@@ -121,15 +123,22 @@ export function Explorer({ show }: { show: Record<SeriesKey, boolean> }) {
         <div><dt>Lowest point</dt><dd className={Math.min(opening, t.low.cum) < 0 ? "neg" : ""}>{fmt$(Math.min(opening, t.low.cum), { k: true, plus: true })}</dd><span>{t.low.cum < opening ? t.low.label : from > 0 ? "at the start" : "—"}</span></div>
       </dl>
 
-      <ExplorerChart rows={view} opening={opening} show={show} marks={hireIdx} />
-      <CashTable rows={view} opt={cashOpt} opening={opening} compact />
+      <p className="small muted click-hint">Click any month on the chart or in the table to see its revenue and costs line by line.</p>
+      <ExplorerChart rows={view} opening={opening} show={show} marks={hireIdx} onMonth={setOpen} />
+      <CashTable rows={view} opt={cashOpt} opening={opening} compact onRowClick={setOpen} />
+      <MonthDetail rows={view} index={open !== null && open < view.length ? open : null} onIndex={setOpen} onClose={() => setOpen(null)} />
     </div>
   );
 }
 
-function ExplorerChart({ rows, opening, show, marks }: { rows: ReturnType<typeof allMonths>; opening: number; show: Record<SeriesKey, boolean>; marks: Marks }) {
+function ExplorerChart({ rows, opening, show, marks, onMonth }: { rows: ReturnType<typeof allMonths>; opening: number; show: Record<SeriesKey, boolean>; marks: Marks; onMonth: (i: number) => void }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const chart = useRef<Chart | null>(null);
+  // The chart is created once, so clicks go through a ref that always holds the latest handler.
+  const click = useRef<(i: number) => void>(() => {});
+  useEffect(() => {
+    click.current = (i: number) => { const lead = opening ? 1 : 0; if (i - lead >= 0) onMonth(i - lead); };
+  });
   useEffect(() => {
     const ff = getComputedStyle(document.body).fontFamily;
     const tick = { color: "#6b7471", font: { family: ff, size: 11 } };
@@ -144,6 +153,13 @@ function ExplorerChart({ rows, opening, show, marks }: { rows: ReturnType<typeof
       options: {
         maintainAspectRatio: false, animation: { duration: 260 },
         interaction: { mode: "index", intersect: false },
+        // Work out the month from the click position, wherever on the plot it lands.
+        onClick: (e: { x: number | null }, _items: unknown, ch: Chart) => {
+          if (e.x === null) return;
+          const i = Math.round(ch.scales.x.getValueForPixel(e.x) ?? -1);
+          if (i >= 0 && i < (ch.data.labels?.length ?? 0)) click.current(i);
+        },
+        onHover: (e: { native?: Event | null }, items: unknown[]) => { const t = e.native?.target as HTMLElement | undefined; if (t) t.style.cursor = items.length ? "pointer" : "default"; },
         plugins: {
           legend: { display: false },
           tooltip: { backgroundColor: INK, padding: 10, cornerRadius: 6, callbacks: {

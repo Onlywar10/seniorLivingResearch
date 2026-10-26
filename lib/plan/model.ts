@@ -27,7 +27,7 @@ export type Inputs = {
   hubertPT: number; // Hubert part-time (contractor) until he goes full-time
   hubertFT: number; // Hubert full-time: $62k salary plus taxes and health
   salesCost: number; // sales associate: $55k base plus taxes and health (the plan loaded $60k to $6,200, about 24%)
-  commission: number; // % commission on first-year contract value of new communities, once the sales associate starts
+  commission: number; // % of the monthly fees of communities the sales associate has signed, paid each month
   adam: number; // Adam's monthly cost once paid
   p3Fixed: number; // Phase 3 (Year 2) fixed monthly cost
   catapultCovers: boolean;
@@ -61,7 +61,7 @@ export const PLAN_DEFAULTS: Inputs = {
   salesCost: 5700,
   commission: 10,
   adam: 5600, // $62k salary plus payroll taxes (the plan loaded $70k to $6,300, about 8%)
-  p3Fixed: 29970, // the plan's $35,770 less Tim ($55k, about $5,800 a month): Tim is free for now
+  p3Fixed: 25770, // the plan's $35,770 less Tim (about $5,800 a month, free for now) and its flat $4,200 commission (now charged per community)
   catapultCovers: true,
   whole: true,
 };
@@ -265,7 +265,8 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
     milestone("Phase 1 · build and alpha", 0, 0, inp.p1Fixed),
     milestone("Phase 2 · break-even", breakEvenPost, bePaid ? breakEvenPost * avgPrice : 0, bePaid ? fixedPost + breakEvenPost * inp.runCost : 0),
     milestone("End of beta · $600k ARR", nEob, 50000, fixedPost + nEob * inp.runCost),
-    milestone("Phase 3 · $1M ARR spin-out", n1m, 1e6 / 12, inp.p3Fixed + extra + n1m * inp.runCost),
+    // Commission at $1M ARR: 10% of fees on the communities the associate signed (all but alpha and waitlist).
+    milestone("Phase 3 · $1M ARR spin-out", n1m, 1e6 / 12, inp.p3Fixed + extra + n1m * inp.runCost + (inp.staged ? Math.max(0, n1m - inp.alpha - inp.waitlist) * avgPrice * rate : 0)),
   ];
 
   return {

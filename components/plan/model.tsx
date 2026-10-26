@@ -45,7 +45,7 @@ const GROUPS: { id: string; group: string; items: Control[] }[] = [
     { key: "hubertPT", label: "Hubert part-time, until full-time", min: 0, max: 6000, step: 100, f: money },
     { key: "hubertFT", label: "Hubert full-time ($62k + taxes and health)", min: 3000, max: 12000, step: 100, f: money },
     { key: "salesCost", label: "Sales associate ($55k base + taxes and health)", min: 3000, max: 12000, step: 100, f: money },
-    { key: "commission", label: "Sales commission on first-year contracts", min: 0, max: 20, step: 1, f: pctf },
+    { key: "commission", label: "Sales commission (% of monthly fees on the communities they sign)", min: 0, max: 20, step: 1, f: pctf },
   ]},
 ];
 const TABS = [...GROUPS.map((g) => ({ id: g.id, label: g.group })), { id: "hiring", label: "Hiring dates" }, { id: "setup", label: "Setup fees" }];

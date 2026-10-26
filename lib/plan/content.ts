@@ -25,7 +25,7 @@ export const CONTENT = {
       { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
       { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
       { value: "≈45%", label: "Operating margin in June 2028, after every cost including Adam", tag: "derived" },
-      { value: "≈54%", label: "Operating margin at about $1M ARR, the spin-out point (Tim free for now)", tag: "derived" }
+      { value: "≈53%", label: "Operating margin at about $1M ARR, the spin-out point (Tim free for now)", tag: "derived" }
     ],
     needTitle: "What we need from Catapult",
     need: [
@@ -270,7 +270,7 @@ export const CONTENT = {
       ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "First full-time hire: $62k salary once revenue covers it (from the beta launch, Jul 2027)", "$62k (for now)"],
       ["Tim", "Customer success: onboarding, training, support, research", "Unpaid", "Free (for now)", "Free (for now)"],
       ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue covers it, after Adam (from Jul 2027)", "Full-time; more developers as needed"],
-      ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue covers it, after Hubert (from Jul 2027): $55k base + about 10% commission", "Same"],
+      ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue covers it, after Hubert (from Jul 2027): $55k base + 10% of the monthly fees of the communities they sign", "Same"],
       ["Dave (Catapult)", "Mentor and technical guidance; platform decisions", "From 1 Nov", "Catapult’s call", "Catapult’s call"]
     ],
     capacity: [
@@ -283,11 +283,6 @@ export const CONTENT = {
 
   model: {
     intro: "Move any input, drag a hire or change the timeframe, and every number, chart and table recalculates. The marks on each slider show where the plan sits. Everything is a planning estimate.",
-    phase2Breakdown: [
-      ["Staff", "$17,800", "Hubert $7,400 · sales associate $6,200 + commission ≈$4,200 · Tim $0"],
-      ["Software and tools", "$1,000", ""],
-      ["Acquisition", "$3,670", "Ads $2,000 · trade shows $10k a year · travel $10k a year"]
-    ],
     coverNote: "Catapult covers insurance, legal, bookkeeping and payroll"
   },
 

@@ -58,10 +58,12 @@ export const STAFF_ORDER: StaffKey[] = ["adam", "hubert", "sales"];
 export type Hires = Partial<Record<StaffKey, number>>;
 export const AFTER_YEAR_1 = 13;
 
-export type Month = { m: number; label: string; paying: number; revenue: number; fixed: number; running: number; cost: number; result: number; adamPaid: boolean; starts: StaffKey[] };
+export type Month = { m: number; label: string; paying: number; revenue: number; setup: number; credit: number; fixed: number; running: number; cost: number; result: number; adamPaid: boolean; starts: StaffKey[] };
 export type Milestone = { name: string; n: number; revenue: number; cost: number; margin: number | null };
 
-export function computeModel(inp: Inputs, hires: Hires = {}) {
+// cash: whether one-time setup fees (less any First 10 credit) count as income. When they do,
+// they also count towards whether a month can cover the next hire.
+export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions = NO_SETUP) {
   const extra = inp.catapultCovers ? 0 : 1500;
   const mix = inp.mix / 100, churn = inp.churn / 100;
   const avgPrice = mix * inp.clPrice + (1 - mix) * inp.websitePrice;
@@ -75,6 +77,9 @@ export function computeModel(inp: Inputs, hires: Hires = {}) {
   const alphaPrice = (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
   const newTotal = Math.max(0, inp.signed - inp.alpha);
   const newPerMonth = newTotal / 11;
+  const setupPerOrg = 2500 + 1000 * inp.perOrg + 1000 + mix * 250 * inp.perOrg;
+  const creditOrgCap = Math.min(CREDIT_ORGS, CREDIT_COMMUNITIES / inp.perOrg);
+  let orgsSoFar = 0;
 
   let alphaN = inp.alpha, otherN = 0, cum = 0;
   let adamMonth: number | null = null;
@@ -85,6 +90,12 @@ export function computeModel(inp: Inputs, hires: Hires = {}) {
     const paying = alphaN + otherN;
     const revenue = alphaN * alphaPrice + otherN * avgPrice;
     const running = paying * inp.runCost;
+    // Setup fees: new organisations pay up front in the month they sign (from month 2).
+    const newOrgs = m > 1 ? newPerMonth / inp.perOrg : 0;
+    const credited = Math.max(0, Math.min(newOrgs, creditOrgCap - orgsSoFar));
+    orgsSoFar += newOrgs;
+    const setup = cash.includeSetup ? newOrgs * setupPerOrg : 0;
+    const credit = cash.includeSetup && cash.creditFirst10 ? credited * setupPerOrg : 0;
     let fixed: number;
     const starts: StaffKey[] = [];
     if (inp.staged) {
@@ -98,7 +109,7 @@ export function computeModel(inp: Inputs, hires: Hires = {}) {
         if (hired[k] !== null || hires[k] !== undefined) continue;
         const earlier = STAFF_ORDER.slice(0, STAFF_ORDER.indexOf(k));
         if (earlier.some((e) => hired[e] === null)) break;
-        if (revenue - running - inp.otherFixed - extra - staff() >= extraCost(k)) start(k); else break;
+        if (revenue + setup - credit - running - inp.otherFixed - extra - staff() >= extraCost(k)) start(k); else break;
       }
       fixed = inp.otherFixed + extra + staff();
       adamMonth = hired.adam;
@@ -109,13 +120,12 @@ export function computeModel(inp: Inputs, hires: Hires = {}) {
     const cost = fixed + running;
     const result = revenue - cost;
     cum += result;
-    months.push({ m, label: MONTH_NAMES[m - 1], paying, revenue, fixed, running, cost, result, adamPaid: adamMonth !== null, starts });
+    months.push({ m, label: MONTH_NAMES[m - 1], paying, revenue, setup, credit, fixed, running, cost, result, adamPaid: adamMonth !== null, starts });
   }
   const last = months[11];
   const be = (f: number) => (contrib > 0 ? Math.ceil(f / contrib) : Infinity);
   const breakEvenPre = be(fixedPre), breakEvenPost = be(fixedPost);
 
-  const setupPerOrg = 2500 + 1000 * inp.perOrg + 1000 + mix * 250 * inp.perOrg;
   const orgs = newTotal / inp.perOrg;
   const setupCash = orgs * setupPerOrg;
 
@@ -143,6 +153,9 @@ export type ModelResult = ReturnType<typeof computeModel>;
 
 // ---- Month by month, with setup fees and the First 10 Organisations credit ----
 
+export const NO_SETUP: CashOptions = { includeSetup: false, creditFirst10: false };
+export const DEFAULT_CASH: CashOptions = { includeSetup: true, creditFirst10: false };
+
 export type CashOptions = {
   includeSetup: boolean; // count one-time setup fees as income in the month they're paid
   creditFirst10: boolean; // First 10 Organisations offer: their setup is credited back, so it isn't kept
@@ -164,17 +177,10 @@ const BUILD_MONTHS = ["Nov 2026", "Dec 2026", "Jan 2027", "Feb 2027", "Mar 2027"
 const STARTS_LABEL: Record<StaffKey, string> = { hubert: "Hubert full-time", sales: "sales associate starts", adam: "Adam paid" };
 
 export function year1Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}): CashRow[] {
-  const r = computeModel(inp, hires);
-  const mix = inp.mix / 100;
-  const setupPerOrg = 2500 + 1000 * inp.perOrg + 1000 + mix * 250 * inp.perOrg;
-  const creditOrgCap = Math.min(CREDIT_ORGS, CREDIT_COMMUNITIES / inp.perOrg);
-  let orgsSoFar = 0, cum = 0;
+  const r = computeModel(inp, hires, opt);
+  let cum = 0;
   return r.months.map((m) => {
-    const newOrgs = m.m > 1 ? r.newPerMonth / inp.perOrg : 0;
-    const credited = Math.max(0, Math.min(newOrgs, creditOrgCap - orgsSoFar));
-    orgsSoFar += newOrgs;
-    const setup = opt.includeSetup ? newOrgs * setupPerOrg : 0;
-    const credit = opt.includeSetup && opt.creditFirst10 ? credited * setupPerOrg : 0;
+    const { setup, credit } = m;
     const result = m.revenue + setup - credit - m.cost;
     cum += result;
     return { label: m.label, phase: [`Year 1 · M${m.m}`, ...m.starts.map((k) => STARTS_LABEL[k])].join(" · "), paying: m.paying, revenue: m.revenue, setup, credit, fixed: m.fixed, running: m.running, cost: m.cost, result, cum };

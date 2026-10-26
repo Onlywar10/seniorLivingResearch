@@ -29,9 +29,9 @@ const slotLabel = (slot: number) => (slot === AFTER_YEAR_1 ? "after Year 1" : MO
 // Drag each person to the month they start full-time. A faint marker shows the month revenue
 // would first cover them; "Reset to automatic" puts everyone back on that rule.
 export function HiringPlanner({ inputs }: { inputs: Inputs }) {
-  const { hires, setHires } = useModel();
-  const auto = useMemo(() => computeModel(inputs, {}).hired, [inputs]);
-  const actual = useMemo(() => computeModel(inputs, hires).hired, [inputs, hires]);
+  const { hires, setHires, cashOpt } = useModel();
+  const auto = useMemo(() => computeModel(inputs, {}, cashOpt).hired, [inputs, cashOpt]);
+  const actual = useMemo(() => computeModel(inputs, hires, cashOpt).hired, [inputs, hires, cashOpt]);
   const anyChosen = STAFF_ORDER.some((k) => hires[k] !== undefined);
   const set = (k: StaffKey, slot: number | undefined) => setHires((h) => {
     const next = { ...h };
@@ -44,7 +44,7 @@ export function HiringPlanner({ inputs }: { inputs: Inputs }) {
       <div className="hiring-top">
         <div>
           <h3>Who joins full-time, and when</h3>
-          <p className="muted small">Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Adam, then Hubert, then the sales associate. The faint dot marks that month.</p>
+          <p className="muted small">Drag each person to the month they start. Left alone, each starts the first month revenue covers them, in order: Adam, then Hubert, then the sales associate. Setup fees count towards that when they’re switched on above. The faint dot marks that month.</p>
         </div>
         <button type="button" className="btn" disabled={!anyChosen} onClick={() => setHires({})}>Reset to automatic</button>
       </div>

@@ -21,7 +21,7 @@ export const CONTENT = {
       { value: "$349–1,149", label: "Per community per month: Website $349 · Community Life $649 · Complete $1,149", tag: "draft" },
       { value: "≈75 paying", label: "Communities at month 12: 80 signed, after about 1% leave each month", tag: "estimate" },
       { value: "≈$508k", label: "Annual recurring revenue at month 12, expected case", tag: "derived" },
-      { value: "≈50 communities", label: "Break-even with the full team and Adam paid; Adam is the first full-time hire, about month 3", tag: "derived" },
+      { value: "≈50 communities", label: "Break-even with the full team and Adam paid; Adam is the first full-time hire, about month 2", tag: "derived" },
       { value: "Jul ’27 – Jul ’28", label: "Year 1. Development starts Nov 2026; usable MVP Feb–Mar 2027", tag: "estimate" },
       { value: "≈$24–27k", label: "Build and alpha, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
       { value: "≈28%", label: "Operating margin at month 12, after every cost including Adam", tag: "derived" },
@@ -254,10 +254,10 @@ export const CONTENT = {
       { lane: 1, row: 2, from: 16, to: 16, label: "Break-even (expected)", milestone: true, strong: true },
       { lane: 1, row: 3, from: 20, to: 20, label: "80 signed · ≈75 paying", milestone: true, strong: true },
       { lane: 2, row: 0, from: 0, to: 7, label: "Build and alpha ≈$3,400 a month (Catapult)" },
-      { lane: 2, row: 1, from: 10, to: 10, label: "Adam full-time and paid", milestone: true },
-      { lane: 2, row: 2, from: 11, to: 11, label: "Hubert full-time", milestone: true },
+      { lane: 2, row: 1, from: 9, to: 9, label: "Adam full-time and paid", milestone: true },
+      { lane: 2, row: 2, from: 9, to: 9, label: "Hubert full-time", milestone: true },
       { lane: 2, row: 0, from: 8, to: 20, label: "Year 1 costs grow as each hire is covered" },
-      { lane: 2, row: 1, from: 15, to: 15, label: "Sales associate starts", milestone: true },
+      { lane: 2, row: 3, from: 11, to: 11, label: "Sales associate starts", milestone: true },
       { lane: 2, row: 2, from: 20, to: 20, label: "Phase 3 hires begin", milestone: true }
     ],
     note: "Year 1 month 1 is July 2027; month 12 is July 2028. Dates after alpha move if alpha moves."
@@ -267,10 +267,10 @@ export const CONTENT = {
     intro: "The split you described: Catapult contributes the platform; Adam brings sales, marketing, scaling and operations. Each hire waits until revenue can carry it.",
     columns: ["Person", "Role", "Build and alpha (Phase 1)", "Year 1 (Phase 2)", "Year 2 (Phase 3)"],
     rows: [
-      ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "First full-time hire: $62k salary once revenue covers it (about Sep 2027)", "$62k (for now)"],
+      ["Adam", "Head of Senior Living, Catapult: product, sales, marketing, operations", "Unpaid; developing alongside Hubert and preparing sales", "First full-time hire: $62k salary once revenue and setup fees cover it (about Aug 2027)", "$62k (for now)"],
       ["Tim", "Customer success: onboarding, training, support, research", "Unpaid", "Free for the first year", "$55k"],
-      ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue covers it, after Adam (about Oct 2027)", "Full-time; more developers as needed"],
-      ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue covers it, after Hubert (about Feb 2028): $60k base + about 10% commission", "Same"],
+      ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue and setup fees cover it, after Adam (about Aug 2027)", "Full-time; more developers as needed"],
+      ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue and setup fees cover it, after Hubert (about Oct 2027): $60k base + about 10% commission", "Same"],
       ["Dave (Catapult)", "Mentor and technical guidance; platform decisions", "From 1 Nov", "Catapult’s call", "Catapult’s call"]
     ],
     capacity: [
@@ -302,7 +302,7 @@ export const CONTENT = {
     first12Short: "From development start: eight months of build and alpha (no revenue), then the first four months of sales.",
     year1Short: "The 12 months from beta launch, when revenue starts.",
     summaryTitle: "Month by month",
-    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. Hires are staged: Adam comes on full-time first, then Hubert, then the sales associate, each in the first month revenue covers them. Drag them to test other dates.",
+    summaryIntro: "The plan’s expected case: 80 communities signed by month 12, 20 of them alpha communities converting in July (80% Community Life at $519, 20% Website at $349). Bars are each month’s result; the line is the running total. Hires are staged: Adam comes on full-time first, then Hubert, then the sales associate, each in the first month revenue (plus setup fees, when switched on) covers them. Drag them to test other dates.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",
     year1Intro: "The 12 months from beta launch, when revenue starts. This is the period behind “operating result over Year 1”."
   },

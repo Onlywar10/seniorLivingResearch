@@ -2,13 +2,15 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { flushSync } from "react-dom";
-import { computeModel, PLAN_DEFAULTS, type Hires, type Inputs, type ModelResult } from "@/lib/plan/model";
+import { computeModel, DEFAULT_CASH, PLAN_DEFAULTS, type CashOptions, type Hires, type Inputs, type ModelResult } from "@/lib/plan/model";
 
 type ModelState = {
   state: Inputs;
   setState: React.Dispatch<React.SetStateAction<Inputs>>;
   hires: Hires;
   setHires: React.Dispatch<React.SetStateAction<Hires>>;
+  cashOpt: CashOptions;
+  setCashOpt: React.Dispatch<React.SetStateAction<CashOptions>>;
   plan: ModelResult;
   r: ModelResult;
   sc: { s: number; r: ModelResult }[];
@@ -21,9 +23,11 @@ const Ctx = createContext<ModelState | null>(null);
 export function ModelProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<Inputs>(PLAN_DEFAULTS);
   const [hires, setHires] = useState<Hires>({});
-  const plan = useMemo(() => computeModel(PLAN_DEFAULTS), []);
-  const r = useMemo(() => computeModel(state, hires), [state, hires]);
-  const sc = useMemo(() => [50, 80, 110].map((s) => ({ s, r: computeModel({ ...state, signed: s }, hires) })), [state, hires]);
+  // Setup fees count by default, and feed into when each person can be hired.
+  const [cashOpt, setCashOpt] = useState<CashOptions>(DEFAULT_CASH);
+  const plan = useMemo(() => computeModel(PLAN_DEFAULTS, {}, DEFAULT_CASH), []);
+  const r = useMemo(() => computeModel(state, hires, cashOpt), [state, hires, cashOpt]);
+  const sc = useMemo(() => [50, 80, 110].map((s) => ({ s, r: computeModel({ ...state, signed: s }, hires, cashOpt) })), [state, hires, cashOpt]);
   const changed = (Object.keys(PLAN_DEFAULTS) as (keyof Inputs)[]).some((k) => state[k] !== PLAN_DEFAULTS[k]);
 
   // Print always shows the plan's defaults, then restores the reader's settings.
@@ -36,7 +40,7 @@ export function ModelProvider({ children }: { children: React.ReactNode }) {
     return () => { window.removeEventListener("beforeprint", before); window.removeEventListener("afterprint", after); };
   }, []);
 
-  return <Ctx.Provider value={{ state, setState, hires, setHires, plan, r, sc, changed }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ state, setState, hires, setHires, cashOpt, setCashOpt, plan, r, sc, changed }}>{children}</Ctx.Provider>;
 }
 
 export function useModel() {

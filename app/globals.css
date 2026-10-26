@@ -67,7 +67,7 @@ main { flex: 1; }
 /* summary: facts and projection */
 .facts { margin: var(--s5) 0 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s4) var(--s5); }
 .facts div { display: grid; gap: 2px; align-content: start; }
-.facts dt { font-size: .75rem; font-weight: 600; color: var(--ink-3); }
+.facts dt { font-size: .82rem; font-weight: 750; color: var(--ink); }
 .facts dd { margin: 0; font-size: .9rem; color: var(--ink-2); line-height: 1.45; }
 .projection { margin-top: var(--s7); display: grid; gap: var(--s4); }
 .projection-head { display: grid; gap: 4px; }

@@ -325,9 +325,7 @@ export const CONTENT = {
     first12Short: "From the day building starts: eight months of building and the free pilot (the pilot communities start paying in June), then the first four months of sales.",
     year1Short: "The 12 months from the July 2027 launch. The running total starts from what building and the pilot cost before launch.",
     allTitle: "Nov 2026 – Jun 2028: from building to 100 communities",
-    allShort: "Eight months of building and the free pilot (Catapult pays these costs; the pilot communities start paying in June 2027), then Year 1 from the July 2027 launch.",
     summaryTitle: "Month by month",
-    summaryIntro: "Money in and out each month in the expected case, aiming for 100 paying communities by June 2028: the 20 pilot communities pay from June 2027, the 30 waitlist communities join at the July launch, and new ones sign each month. Bars show each month’s result (revenue minus costs); the line is the running total. Click any month to see its revenue and costs line by line.",
     year1Title: "Year 1: Jul 2027 – Jun 2028",
     year1Intro: "The 12 months from beta launch, when revenue starts. The running total starts from the build and alpha costs carried in (Nov 2026 – Jun 2027), so it shows when that debt is paid back."
   },

@@ -151,7 +151,7 @@ export function CashTable({ rows, opt, compact = false, opening = 0, onRowClick 
   );
 }
 
-function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 }: { id: string; title: string; intro: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string }; compact?: boolean; opening?: number }) {
+function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 }: { id: string; title: string; intro?: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string }; compact?: boolean; opening?: number }) {
   const [open, setOpen] = useState<number | null>(null); // month detail pop-up (view only)
   const t = cashTotals(rows);
   const Heading = compact ? "h3" : "h2";
@@ -159,7 +159,7 @@ function View({ id, title, intro, rows, opt, mark, compact = false, opening = 0 
     <section className={`cash-view ${compact ? "compact" : ""}`} aria-labelledby={`${id}-h`}>
       <div className="cash-head">
         <Heading id={`${id}-h`}>{title}</Heading>
-        <p className="muted small">{intro}</p>
+        {intro ? <p className="muted small">{intro}</p> : null}
       </div>
       {opening && !compact ? (
         <dl className="cash-stats">
@@ -219,7 +219,7 @@ export function MonthlySummary() {
     <>
       <Toggles opt={opt} setOpt={setOpt} />
       <HiringDisplay inputs={PLAN_DEFAULTS} />
-      <View id="sum-all" title={M.allTitle} intro={M.allShort} rows={all} opt={opt} mark={{ index: 7, text: "Revenue starts" }} compact />
+      <View id="sum-all" title={M.allTitle} rows={all} opt={opt} mark={{ index: 7, text: "Revenue starts" }} compact />
       <p className="small"><Link href="/model">Change the settings, timeframe and hires on the financial model →</Link></p>
     </>
   );

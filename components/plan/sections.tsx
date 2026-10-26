@@ -43,7 +43,6 @@ export function Summary({ children }: { children: React.ReactNode }) {
         <div className="projection">
           <div className="projection-head">
             <h2>{C.monthly.summaryTitle}</h2>
-            <p className="muted small">{C.monthly.summaryIntro}</p>
           </div>
           {children}
         </div>

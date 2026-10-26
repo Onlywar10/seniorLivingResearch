@@ -54,7 +54,7 @@ export const PLAN_DEFAULTS: Inputs = {
   p2Fixed: 21970,
   staged: true,
   tools: 1000,
-  ads: 1500,
+  ads: 2000,
   showsTravel: 1670,
   hubertPT: 2400,
   hubertFT: 6200,

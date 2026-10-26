@@ -14,8 +14,6 @@ const JUL_2027 = 8; // index of the first Year-1 month in allMonths
 const HIRE_NAME: Record<StaffKey, string> = { adam: "Adam", hubert: "Hubert", sales: "Sales" };
 
 export type SeriesKey = "result" | "cum" | "revenue" | "cost" | "paying";
-export type Window = { from: number; to: number };
-export const DEFAULT_WINDOW: Window = { from: 0, to: 19 };
 export const DEFAULT_SERIES: Record<SeriesKey, boolean> = { result: true, cum: true, revenue: true, cost: true, paying: false };
 const SERIES: { key: SeriesKey; label: string; color: string; dash?: boolean }[] = [
   { key: "result", label: "Monthly result", color: PROFIT },
@@ -26,8 +24,8 @@ const SERIES: { key: SeriesKey; label: string; color: string; dash?: boolean }[]
 ];
 
 const PRESETS: { label: string; from: number; to: number }[] = [
-  { label: "Everything", from: 0, to: 19 },
   { label: "First 12 months", from: 0, to: 11 },
+  { label: "Everything", from: 0, to: 19 },
   { label: "Year 1", from: 8, to: 19 },
   { label: "Build and alpha", from: 0, to: 7 },
 ];
@@ -57,11 +55,10 @@ const marksPlugin: Plugin = {
 };
 
 // Timeframe and series controls. They live in the financial model's dashboard and drive Explorer.
-export function ExplorerControls({ win, setWin, show, setShow }: {
-  win: Window; setWin: React.Dispatch<React.SetStateAction<Window>>;
+export function ExplorerControls({ show, setShow }: {
   show: Record<SeriesKey, boolean>; setShow: React.Dispatch<React.SetStateAction<Record<SeriesKey, boolean>>>;
 }) {
-  const { state, hires, cashOpt } = useModel();
+  const { state, hires, cashOpt, win, setWin } = useModel();
   const rows = useMemo(() => allMonths(state, cashOpt, hires), [state, cashOpt, hires]);
   const from = Math.min(win.from, win.to), to = Math.max(win.from, win.to);
   return (
@@ -95,9 +92,10 @@ export function ExplorerControls({ win, setWin, show, setShow }: {
 }
 
 // The single chart and table: the chosen months, from whatever running total is carried in.
-export function Explorer({ win, show }: { win: Window; show: Record<SeriesKey, boolean> }) {
-  const { state, hires, cashOpt } = useModel();
-  const rows = useMemo(() => allMonths(state, cashOpt, hires), [state, cashOpt, hires]);
+export function Explorer({ show }: { show: Record<SeriesKey, boolean> }) {
+  const { state, hires, cashOpt, win } = useModel();
+  const endIndex = Math.max(win.from, win.to);
+  const rows = useMemo(() => allMonths(state, cashOpt, hires, endIndex), [state, cashOpt, hires, endIndex]);
 
   const from = Math.min(win.from, win.to), to = Math.max(win.from, win.to);
   const view = rows.slice(from, to + 1);

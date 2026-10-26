@@ -2,14 +2,14 @@
 
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { CONTENT as C } from "@/lib/plan/content";
-import { DEFAULT_CASH, runPlanChecks, MONTH_NAMES, PLAN_DEFAULTS, type Inputs, type ModelResult } from "@/lib/plan/model";
+import { allMonths, DEFAULT_CASH, paceTarget, runPlanChecks, MONTH_NAMES, PLAN_DEFAULTS, type CashRow, type Curve, type Inputs, type ModelResult } from "@/lib/plan/model";
 import { useModel } from "./model-state";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { SectionHead } from "./ui";
 import { HiringPlanner } from "./hiring";
-import { DEFAULT_SERIES, DEFAULT_WINDOW, Explorer, ExplorerControls, type SeriesKey, type Window } from "./explorer";
+import { DEFAULT_SERIES, Explorer, ExplorerControls, type SeriesKey } from "./explorer";
 
-type NumKey = Exclude<keyof Inputs, "catapultCovers" | "staged">;
+type NumKey = Exclude<keyof Inputs, "catapultCovers" | "staged" | "target" | "curve">;
 type Control = { key: NumKey; label: string; min: number; max: number; step: number; f: (v: number) => string };
 
 const money = (v: number) => fmt$(v);
@@ -18,8 +18,7 @@ const pctf = (v: number) => `${v}%`;
 
 const GROUPS: { id: string; group: string; items: Control[] }[] = [
   { id: "customers", group: "Customers", items: [
-    { key: "signed", label: "Paying communities signed by month 12", min: 20, max: 200, step: 1, f: count },
-    { key: "alpha", label: "Alpha communities converting at month 1", min: 0, max: 30, step: 1, f: count },
+    { key: "alpha", label: "Alpha communities converting in July 2027", min: 0, max: 30, step: 1, f: count },
     { key: "alphaMix", label: "Alpha share on Community Life (founding price)", min: 0, max: 100, step: 5, f: pctf },
     { key: "mix", label: "Share on Community Life (vs Website)", min: 0, max: 100, step: 5, f: pctf },
     { key: "churn", label: "Monthly churn", min: 0, max: 7, step: 0.5, f: pctf },
@@ -46,11 +45,16 @@ const GROUPS: { id: string; group: string; items: Control[] }[] = [
 ];
 const TABS = [...GROUPS.map((g) => ({ id: g.id, label: g.group })), { id: "hiring", label: "Hiring dates" }, { id: "setup", label: "Setup fees" }];
 
-// The plan's three cases: only the communities signed by month 12 differs.
+// The plan's three cases are paces of signing (50, 80 or 110 by Jun 2028), applied to the chosen period.
 const SCENARIOS = [
-  { id: "slow", label: "Slow", note: "50 signed", inputs: { ...PLAN_DEFAULTS, signed: 50 } },
-  { id: "expected", label: "Expected", note: "80 signed", inputs: PLAN_DEFAULTS },
-  { id: "fast", label: "Fast", note: "110 signed", inputs: { ...PLAN_DEFAULTS, signed: 110 } },
+  { id: "slow", label: "Slow", note: "62% of plan pace", inputs: { ...PLAN_DEFAULTS, signed: 50 } },
+  { id: "expected", label: "Expected", note: "plan pace", inputs: PLAN_DEFAULTS },
+  { id: "fast", label: "Fast", note: "138% of plan pace", inputs: { ...PLAN_DEFAULTS, signed: 110 } },
+];
+const CURVES: { id: Curve; label: string; note: string }[] = [
+  { id: "linear", label: "Linear", note: "the same number of new communities each month" },
+  { id: "exponential", label: "Exponential", note: "new signings grow by a set % each month" },
+  { id: "scurve", label: "S-curve", note: "slow start, fast middle, levelling off" },
 ];
 
 const be = (n: number) => (isFinite(n) ? fmtN(n) : "never");
@@ -70,9 +74,8 @@ function Delta({ v, p, kind, betterHigh = true }: { v: number; p: number; kind: 
 // The financial model: one dashboard of controls (scenario presets, assumptions, hiring dates,
 // setup fees, timeframe and chart series) driving one chart and one table.
 export function ModelSection() {
-  const { state, setState, plan, r, hires, setHires, cashOpt, setCashOpt } = useModel();
+  const { state, setState, plan, r, hires, setHires, cashOpt, setCashOpt, win, end } = useModel();
   const [tab, setTab] = useState("customers");
-  const [win, setWin] = useState<Window>(DEFAULT_WINDOW);
   const [show, setShow] = useState<Record<SeriesKey, boolean>>(DEFAULT_SERIES);
   const isTest = useSyncExternalStore(noSubscribe, () => new URLSearchParams(location.search).has("test"), () => false);
   const test = useMemo(() => (isTest ? runPlanChecks() : null), [isTest]);
@@ -86,6 +89,7 @@ export function ModelSection() {
   const touched = (items: Control[]) => items.some((it) => state[it.key] !== PLAN_DEFAULTS[it.key]);
   const tabChanged: Record<string, boolean> = {
     ...Object.fromEntries(GROUPS.map((g) => [g.id, touched(g.items)])),
+    customers: touched(GROUPS[0].items) || state.target !== null || state.curve !== PLAN_DEFAULTS.curve || state.growth !== PLAN_DEFAULTS.growth || state.signed !== PLAN_DEFAULTS.signed,
     costs: touched(GROUPS[2].items) || state.catapultCovers !== PLAN_DEFAULTS.catapultCovers,
     hiring: Object.keys(hires).length > 0,
     setup: cashOpt.includeSetup !== DEFAULT_CASH.includeSetup || cashOpt.creditFirst10 !== DEFAULT_CASH.creditFirst10,
@@ -94,12 +98,24 @@ export function ModelSection() {
   const resetAll = () => { setState(PLAN_DEFAULTS); setHires({}); setCashOpt(DEFAULT_CASH); };
   const group = GROUPS.find((g) => g.id === tab);
 
-  const cards = outputCards(r, plan, state);
-  const readout = r.adamMonth
-    ? `At these settings you cover every cost, Adam included, from about month ${r.adamMonth} (${MONTH_NAMES[r.adamMonth - 1]}), and finish Year 1 with about ${fmtN(r.paying12)} paying communities and ${fmt$(r.arr12, { k: true })} ARR at a ${fmtN(r.margin12 * 100)}% margin.`
-    : r.result12 >= 0
-      ? `At these settings revenue covers the team by month 12, but not Adam’s salary as well: that needs about ${be(r.breakEvenPost)} paying communities and Year 1 ends with ${fmtN(r.paying12)}.`
-      : `At these settings Year 1 doesn’t cover its costs: month 12 still runs at ${fmt$(r.result12)} a month, and the year as a whole at ${fmt$(r.cumResult, { k: true })}.`;
+  const endIndex = Math.max(win.from, win.to), startIndex = Math.min(win.from, win.to);
+  const rows = useMemo(() => allMonths(state, cashOpt, hires, endIndex).slice(startIndex, endIndex + 1), [state, cashOpt, hires, startIndex, endIndex]);
+  const planRows = useMemo(() => allMonths(PLAN_DEFAULTS, DEFAULT_CASH, {}, endIndex).slice(startIndex, endIndex + 1), [startIndex, endIndex]);
+  const endLabel = rows[rows.length - 1].label;
+  const span = `${rows[0].label} – ${endLabel}`;
+  const adamIn = r.adamMonth !== null && r.adamMonth <= end;
+  const cards = outputCards(r, plan, rows, planRows, endLabel, end, state.perOrg);
+  const opResult = rows.reduce((a, x) => a + x.revenue - x.cost, 0);
+  // Setup fees are one-time, so the readout gives the end month both before and after them.
+  const last = rows[rows.length - 1];
+  const withSetup = r.resultEnd + last.setup - last.credit;
+  const setupNote = cashOpt.includeSetup && last.setup > 0 ? `, or ${fmt$(withSetup, { plus: true })} counting that month’s setup fees` : "";
+  const readout = end < 1
+    ? `This period (${span}) ends before sales start in July 2027, so it’s build and alpha costs only: ${fmt$(-opResult, { k: true })}, paid by Catapult.`
+    : `Over ${span}: ${adamIn ? `Adam’s salary is covered from ${MONTH_NAMES[r.adamMonth! - 1]}${cashOpt.includeSetup ? " (counting setup fees)" : ""}` : "Adam’s salary isn’t covered within this period"}, and the period ends with about ${fmtN(r.payingEnd)} paying communities and ${fmt$(r.arrEnd, { k: true })} ARR. In ${endLabel} the business runs at ${fmt$(r.resultEnd, { plus: true })} a month before setup fees${setupNote}.`;
+  const pace = Math.round(paceTarget(state, end));
+  const planPace = Math.round(paceTarget(PLAN_DEFAULTS, end));
+  const target = state.target ?? pace;
 
   return (
     <section className="section" id="model" aria-labelledby="model-h">
@@ -118,7 +134,7 @@ export function ModelSection() {
                   </button>
                 );
               })}
-              <span className="muted small scen-note">Presets set every input; adjust anything after.</span>
+              <span className="muted small scen-note">Presets set every input to the plan at that pace; adjust anything after.</span>
             </div>
             <button type="button" id="reset" className="btn" disabled={!anyChanged} onClick={resetAll}>
               <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2.5 7a4.5 4.5 0 1 0 1.4-3.3M2.5 1.8v2.4h2.4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" /></svg>
@@ -138,6 +154,25 @@ export function ModelSection() {
           <div className="dash-panel" id="dash-panel" role="tabpanel" aria-labelledby={`tab-${tab}`}>
             {group ? (
               <div className="dash-grid">
+                {tab === "customers" ? (
+                  <>
+                    <TargetControl value={target} pace={pace} planPace={planPace} disabled={end < 2} endLabel={endLabel} isSet={state.target !== null}
+                      onChange={(v) => setState((s) => ({ ...s, target: v }))} onPace={() => setState((s) => ({ ...s, target: null }))} />
+                    <div className="ctl">
+                      <div className="ctl-top"><span className="ctl-name" id="curve-label">Growth curve to the target</span></div>
+                      <div className="curve-chips" role="radiogroup" aria-labelledby="curve-label">
+                        {CURVES.map((c) => (
+                          <button key={c.id} type="button" role="radio" aria-checked={state.curve === c.id} className={`chip ${state.curve === c.id ? "on" : ""}`}
+                            title={c.note} onClick={() => setState((s) => ({ ...s, curve: c.id }))}>{c.label}</button>
+                        ))}
+                      </div>
+                      <p className="ctl-note">{CURVES.find((c) => c.id === state.curve)!.note}</p>
+                    </div>
+                    {state.curve === "exponential" ? (
+                      <Slider it={{ key: "growth", label: "Monthly growth in new signings", min: 0, max: 60, step: 1, f: pctf }} value={state.growth} onChange={(v) => set("growth", v)} />
+                    ) : null}
+                  </>
+                ) : null}
                 {group.items.map((it) => <Slider key={it.key} it={it} value={state[it.key]} onChange={(v) => set(it.key, v)} />)}
                 {tab === "costs" ? (
                   <label className="toggle">
@@ -162,7 +197,7 @@ export function ModelSection() {
             )}
           </div>
 
-          <ExplorerControls win={win} setWin={setWin} show={show} setShow={setShow} />
+          <ExplorerControls show={show} setShow={setShow} />
         </form>
 
         {test ? (
@@ -182,9 +217,9 @@ export function ModelSection() {
             </div>
           ))}
         </div>
-        <p id="readout" className={`readout ${r.adamMonth ? "" : "warn"}`}>{readout}</p>
+        <p id="readout" className={`readout ${end >= 1 && r.resultEnd < 0 && withSetup < 0 ? "warn" : ""}`}>{readout}</p>
 
-        <Explorer win={win} show={show} />
+        <Explorer show={show} />
       </div>
     </section>
   );
@@ -212,20 +247,57 @@ function Slider({ it, value, onChange }: { it: Control; value: number; onChange:
   );
 }
 
-function outputCards(r: ModelResult, plan: ModelResult, state: Inputs) {
-  const adamDelta = r.adamMonth && plan.adamMonth
+// Headline figures for the chosen period, compared with the plan over the same period.
+function outputCards(r: ModelResult, plan: ModelResult, rows: CashRow[], planRows: CashRow[], endLabel: string, end: number, perOrg: number) {
+  const sum = (xs: CashRow[], f: (x: CashRow) => number) => xs.reduce((a, x) => a + f(x), 0);
+  const op = sum(rows, (x) => x.revenue - x.cost), planOp = sum(planRows, (x) => x.revenue - x.cost);
+  const setup = sum(rows, (x) => x.setupGross), planSetup = sum(planRows, (x) => x.setupGross);
+  const sellingMonths = rows.filter((x) => x.newSigned > 0).length;
+  const orgs = sum(rows, (x) => x.newSigned) / perOrg, planOrgs = sum(planRows, (x) => x.newSigned) / PLAN_DEFAULTS.perOrg;
+  const inPeriod = (m: number | null) => m !== null && m <= end;
+  const adamDelta = inPeriod(r.adamMonth) && inPeriod(plan.adamMonth)
     ? r.adamMonth === plan.adamMonth
       ? <span className="o-delta muted">same as plan</span>
-      : <span className={`o-delta ${r.adamMonth < plan.adamMonth ? "up" : "down"}`}>{Math.abs(r.adamMonth - plan.adamMonth)} month{Math.abs(r.adamMonth - plan.adamMonth) > 1 ? "s" : ""} {r.adamMonth < plan.adamMonth ? "earlier" : "later"}</span>
-    : r.adamMonth ? null : <span className="o-delta down">plan: month {plan.adamMonth}</span>;
+      : <span className={`o-delta ${r.adamMonth! < plan.adamMonth! ? "up" : "down"}`}>{Math.abs(r.adamMonth! - plan.adamMonth!)} month{Math.abs(r.adamMonth! - plan.adamMonth!) > 1 ? "s" : ""} {r.adamMonth! < plan.adamMonth! ? "earlier" : "later"}</span>
+    : inPeriod(r.adamMonth) ? null : inPeriod(plan.adamMonth) ? <span className="o-delta down">plan: {MONTH_NAMES[plan.adamMonth! - 1]}</span> : null;
   return [
-    { label: "Paying communities at month 12", value: fmtN(r.paying12), sub: `${fmtN(state.signed)} signed, after churn`, delta: <Delta v={r.paying12} p={plan.paying12} kind="n" /> },
-    { label: "ARR at month 12", value: fmt$(r.arr12, { k: true }), sub: `${fmt$(r.revenue12)} a month`, delta: <Delta v={r.arr12} p={plan.arr12} kind="$" /> },
-    { label: "Monthly result at month 12", value: <span className={r.result12 < 0 ? "neg" : ""}>{fmt$(r.result12, { plus: true })}</span>, sub: `${fmtN(r.margin12 * 100)}% operating margin`, delta: <Delta v={r.result12} p={plan.result12} kind="$" /> },
-    { label: "Break-even, Adam paid", value: <>{be(r.breakEvenPost)} <span className="o-sub">communities</span></>, sub: `${be(r.breakEvenPre)} before Adam is paid`, delta: <Delta v={r.breakEvenPost} p={plan.breakEvenPost} kind="n" betterHigh={false} /> },
-    { label: "Adam’s salary covered from", value: r.adamMonth ? `Month ${r.adamMonth}` : "Not in Year 1", sub: r.adamMonth ? MONTH_NAMES[r.adamMonth - 1] : "revenue doesn’t reach it", delta: adamDelta },
-    { label: "Operating result over Year 1", value: <span className={r.cumResult < 0 ? "neg" : ""}>{fmt$(r.cumResult, { k: true, plus: true })}</span>, sub: "before setup fees", delta: <Delta v={r.cumResult} p={plan.cumResult} kind="$" /> },
-    { label: "Setup cash collected in Year 1", value: fmt$(r.setupCash, { k: true }), sub: "one-time; partly credited back in Year 2", delta: <Delta v={r.setupCash} p={plan.setupCash} kind="$" /> },
-    { label: "New organisations needed", value: fmtN(r.orgs, 1), sub: `about ${fmtN(r.orgsPerMonth, 1)} a month`, delta: <Delta v={r.orgs} p={plan.orgs} kind="n" betterHigh={false} /> },
+    { label: `Paying communities, ${endLabel}`, value: fmtN(r.payingEnd), sub: "after churn", delta: <Delta v={r.payingEnd} p={plan.payingEnd} kind="n" /> },
+    { label: `ARR, ${endLabel}`, value: fmt$(r.arrEnd, { k: true }), sub: `${fmt$(r.revenueEnd)} a month`, delta: <Delta v={r.arrEnd} p={plan.arrEnd} kind="$" /> },
+    { label: `Monthly result, ${endLabel}`, value: <span className={r.resultEnd < 0 ? "neg" : ""}>{fmt$(r.resultEnd, { plus: true })}</span>, sub: `${fmtN(r.marginEnd * 100)}% margin, before setup fees`, delta: <Delta v={r.resultEnd} p={plan.resultEnd} kind="$" /> },
+    { label: "Break-even, full team and Adam paid", value: <>{be(r.breakEvenPost)} <span className="o-sub">communities</span></>, sub: `${be(r.breakEvenPre)} before Adam is paid`, delta: <Delta v={r.breakEvenPost} p={plan.breakEvenPost} kind="n" betterHigh={false} /> },
+    { label: "Adam’s salary covered from", value: inPeriod(r.adamMonth) ? MONTH_NAMES[r.adamMonth! - 1] : "Not in this period", sub: inPeriod(r.adamMonth) ? `Year-1 month ${r.adamMonth}` : "revenue doesn’t reach it", delta: adamDelta },
+    { label: "Operating result over the period", value: <span className={op < 0 ? "neg" : ""}>{fmt$(op, { k: true, plus: true })}</span>, sub: "before setup fees", delta: <Delta v={op} p={planOp} kind="$" /> },
+    { label: "Setup fees collected in the period", value: fmt$(setup, { k: true }), sub: "one-time; partly credited back in Year 2", delta: <Delta v={setup} p={planSetup} kind="$" /> },
+    { label: "New organisations needed in the period", value: fmtN(orgs, 1), sub: sellingMonths ? `about ${fmtN(orgs / sellingMonths, 1)} a month` : "no selling months in this period", delta: <Delta v={orgs} p={planOrgs} kind="n" betterHigh={false} /> },
   ];
+}
+
+// The target: paying communities wanted by the end of the period. Starts at the plan's pace.
+function TargetControl({ value, pace, planPace, disabled, endLabel, isSet, onChange, onPace }: {
+  value: number; pace: number; planPace: number; disabled: boolean; endLabel: string; isSet: boolean;
+  onChange: (v: number) => void; onPace: () => void;
+}) {
+  const min = 0, max = Math.max(200, Math.ceil(planPace * 2.5 / 10) * 10);
+  const planPos = (planPace - min) / (max - min);
+  return (
+    <div className={`ctl target ${disabled ? "off" : ""}`}>
+      <div className="ctl-top">
+        <label htmlFor="in-target">Target paying communities by {endLabel}</label>
+        <output htmlFor="in-target" className={isSet ? "changed" : ""}>{disabled ? "—" : fmtN(value)}</output>
+      </div>
+      <div className="range">
+        <input type="range" id="in-target" min={min} max={max} step={1} value={disabled ? 0 : value} disabled={disabled}
+          aria-describedby="sub-target" aria-valuetext={disabled ? "no sales in this period" : `${fmtN(value)} communities`}
+          style={{ "--p": `${((value - min) / (max - min)) * 100}%` } as React.CSSProperties}
+          onChange={(e) => onChange(Number(e.target.value))} />
+        <span className="plan-mark" style={{ left: `calc(9px + (100% - 18px) * ${planPos})` }} aria-hidden="true" />
+      </div>
+      <div className="ctl-sub" id="sub-target">
+        {disabled ? <span>Sales start in July 2027, after this period ends.</span> : <>
+          <span>{min}</span><span>plan {fmtN(planPace)}{pace !== planPace ? ` · this pace ${fmtN(pace)}` : ""}</span><span>{max}</span>
+        </>}
+      </div>
+      {isSet && !disabled ? <button type="button" className="linkish small" onClick={onPace}>Back to the scenario’s pace</button> : null}
+    </div>
+  );
 }

@@ -1,7 +1,12 @@
 // The financial model: pure functions, no React. scripts/check-plan.ts runs these in Node.
 
+export type Curve = "linear" | "exponential" | "scurve";
+
 export type Inputs = {
-  signed: number; // paying communities signed by month 12 (before churn)
+  signed: number; // the plan's pace: communities signed by Jun 2028 (before churn). Sets the default target
+  target: number | null; // paying communities wanted at the end of the chosen period; null = the plan's pace
+  curve: Curve; // how new signings build up to the target
+  growth: number; // % monthly growth in new signings, for the exponential curve
   alpha: number; // alpha communities converting at month 1
   alphaMix: number; // % of alpha communities on Community Life (the rest on Website), at founding prices
   mix: number; // % of new communities on Community Life
@@ -26,6 +31,9 @@ export type Inputs = {
 
 export const PLAN_DEFAULTS: Inputs = {
   signed: 80,
+  target: null,
+  curve: "linear",
+  growth: 20,
   alpha: 20,
   alphaMix: 80,
   mix: 80,
@@ -58,48 +66,93 @@ export const STAFF_ORDER: StaffKey[] = ["adam", "hubert", "sales"];
 export type Hires = Partial<Record<StaffKey, number>>;
 export const AFTER_YEAR_1 = 13;
 
-export type Month = { m: number; label: string; paying: number; revenue: number; setup: number; credit: number; fixed: number; running: number; cost: number; result: number; adamPaid: boolean; starts: StaffKey[] };
+export type Month = { m: number; label: string; paying: number; newSigned: number; revenue: number; setupGross: number; setup: number; credit: number; fixed: number; running: number; cost: number; result: number; adamPaid: boolean; starts: StaffKey[] };
 export type Milestone = { name: string; n: number; revenue: number; cost: number; margin: number | null };
+
+// The plan's pace: (signed − alpha) ÷ 11 new communities a month from Year-1 month 2.
+const paceNew = (inp: Inputs) => Math.max(0, inp.signed - inp.alpha) / 11;
+
+// Paying communities at Year-1 month e if signings follow the plan's pace (the default target).
+export function paceTarget(inp: Inputs, e: number) {
+  if (e < 1) return 0;
+  const keep = 1 - inp.churn / 100;
+  let paying = inp.alpha * keep ** (e - 1);
+  for (let m = 2; m <= e; m++) paying += paceNew(inp) * keep ** (e - m);
+  return paying;
+}
+
+// New communities signed in each Year-1 month (index 1–12) so that paying communities reach the
+// target at month e, shaped by the growth curve. Months after e carry on at month e's rate.
+export function signings(inp: Inputs, e: number): number[] {
+  const out = new Array(13).fill(0);
+  const end = Math.min(12, Math.max(1, e));
+  if (inp.target === null && inp.curve === "linear") {
+    for (let m = 2; m <= 12; m++) out[m] = paceNew(inp);
+    return out;
+  }
+  if (end < 2) return out;
+  const keep = 1 - inp.churn / 100;
+  const n = end - 1; // selling months in the period
+  const g = inp.growth / 100;
+  const weight = (k: number) =>
+    inp.curve === "exponential" ? (1 + g) ** k
+    : inp.curve === "scurve" ? 1 / (1 + Math.exp(-(k - (n - 1) / 2) * (6 / Math.max(1, n))))
+    : 1;
+  const w = Array.from({ length: n }, (_, k) => weight(k));
+  const W = w.reduce((a, b) => a + b, 0);
+  const target = inp.target ?? paceTarget(inp, end);
+  const reach = w.reduce((a, wk, k) => a + (wk / W) * keep ** (end - (k + 2)), 0);
+  const total = Math.max(0, (target - inp.alpha * keep ** (end - 1)) / reach);
+  w.forEach((wk, k) => { out[k + 2] = (total * wk) / W; });
+  for (let m = end + 1; m <= 12; m++) out[m] = out[end];
+  return out;
+}
 
 // cash: whether one-time setup fees (less any First 10 credit) count as income. When they do,
 // they also count towards whether a month can cover the next hire.
-export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions = NO_SETUP) {
+// end: the Year-1 month the chosen period ends on (12 = Jun 2028; 0 or less = before sales start).
+export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions = NO_SETUP, end = 12) {
+  const e = Math.min(12, end);
+  const sched = signings(inp, e);
+  const sold = sched.slice(2, Math.max(2, e + 1));
+  const avgNew = sold.length ? sold.reduce((a, b) => a + b, 0) / sold.length : paceNew(inp);
   const extra = inp.catapultCovers ? 0 : 1500;
   const mix = inp.mix / 100, churn = inp.churn / 100;
   const avgPrice = mix * inp.clPrice + (1 - mix) * inp.websitePrice;
   // Commission at the planned signing rate, for break-even maths.
-  const planCommission = (Math.max(0, inp.signed - inp.alpha) / 11) * avgPrice * 12 * (inp.commission / 100);
+  const planCommission = avgNew * avgPrice * 12 * (inp.commission / 100);
   const fullTeam = inp.otherFixed + inp.hubertFT + inp.salesCost + planCommission + extra;
   const fixedPre = inp.staged ? fullTeam : inp.p2Fixed + extra;
   const fixedPost = inp.staged ? fullTeam + inp.adam : inp.p2Fixed + inp.adam + extra;
   const contrib = avgPrice - inp.runCost;
   // Alpha communities pay founding prices: Community Life $519, Website at list.
   const alphaPrice = (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
-  const newTotal = Math.max(0, inp.signed - inp.alpha);
-  const newPerMonth = newTotal / 11;
+  const newTotal = sold.reduce((a, b) => a + b, 0);
   const setupPerOrg = 2500 + 1000 * inp.perOrg + 1000 + mix * 250 * inp.perOrg;
   const creditOrgCap = Math.min(CREDIT_ORGS, CREDIT_COMMUNITIES / inp.perOrg);
   let orgsSoFar = 0;
 
-  let alphaN = inp.alpha, otherN = 0, cum = 0;
+  let alphaN = inp.alpha, otherN = 0;
   let adamMonth: number | null = null;
   const hired: Record<StaffKey, number | null> = { hubert: null, sales: null, adam: null };
   const months: Month[] = [];
   for (let m = 1; m <= 12; m++) {
-    if (m > 1) { alphaN *= 1 - churn; otherN = otherN * (1 - churn) + newPerMonth; }
+    const newSigned = sched[m];
+    if (m > 1) { alphaN *= 1 - churn; otherN = otherN * (1 - churn) + newSigned; }
     const paying = alphaN + otherN;
     const revenue = alphaN * alphaPrice + otherN * avgPrice;
     const running = paying * inp.runCost;
     // Setup fees: new organisations pay up front in the month they sign (from month 2).
-    const newOrgs = m > 1 ? newPerMonth / inp.perOrg : 0;
+    const newOrgs = newSigned / inp.perOrg;
     const credited = Math.max(0, Math.min(newOrgs, creditOrgCap - orgsSoFar));
     orgsSoFar += newOrgs;
-    const setup = cash.includeSetup ? newOrgs * setupPerOrg : 0;
+    const setupGross = newOrgs * setupPerOrg;
+    const setup = cash.includeSetup ? setupGross : 0;
     const credit = cash.includeSetup && cash.creditFirst10 ? credited * setupPerOrg : 0;
     let fixed: number;
     const starts: StaffKey[] = [];
     if (inp.staged) {
-      const commissionNow = (m > 1 ? newPerMonth : 0) * avgPrice * 12 * (inp.commission / 100);
+      const commissionNow = newSigned * avgPrice * 12 * (inp.commission / 100);
       const staff = () => (hired.hubert ? inp.hubertFT : inp.hubertPT) + (hired.sales ? inp.salesCost + commissionNow : 0) + (hired.adam ? inp.adam : 0);
       const extraCost = (k: StaffKey) => (k === "hubert" ? inp.hubertFT - inp.hubertPT : k === "sales" ? inp.salesCost + commissionNow : inp.adam);
       const start = (k: StaffKey) => { hired[k] = m; starts.push(k); };
@@ -119,10 +172,9 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
     }
     const cost = fixed + running;
     const result = revenue - cost;
-    cum += result;
-    months.push({ m, label: MONTH_NAMES[m - 1], paying, revenue, setup, credit, fixed, running, cost, result, adamPaid: adamMonth !== null, starts });
+    months.push({ m, label: MONTH_NAMES[m - 1], paying, newSigned, revenue, setupGross, setup, credit, fixed, running, cost, result, adamPaid: adamMonth !== null, starts });
   }
-  const last = months[11];
+  const last = months[Math.max(1, e) - 1];
   const be = (f: number) => (contrib > 0 ? Math.ceil(f / contrib) : Infinity);
   const breakEvenPre = be(fixedPre), breakEvenPost = be(fixedPost);
 
@@ -141,11 +193,12 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   ];
 
   return {
-    months, avgPrice, alphaPrice, contrib, fixedPre, fixedPost, newPerMonth, newTotal,
-    paying12: last.paying, revenue12: last.revenue, arr12: last.revenue * 12,
-    cost12: last.cost, result12: last.result, margin12: last.revenue > 0 ? last.result / last.revenue : 0,
-    adamMonth, hired, cumResult: cum, breakEvenPre, breakEvenPost,
-    setupCash, orgs, orgsPerMonth: orgs / 11, phases,
+    months, avgPrice, alphaPrice, contrib, fixedPre, fixedPost, newTotal, end: e,
+    // At the end of the chosen period (month 12 = Jun 2028 by default).
+    payingEnd: e >= 1 ? last.paying : 0, revenueEnd: e >= 1 ? last.revenue : 0, arrEnd: e >= 1 ? last.revenue * 12 : 0,
+    costEnd: e >= 1 ? last.cost : 0, resultEnd: e >= 1 ? last.result : 0, marginEnd: e >= 1 && last.revenue > 0 ? last.result / last.revenue : 0,
+    adamMonth, hired, cumResult: months.slice(0, Math.max(0, e)).reduce((a, m) => a + m.result, 0), breakEvenPre, breakEvenPost,
+    setupCash, orgs, orgsPerMonth: orgs / Math.max(1, sold.length), phases,
   };
 }
 
@@ -163,7 +216,7 @@ export type CashOptions = {
 
 export type CashRow = {
   label: string; phase: string; paying: number; revenue: number;
-  setup: number; credit: number; fixed: number; running: number; cost: number; result: number; cum: number;
+  newSigned: number; setupGross: number; setup: number; credit: number; fixed: number; running: number; cost: number; result: number; cum: number;
 };
 
 export const CREDIT_ORGS = 10; // the offer covers the first 10 paying organisations…
@@ -178,29 +231,31 @@ const STARTS_LABEL: Record<StaffKey, string> = { hubert: "Hubert full-time", sal
 
 // What the build and alpha months (Nov 2026 – Jun 2027) cost before any revenue: the debt Year 1 starts with.
 export const buildCost = (inp: Inputs) => BUILD_MONTHS.length * inp.p1Fixed;
+// Year-1 month for a position in allMonths (Nov 2026 = 0 → −7; Jul 2027 = 8 → 1; Jun 2028 = 19 → 12).
+export const yearOneMonth = (index: number) => index - BUILD_MONTHS.length + 1;
 
 // opening: the running total carried into July (pass −buildCost to start Year 1 from the build debt).
-export function year1Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}, opening = 0): CashRow[] {
-  const r = computeModel(inp, hires, opt);
+export function year1Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}, opening = 0, end = 12): CashRow[] {
+  const r = computeModel(inp, hires, opt, end);
   let cum = opening;
   return r.months.map((m) => {
     const { setup, credit } = m;
     const result = m.revenue + setup - credit - m.cost;
     cum += result;
-    return { label: m.label, phase: [`Year 1 · M${m.m}`, ...m.starts.map((k) => STARTS_LABEL[k])].join(" · "), paying: m.paying, revenue: m.revenue, setup, credit, fixed: m.fixed, running: m.running, cost: m.cost, result, cum };
+    return { label: m.label, newSigned: m.newSigned, setupGross: m.setupGross, phase: [`Year 1 · M${m.m}`, ...m.starts.map((k) => STARTS_LABEL[k])].join(" · "), paying: m.paying, revenue: m.revenue, setup, credit, fixed: m.fixed, running: m.running, cost: m.cost, result, cum };
   });
 }
 
 // The first 12 calendar months from development start: 8 months of build and alpha
 // (no revenue; alpha is free), then the first 4 months of Year 1.
-export function first12Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}): CashRow[] {
+export function first12Cash(inp: Inputs, opt: CashOptions, hires: Hires = {}, end = 12): CashRow[] {
   let cum = 0;
   const build = BUILD_MONTHS.map((label, i): CashRow => {
     const result = -inp.p1Fixed;
     cum += result;
-    return { label, phase: i < 4 ? "Build" : "Alpha live", paying: 0, revenue: 0, setup: 0, credit: 0, fixed: inp.p1Fixed, running: 0, cost: inp.p1Fixed, result, cum };
+    return { label, phase: i < 4 ? "Build" : "Alpha live", paying: 0, newSigned: 0, revenue: 0, setupGross: 0, setup: 0, credit: 0, fixed: inp.p1Fixed, running: 0, cost: inp.p1Fixed, result, cum };
   });
-  const y1 = year1Cash(inp, opt, hires).slice(0, 4).map((row) => {
+  const y1 = year1Cash(inp, opt, hires, 0, end).slice(0, 4).map((row) => {
     cum += row.result;
     return { ...row, cum };
   });
@@ -227,18 +282,18 @@ export function runPlanChecks() {
   const s50 = computeModel({ ...WRITTEN_PLAN, signed: 50 });
   const s110 = computeModel({ ...WRITTEN_PLAN, signed: 110 });
   const checks: [string, number | null, boolean][] = [
-    ["Expected: ≈75 paying at month 12", d.paying12, near(d.paying12, 75, 1)],
-    ["Expected: ARR ≈$524k", d.arr12, pct(d.arr12, 524000)],
-    ["Expected: monthly cost ≈$32.7k", d.cost12, pct(d.cost12, 32700)],
-    ["Expected: monthly result ≈+$11.0k", d.result12, pct(d.result12, 11000)],
-    ["Expected: margin ≈25%", d.margin12, Math.abs(d.margin12 - 0.25) <= 0.02],
+    ["Expected: ≈75 paying at month 12", d.payingEnd, near(d.payingEnd, 75, 1)],
+    ["Expected: ARR ≈$524k", d.arrEnd, pct(d.arrEnd, 524000)],
+    ["Expected: monthly cost ≈$32.7k", d.costEnd, pct(d.costEnd, 32700)],
+    ["Expected: monthly result ≈+$11.0k", d.resultEnd, pct(d.resultEnd, 11000)],
+    ["Expected: margin ≈25%", d.marginEnd, Math.abs(d.marginEnd - 0.25) <= 0.02],
     ["Expected: Adam covered from month 9", d.adamMonth, d.adamMonth === 9],
     ["Expected: Year-1 operating result ≈−$17k", d.cumResult, pct(d.cumResult, -17000)],
     ["Expected: setup cash ≈$129k", d.setupCash, pct(d.setupCash, 129000)],
-    ["Slow (50 signed): ≈47 paying", s50.paying12, near(s50.paying12, 47, 1)],
-    ["Slow (50 signed): ARR ≈$322k", s50.arr12, pct(s50.arr12, 322000)],
-    ["Fast (110 signed): ≈104 paying", s110.paying12, near(s110.paying12, 104, 1)],
-    ["Fast (110 signed): ARR ≈$726k", s110.arr12, pct(s110.arr12, 726000)],
+    ["Slow (50 signed): ≈47 paying", s50.payingEnd, near(s50.payingEnd, 47, 1)],
+    ["Slow (50 signed): ARR ≈$322k", s50.arrEnd, pct(s50.arrEnd, 322000)],
+    ["Fast (110 signed): ≈104 paying", s110.payingEnd, near(s110.payingEnd, 104, 1)],
+    ["Fast (110 signed): ARR ≈$726k", s110.arrEnd, pct(s110.arrEnd, 726000)],
   ];
   const list = checks.map(([name, value, pass]) => ({ name, value, pass }));
   return { pass: list.every((c) => c.pass), checks: list };
@@ -246,7 +301,9 @@ export function runPlanChecks() {
 
 // Every month the model covers, Nov 2026 – Jun 2028: build and alpha, then Year 1, with one
 // running total throughout. The financial model page shows any window of these.
-export function allMonths(inp: Inputs, opt: CashOptions, hires: Hires = {}): CashRow[] {
-  const build = first12Cash(inp, opt, hires).slice(0, BUILD_MONTHS.length);
-  return [...build, ...year1Cash(inp, opt, hires, -buildCost(inp))];
+// endIndex: the last month of the chosen period in this list (Nov 2026 = 0, Jun 2028 = 19).
+export function allMonths(inp: Inputs, opt: CashOptions, hires: Hires = {}, endIndex = 19): CashRow[] {
+  const end = endIndex - BUILD_MONTHS.length + 1;
+  const build = first12Cash(inp, opt, hires, end).slice(0, BUILD_MONTHS.length);
+  return [...build, ...year1Cash(inp, opt, hires, -buildCost(inp), end)];
 }

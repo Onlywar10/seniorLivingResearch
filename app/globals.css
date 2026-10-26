@@ -469,3 +469,17 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .cash-fold .table-wrap { border: 0; border-top: 1px solid var(--line); border-radius: 0 0 var(--radius) var(--radius); }
 
 .cash-pair > *, .cash-view, .cash-view > *, .projection, .projection > * { min-width: 0; }
+
+/* monthly tables: revenue in green; the summary version fits its column without scrolling */
+.cash-table td.rev { color: var(--accent); font-weight: 600; }
+.cash-table-fit { border-top: 1px solid var(--line); }
+.cash-table.compact { width: 100%; table-layout: auto; font-size: .78rem; }
+.cash-table.compact th, .cash-table.compact td { padding: 7px 6px; }
+.cash-table.compact thead th { white-space: normal; line-height: 1.25; vertical-align: bottom; }
+.cash-table.compact th:first-child, .cash-table.compact td:first-child { padding-left: var(--s4); }
+.cash-table.compact th:last-child, .cash-table.compact td:last-child { padding-right: var(--s4); }
+@media (max-width: 720px) {
+  .cash-table.compact .pay { display: none; }
+  .cash-table.compact { font-size: .74rem; }
+  .cash-table.compact th, .cash-table.compact td { padding: 6px 4px; }
+}

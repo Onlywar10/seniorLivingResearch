@@ -71,33 +71,39 @@ function CashChart({ rows, mark, label }: { rows: CashRow[]; mark?: { index: num
   return <div className="canvas-box"><canvas ref={ref} role="img" aria-label={label} /></div>;
 }
 
-function CashTable({ rows, opt }: { rows: CashRow[]; opt: CashOptions }) {
+// Revenue in green; every cost rolled into one Total costs column. The summary's compact
+// version fits half the page without scrolling: no Stage column, setup fees net of any
+// credit in one "Setup kept" column, and amounts in thousands.
+function CashTable({ rows, opt, compact = false }: { rows: CashRow[]; opt: CashOptions; compact?: boolean }) {
   const t = cashTotals(rows);
-  const showSetup = opt.includeSetup, showCredit = opt.includeSetup && opt.creditFirst10;
-  const money = (v: number, plus = false) => <span className={v < 0 ? "neg" : ""}>{fmt$(v, { plus })}</span>;
+  const showSetup = opt.includeSetup, showCredit = !compact && opt.includeSetup && opt.creditFirst10;
+  const f = (v: number, plus = false) => fmt$(v, { plus, k: compact });
+  const money = (v: number, plus = false) => <span className={v < 0 ? "neg" : ""}>{f(v, plus)}</span>;
+  const setupCol = (setup: number, credit: number) => (compact ? setup - credit : setup);
   return (
-    <div className="table-wrap">
-      <table className="cash-table">
+    <div className={compact ? "cash-table-fit" : "table-wrap"}>
+      <table className={`cash-table ${compact ? "compact" : ""}`}>
         <thead>
           <tr>
-            <th scope="col">Month</th><th scope="col">Stage</th><th scope="col" className="r">Paying</th>
+            <th scope="col">Month</th>
+            {compact ? null : <th scope="col">Stage</th>}
+            <th scope="col" className="r pay">Paying</th>
             <th scope="col" className="r">Revenue</th>
-            {showSetup ? <th scope="col" className="r">Setup fees</th> : null}
+            {showSetup ? <th scope="col" className="r">{compact ? "Setup kept" : "Setup fees"}</th> : null}
             {showCredit ? <th scope="col" className="r">Owed back</th> : null}
-            <th scope="col" className="r">Team and fixed</th><th scope="col" className="r">Running</th><th scope="col" className="r">Total cost</th><th scope="col" className="r">Result</th><th scope="col" className="r">Running total</th>
+            <th scope="col" className="r">Total costs</th><th scope="col" className="r">Result</th><th scope="col" className="r">Running total</th>
           </tr>
         </thead>
         <tbody>
           {rows.map((r) => (
             <tr key={r.label} className={r.paying === 0 ? "pre" : ""}>
-              <th scope="row">{r.label}</th><td className="muted">{r.phase}</td>
-              <td className="r num">{r.paying ? fmtN(r.paying, 1) : "—"}</td>
-              <td className="r num">{fmt$(r.revenue)}</td>
-              {showSetup ? <td className="r num">{r.setup ? fmt$(r.setup) : "—"}</td> : null}
+              <th scope="row">{compact ? r.label.replace(" 20", " ’") : r.label}</th>
+              {compact ? null : <td className="muted">{r.phase}</td>}
+              <td className="r num pay">{r.paying ? fmtN(r.paying, compact ? 0 : 1) : "—"}</td>
+              <td className="r num rev">{f(r.revenue)}</td>
+              {showSetup ? <td className="r num rev">{setupCol(r.setup, r.credit) ? f(setupCol(r.setup, r.credit)) : "—"}</td> : null}
               {showCredit ? <td className="r num">{r.credit ? money(-r.credit) : "—"}</td> : null}
-              <td className="r num">{fmt$(r.fixed)}</td>
-              <td className="r num">{r.running ? fmt$(r.running) : "—"}</td>
-              <td className="r num">{fmt$(r.cost)}</td>
+              <td className="r num">{f(r.cost)}</td>
               <td className="r num">{money(r.result, true)}</td>
               <td className="r num strong">{money(r.cum, true)}</td>
             </tr>
@@ -105,13 +111,12 @@ function CashTable({ rows, opt }: { rows: CashRow[]; opt: CashOptions }) {
         </tbody>
         <tfoot>
           <tr>
-            <th scope="row" colSpan={3}>12-month total</th>
-            <td className="r num">{fmt$(t.revenue)}</td>
-            {showSetup ? <td className="r num">{fmt$(t.setup)}</td> : null}
+            <th scope="row" colSpan={compact ? 1 : 2}>{compact ? "Total" : "12-month total"}</th>
+            <td className="pay" />
+            <td className="r num rev">{f(t.revenue)}</td>
+            {showSetup ? <td className="r num rev">{f(setupCol(t.setup, t.credit))}</td> : null}
             {showCredit ? <td className="r num">{money(-t.credit)}</td> : null}
-            <td className="r num">{fmt$(t.fixed)}</td>
-            <td className="r num">{fmt$(t.running)}</td>
-            <td className="r num">{fmt$(t.cost)}</td>
+            <td className="r num">{f(t.cost)}</td>
             <td className="r num" colSpan={2}>{money(t.result, true)}</td>
           </tr>
         </tfoot>
@@ -142,7 +147,7 @@ function View({ id, title, intro, rows, opt, mark, compact = false }: { id: stri
       {compact ? (
         <details className="fold cash-fold">
           <summary>Costs and revenue for each month</summary>
-          <div className="fold-body"><CashTable rows={rows} opt={opt} /></div>
+          <div className="fold-body"><CashTable rows={rows} opt={opt} compact /></div>
         </details>
       ) : <CashTable rows={rows} opt={opt} />}
     </section>

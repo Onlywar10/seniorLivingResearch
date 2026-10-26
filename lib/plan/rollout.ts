@@ -80,8 +80,8 @@ export const ROLLOUT: RolloutPhase[] = [
 
   // ---- Customers ----
   {
-    id: "recruit", name: "Recruit alpha", title: "Recruiting the alpha organisations (Nov 2026 – Jan 2027)", from: 0, to: 2, row: 1, kind: "customers",
-    summary: "Up to 5 California organisations with 1–3 pilot communities each, from Jason’s and Tim’s networks and CALA Elevate. Alpha agreements signed by about January 2027, and pre-alpha site builds start alongside their current sites.",
+    id: "recruit", name: "Recruit alpha", title: "Recruiting the alpha organisations (Nov 2026 – Feb 2027)", from: 0, to: 3, row: 1, kind: "customers",
+    summary: "Up to 5 California organisations with 1–3 pilot communities each, from Jason’s and Tim’s networks and CALA Elevate. Alpha agreements signed by about February 2027, and pre-alpha site builds start alongside their current sites ahead of go-live in March.",
     sections: [{ heading: "What we ask of each organisation", items: P.alphaTerms.terms.slice(0, 2) }],
   },
   {

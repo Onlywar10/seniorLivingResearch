@@ -82,7 +82,7 @@ export const ROLLOUT: RolloutPhase[] = [
   // ---- Customers ----
   {
     id: "recruit", name: "Recruit alpha", title: "Recruiting the alpha organisations (Nov 2026 – Feb 2027)", from: 0, to: 3, row: 1, kind: "customers", agreement: true,
-    summary: "Up to 5 California organisations with 1–3 pilot communities each, from Jason’s and Tim’s networks. Alpha agreements signed by about February 2027, and pre-alpha site builds start alongside their current sites ahead of go-live in March.",
+    summary: "Up to 5 California organisations with 1–3 pilot communities each. Alpha agreements signed by about February 2027, and pre-alpha site builds start alongside their current sites ahead of go-live in March.",
     sections: [{ heading: "The alpha agreement in brief", items: P.alphaTerms.terms }],
   },
   {
@@ -134,7 +134,7 @@ export const ROLLOUT: RolloutPhase[] = [
   {
     id: "selling", name: "Selling Website and Community Life", title: "Selling from the beta launch (Jul 2027 onward)", from: 8, to: 19, row: 1, kind: "customers",
     summary: "Website ($349) and Community Life ($649) go on sale at the beta launch. The beta waitlist, about 30 communities, joins straight away with the beta offer (setup paid up front, then returned as a discount over their first 12 months); new signings follow each month. Complete ($1,149) joins at the end of beta, about Q2 2028.",
-    sections: [{ heading: "Where customers come from", items: ["Warm introductions: Jason’s and Tim’s networks, friends with the Quick Intro, and alpha references", "Conferences, with the show special and on-the-spot Website Previews", "Direct outreach to California licence lists of operators with 2–20 communities, led with the free AI Visibility Audit", "Referrals and partners: a month free per referred community; agencies and Activity Connection", "Content: alpha case studies and “what AI says about your community” posts"] }],
+    sections: [{ heading: "Where customers come from", items: ["Warm introductions: friends with the Quick Intro, and alpha references", "Conferences, with the show special and on-the-spot Website Previews", "Direct outreach to California licence lists of operators with 2–20 communities, led with the free AI Visibility Audit", "Referrals and partners: a month free per referred community; agencies and Activity Connection", "Content: alpha case studies and “what AI says about your community” posts"] }],
   },
 
   // ---- Milestones ----

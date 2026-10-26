@@ -11,7 +11,8 @@ import { SectionHead, Tag } from "./ui";
 
 Chart.register(...registerables);
 
-const INK = "#1d2422", ACC = "#2c6650", NEG = "#b4553f", GRID = "#eceeec";
+// Profit and loss read as plainly green and red; the brand accent stays for everything else.
+const INK = "#1d2422", ACC = "#16a34a", NEG = "#dc2626", GRID = "#eceeec";
 
 type MarkedChart = Chart & { $mark?: { index: number; text: string } | null };
 

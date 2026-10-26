@@ -13,8 +13,8 @@
   --accent-ink: #1f4b3a;
   --accent-soft: #e3eee9;
   --accent-line: #b9d3c8;
-  --neg: #9b3b2b;
-  --pos: #2c6650;
+  --neg: #dc2626;
+  --pos: #15803d;
   --radius: 10px;
   --radius-sm: 6px;
   --nav-w: 232px;
@@ -471,7 +471,7 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 .cash-pair > *, .cash-view, .cash-view > *, .projection, .projection > * { min-width: 0; }
 
 /* monthly tables: revenue in green; the summary version fits its column without scrolling */
-.cash-table td.rev { color: var(--accent); font-weight: 600; }
+.cash-table td.rev { color: var(--pos); font-weight: 600; }
 .cash-table-fit { border-top: 1px solid var(--line); }
 .cash-table.compact { width: 100%; table-layout: auto; font-size: .78rem; }
 .cash-table.compact th, .cash-table.compact td { padding: 7px 6px; }

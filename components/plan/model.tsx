@@ -97,7 +97,7 @@ const barLabels: Plugin = {
     chart.getDatasetMeta(0).data.forEach((bar, i) => {
       const txt = m[i]; if (!txt) return;
       const other = chart.getDatasetMeta(1).data[i];
-      c.fillStyle = txt.startsWith("−") ? "#9b3b2b" : INK;
+      c.fillStyle = txt.startsWith("−") ? "#dc2626" : INK;
       c.fillText(txt, (bar.x + other.x) / 2, Math.min(bar.y, other.y) - 8);
     });
     c.restore();

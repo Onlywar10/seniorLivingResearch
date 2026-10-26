@@ -21,7 +21,7 @@ export const CONTENT = {
       ["Who it’s for first", "California assisted living and memory care operators that run 2–20 communities."],
       ["What Catapult provides", "The platform, hosting, texting registration, insurance, legal, bookkeeping and payroll, and the costs of building the product before it earns money."],
       ["How it’s sold", "Monthly, per community, in three plans. Each plan includes everything in the one before. Website: $349, the community’s website on its own. Community Life: $649, the website plus family messaging, large-print print and the family app. Complete: $1,149, adds marketing tools to fill apartments, available from about mid-2028. New customers also pay a one-time setup fee, about $9,500 for an operator with five communities."],
-      ["Who’s doing it", "Adam (Head of Senior Living: product, sales and operations), Hubert (developer), Tim (customer success, unpaid for now) and a sales associate, with Dave from Catapult as technical mentor. Adam, Hubert and the sales associate go full-time as revenue covers each of them."]
+      ["Who’s doing it", "Adam (Head of Senior Living: product, sales and operations), Hubert (developer), Tim (customer success, unpaid for now) and a sales associate, with Dave from Catapult as technical mentor and Jason as business mentor. Adam, Hubert and the sales associate go full-time as revenue covers each of them."]
     ],
     cards: [
       { value: "$349 / $649 / $1,149", label: "Website / Community Life (website + families) / Complete (adds marketing), per community per month. Each plan includes the one before", tag: "draft" },
@@ -29,7 +29,7 @@ export const CONTENT = {
       { value: "≈$684k", label: "Annual recurring revenue (12 × monthly subscription revenue) in June 2028", tag: "derived" },
       { value: "≈48 communities", label: "Paying communities needed to cover every monthly cost once the whole team is paid. Reached at launch in July 2027", tag: "derived" },
       { value: "Jul 2027 – Jun 2028", label: "Year 1, the first 12 months of sales. Building starts Nov 2026; the free pilot runs Mar–Jun 2027", tag: "estimate" },
-      { value: "≈$27k", label: "Cost of building and piloting, Nov 2026 – Jun 2027, paid by Catapult (≈$19k after the pilot’s first month of fees)", tag: "estimate" },
+      { value: "≈$27k", label: "Cost of building and piloting, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
       { value: "≈45%", label: "Operating margin in June 2028: what’s left of revenue after every cost, all salaries included", tag: "derived" },
       { value: "≈53%", label: "Operating margin at about $1M a year in revenue, the point where it could become its own company", tag: "derived" }
     ],
@@ -298,7 +298,8 @@ export const CONTENT = {
       ["Tim", "Customer success: onboarding, training, support, research", "Unpaid", "Free (for now)", "Free (for now)"],
       ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue covers it, after Adam (from Jul 2027)", "Full-time; more developers as needed"],
       ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue covers it, after Hubert (from Jul 2027): $55k base + 10% of the monthly fees of the communities they sign", "Same"],
-      ["Dave (Catapult)", "Mentor and technical guidance; platform decisions", "From 1 Nov", "Catapult’s call", "Catapult’s call"]
+      ["Dave (Catapult)", "Mentor and technical guidance; platform decisions", "From 1 Nov", "Catapult’s call", "Catapult’s call"],
+      ["Jason (Catapult)", "Business mentor: strategy, pricing and sales guidance", "From 1 Nov", "Catapult’s call", "Catapult’s call"]
     ],
     capacity: [
       "Onboarding about 15 hours per community, plus about 5 per organisation for kickoff.",

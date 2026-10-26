@@ -81,7 +81,7 @@ export const ROLLOUT: RolloutPhase[] = [
   // ---- Customers ----
   {
     id: "recruit", name: "Recruit alpha", title: "Recruiting the alpha organisations (Nov 2026 – Feb 2027)", from: 0, to: 3, row: 1, kind: "customers",
-    summary: "Up to 5 California organisations with 1–3 pilot communities each, from Jason’s and Tim’s networks and CALA Elevate. Alpha agreements signed by about February 2027, and pre-alpha site builds start alongside their current sites ahead of go-live in March.",
+    summary: "Up to 5 California organisations with 1–3 pilot communities each, from Jason’s and Tim’s networks. Alpha agreements signed by about February 2027, and pre-alpha site builds start alongside their current sites ahead of go-live in March.",
     sections: [{ heading: "What we ask of each organisation", items: P.alphaTerms.terms.slice(0, 2) }],
   },
   {
@@ -127,11 +127,6 @@ export const ROLLOUT: RolloutPhase[] = [
   },
 
   // ---- Trade shows ----
-  {
-    id: "elevate", name: "CALA Elevate", title: "CALA Elevate (2–4 Nov 2026)", from: 0, to: 0, row: 3, kind: "show",
-    summary: "The first place to recruit alpha organisations, alongside Jason’s and Tim’s networks.",
-    sections: [],
-  },
   {
     id: "leadingage", name: "LeadingAge California", title: "LeadingAge California (18–21 May 2027)", from: 6, to: 6, row: 3, kind: "show",
     summary: "Builds the Year-1 pipeline ahead of the beta launch, with the show special: sign at the show and get a free Website Preview built that week, plus the founding setup credit if spots remain.",

@@ -243,7 +243,7 @@ export const CONTENT = {
       { lane: 0, row: 1, from: 11, to: 13, label: "Stage 5" },
       { lane: 0, row: 1, from: 14, to: 16, label: "Stage 6: marketing" },
       { lane: 0, row: 1, from: 17, to: 19, label: "Stage 7: Complete" },
-      { lane: 1, row: 0, from: 0, to: 0, label: "Recruit alpha · CALA Elevate", milestone: true },
+      { lane: 1, row: 0, from: 0, to: 0, label: "Recruit alpha", milestone: true },
       { lane: 1, row: 1, from: 1, to: 2, label: "Agreements" },
       { lane: 1, row: 0, from: 4, to: 7, label: "Cohort 1: 90 days live" },
       { lane: 1, row: 1, from: 5, to: 8, label: "Cohort 2" },

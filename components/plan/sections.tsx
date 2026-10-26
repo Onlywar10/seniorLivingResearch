@@ -3,7 +3,7 @@ import { CONTENT as C } from "@/lib/plan/content";
 import { SectionHead, Tag } from "./ui";
 
 // The landing page: core facts and the Year-1 projection only. The projection (a client chart) comes in as children.
-export function Summary({ children }: { children: React.ReactNode }) {
+export function Summary({ children, monthly }: { children: React.ReactNode; monthly?: React.ReactNode }) {
   const S = C.summary;
   return (
     <section className="section summary" id="summary" aria-labelledby="summary-h">
@@ -29,6 +29,15 @@ export function Summary({ children }: { children: React.ReactNode }) {
           </div>
           {children}
         </div>
+        {monthly ? (
+          <div className="projection">
+            <div className="projection-head">
+              <h2>{C.monthly.summaryTitle}</h2>
+              <p className="muted small">{C.monthly.summaryIntro}</p>
+            </div>
+            {monthly}
+          </div>
+        ) : null}
       </div>
     </section>
   );

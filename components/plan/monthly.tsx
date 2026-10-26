@@ -1,9 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Chart, registerables, type Plugin, type TooltipItem } from "chart.js";
 import { CONTENT as C } from "@/lib/plan/content";
-import { cashTotals, first12Cash, year1Cash, type CashOptions, type CashRow } from "@/lib/plan/model";
+import { cashTotals, first12Cash, year1Cash, PLAN_DEFAULTS, type CashOptions, type CashRow } from "@/lib/plan/model";
 import { fmt$, fmtN } from "@/lib/plan/format";
 import { useModel } from "./model-state";
 import { SectionHead, Tag } from "./ui";
@@ -115,12 +116,13 @@ function CashTable({ rows, opt }: { rows: CashRow[]; opt: CashOptions }) {
   );
 }
 
-function View({ id, title, intro, rows, opt, mark }: { id: string; title: string; intro: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string } }) {
+function View({ id, title, intro, rows, opt, mark, compact = false }: { id: string; title: string; intro: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string }; compact?: boolean }) {
   const t = cashTotals(rows);
+  const Heading = compact ? "h3" : "h2";
   return (
-    <section className="cash-view" aria-labelledby={`${id}-h`}>
+    <section className={`cash-view ${compact ? "compact" : ""}`} aria-labelledby={`${id}-h`}>
       <div className="cash-head">
-        <h2 id={`${id}-h`}>{title}</h2>
+        <Heading id={`${id}-h`}>{title}</Heading>
         <p className="muted small">{intro}</p>
       </div>
       <dl className="cash-stats">
@@ -133,14 +135,32 @@ function View({ id, title, intro, rows, opt, mark }: { id: string; title: string
         <div className="legend"><span><i style={{ background: ACC }} />Month in profit</span><span><i style={{ background: NEG }} />Month at a loss</span><span><i style={{ background: INK }} />Running total</span></div>
         <CashChart rows={rows} mark={mark} label={`${title}: monthly result as bars and running total as a line`} />
       </figure>
-      <CashTable rows={rows} opt={opt} />
+      {compact ? null : <CashTable rows={rows} opt={opt} />}
     </section>
   );
 }
 
+function Toggles({ opt, setOpt }: { opt: CashOptions; setOpt: React.Dispatch<React.SetStateAction<CashOptions>> }) {
+  const M = C.monthly;
+  return (
+    <div className="cash-toggles" role="group" aria-label="What to count">
+      <label className="toggle">
+        <input type="checkbox" checked={opt.includeSetup} onChange={(e) => setOpt((o) => ({ ...o, includeSetup: e.target.checked }))} />
+        <span>{M.setupLabel}<small>{M.setupNote}</small></span>
+      </label>
+      <label className={`toggle ${opt.includeSetup ? "" : "off"}`}>
+        <input type="checkbox" checked={opt.creditFirst10} disabled={!opt.includeSetup} onChange={(e) => setOpt((o) => ({ ...o, creditFirst10: e.target.checked }))} />
+        <span>{M.creditLabel} <Tag k="estimate" /><small>{M.creditNote}</small></span>
+      </label>
+    </div>
+  );
+}
+
+const NO_SETUP: CashOptions = { includeSetup: false, creditFirst10: false };
+
 export function MonthlySection() {
   const { state } = useModel();
-  const [opt, setOpt] = useState<CashOptions>({ includeSetup: false, creditFirst10: false });
+  const [opt, setOpt] = useState<CashOptions>(NO_SETUP);
   const first12 = useMemo(() => first12Cash(state, opt), [state, opt]);
   const year1 = useMemo(() => year1Cash(state, opt), [state, opt]);
   const M = C.monthly;
@@ -148,19 +168,28 @@ export function MonthlySection() {
     <section className="section" id="monthly" aria-labelledby="monthly-h">
       <div className="inner">
         <SectionHead id="monthly" title="Month by month" intro={M.intro} />
-        <div className="cash-toggles" role="group" aria-label="What to count">
-          <label className="toggle">
-            <input type="checkbox" checked={opt.includeSetup} onChange={(e) => setOpt((o) => ({ ...o, includeSetup: e.target.checked }))} />
-            <span>{M.setupLabel}<small>{M.setupNote}</small></span>
-          </label>
-          <label className={`toggle ${opt.includeSetup ? "" : "off"}`}>
-            <input type="checkbox" checked={opt.creditFirst10} disabled={!opt.includeSetup} onChange={(e) => setOpt((o) => ({ ...o, creditFirst10: e.target.checked }))} />
-            <span>{M.creditLabel} <Tag k="estimate" /><small>{M.creditNote}</small></span>
-          </label>
-        </div>
+        <Toggles opt={opt} setOpt={setOpt} />
         <View id="first12" title={M.first12Title} intro={M.first12Intro} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} />
         <View id="year1" title={M.year1Title} intro={M.year1Intro} rows={year1} opt={opt} />
       </div>
     </section>
+  );
+}
+
+// The summary page version: plan settings, charts and headline figures, no tables.
+export function MonthlySummary() {
+  const [opt, setOpt] = useState<CashOptions>(NO_SETUP);
+  const first12 = useMemo(() => first12Cash(PLAN_DEFAULTS, opt), [opt]);
+  const year1 = useMemo(() => year1Cash(PLAN_DEFAULTS, opt), [opt]);
+  const M = C.monthly;
+  return (
+    <>
+      <Toggles opt={opt} setOpt={setOpt} />
+      <div className="cash-pair">
+        <View id="sum-first12" title={M.first12Title} intro={M.first12Short} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} compact />
+        <View id="sum-year1" title={M.year1Title} intro={M.year1Short} rows={year1} opt={opt} compact />
+      </div>
+      <p className="small"><Link href="/monthly">See every month in a table, with your own settings →</Link></p>
+    </>
   );
 }

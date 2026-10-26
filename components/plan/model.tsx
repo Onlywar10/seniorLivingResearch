@@ -114,7 +114,7 @@ function setDefaults() {
   Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
   Chart.defaults.font.size = 11;
   Chart.defaults.color = "#6b7471";
-  Chart.defaults.animation = { duration: 260 } as typeof Chart.defaults.animation;
+  (Chart.defaults.animation as { duration: number }).duration = 260;
   Chart.defaults.plugins.legend.display = false;
   Chart.defaults.maintainAspectRatio = false;
   Chart.defaults.plugins.tooltip.backgroundColor = INK;

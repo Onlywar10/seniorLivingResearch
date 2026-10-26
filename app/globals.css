@@ -454,3 +454,12 @@ footer { padding: var(--s6) clamp(20px, 5vw, 72px); font-size: .82rem; color: va
 /* summary: elevator pitch leads the page */
 .summary .elevator { margin-top: var(--s4); font-size: clamp(1.05rem, .95rem + .4vw, 1.25rem); line-height: 1.5; color: var(--ink-2); max-width: 60ch; }
 .summary .meta-line { margin: var(--s5) 0 0; padding-top: var(--s3); border-top: 1px solid var(--line); }
+
+/* summary: both month-by-month views side by side */
+.cash-pair { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s6); }
+.cash-view.compact { margin-bottom: 0; }
+.cash-view.compact .cash-head h3 { font-size: 1.05rem; }
+.cash-view.compact .cash-stats { grid-template-columns: 1fr 1fr; }
+.cash-view.compact .cash-stats div:nth-child(3) { padding-left: 0; border-left: 0; }
+.cash-view.compact .cash-stats dd { font-size: 1.15rem; }
+@media (max-width: 1180px) { .cash-pair { grid-template-columns: 1fr; } }

@@ -10,6 +10,7 @@ export type Inputs = {
   churn: number; // % of paying communities lost each month
   runCost: number; // running cost + card fees per community per month
   perOrg: number; // average communities per organisation
+  p1Fixed: number; // Phase 1 build and alpha cost per month, Nov 2026 – Jun 2027 (Catapult pays)
   p2Fixed: number; // Phase 2 fixed monthly cost before Adam is paid
   adam: number; // Adam's monthly cost once paid
   p3Fixed: number; // Phase 3 fixed monthly cost
@@ -26,6 +27,7 @@ export const PLAN_DEFAULTS: Inputs = {
   churn: 1,
   runCost: 59,
   perOrg: 5,
+  p1Fixed: 3400,
   p2Fixed: 21970,
   adam: 6300,
   p3Fixed: 35770,
@@ -75,7 +77,7 @@ export function computeModel(inp: Inputs) {
   const n1m = avgPrice > 0 ? Math.ceil(1e6 / 12 / avgPrice) : 0;
   const bePaid = isFinite(breakEvenPost);
   const phases = [
-    milestone("Phase 1 · build and alpha", 0, 0, 3400),
+    milestone("Phase 1 · build and alpha", 0, 0, inp.p1Fixed),
     milestone("Phase 2 · break-even", breakEvenPost, bePaid ? breakEvenPost * avgPrice : 0, bePaid ? fixedPost + breakEvenPost * inp.runCost : 0),
     milestone("End of beta · $600k ARR", nEob, 50000, fixedPost + nEob * inp.runCost),
     milestone("Phase 3 · $1M ARR spin-out", n1m, 1e6 / 12, inp.p3Fixed + extra + n1m * inp.runCost),
@@ -91,6 +93,66 @@ export function computeModel(inp: Inputs) {
 }
 
 export type ModelResult = ReturnType<typeof computeModel>;
+
+// ---- Month by month, with setup fees and the First 10 Organisations credit ----
+
+export type CashOptions = {
+  includeSetup: boolean; // count one-time setup fees as income in the month they're paid
+  creditFirst10: boolean; // First 10 Organisations offer: their setup is credited back, so it isn't kept
+};
+
+export type CashRow = {
+  label: string; phase: string; paying: number; revenue: number;
+  setup: number; credit: number; cost: number; result: number; cum: number;
+};
+
+export const CREDIT_ORGS = 10; // the offer covers the first 10 paying organisations…
+export const CREDIT_COMMUNITIES = 100; // …up to 100 communities in total
+
+const BUILD_MONTHS = ["Nov 2026", "Dec 2026", "Jan 2027", "Feb 2027", "Mar 2027", "Apr 2027", "May 2027", "Jun 2027"];
+
+// Year-1 rows (Jul 2027 – Jun 2028). New organisations sign from month 2 and pay setup up front.
+// With the credit on, setup from the first 10 organisations (up to 100 communities) is shown
+// as owed back: we collect it now but credit it against their second year, so it isn't ours to keep.
+export function year1Cash(inp: Inputs, opt: CashOptions): CashRow[] {
+  const r = computeModel(inp);
+  const mix = inp.mix / 100;
+  const setupPerOrg = 2500 + 1000 * inp.perOrg + 1000 + mix * 250 * inp.perOrg;
+  const creditOrgCap = Math.min(CREDIT_ORGS, CREDIT_COMMUNITIES / inp.perOrg);
+  let orgsSoFar = 0, cum = 0;
+  return r.months.map((m) => {
+    const newOrgs = m.m > 1 ? r.newPerMonth / inp.perOrg : 0;
+    const credited = Math.max(0, Math.min(newOrgs, creditOrgCap - orgsSoFar));
+    orgsSoFar += newOrgs;
+    const setup = opt.includeSetup ? newOrgs * setupPerOrg : 0;
+    const credit = opt.includeSetup && opt.creditFirst10 ? credited * setupPerOrg : 0;
+    const result = m.revenue + setup - credit - m.cost;
+    cum += result;
+    return { label: m.label, phase: `Year 1 · M${m.m}`, paying: m.paying, revenue: m.revenue, setup, credit, cost: m.cost, result, cum };
+  });
+}
+
+// The first 12 calendar months from development start: 8 months of build and alpha
+// (no revenue; alpha is free), then the first 4 months of Year 1.
+export function first12Cash(inp: Inputs, opt: CashOptions): CashRow[] {
+  let cum = 0;
+  const build = BUILD_MONTHS.map((label, i): CashRow => {
+    const result = -inp.p1Fixed;
+    cum += result;
+    return { label, phase: i < 4 ? "Build" : "Alpha live", paying: 0, revenue: 0, setup: 0, credit: 0, cost: inp.p1Fixed, result, cum };
+  });
+  const y1 = year1Cash(inp, opt).slice(0, 4).map((row) => {
+    cum += row.result;
+    return { ...row, cum };
+  });
+  return [...build, ...y1];
+}
+
+export function cashTotals(rows: CashRow[]) {
+  const sum = (k: keyof CashRow) => rows.reduce((a, r) => a + (r[k] as number), 0);
+  const low = rows.reduce((a, r) => (r.cum < a.cum ? r : a), rows[0]);
+  return { revenue: sum("revenue"), setup: sum("setup"), credit: sum("credit"), cost: sum("cost"), result: sum("result"), low };
+}
 
 // The plan's published numbers. The model must reproduce them (±1 community, ±2%).
 export function runPlanChecks() {

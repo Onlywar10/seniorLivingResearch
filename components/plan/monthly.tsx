@@ -1,0 +1,166 @@
+"use client";
+
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Chart, registerables, type Plugin, type TooltipItem } from "chart.js";
+import { CONTENT as C } from "@/lib/plan/content";
+import { cashTotals, first12Cash, year1Cash, type CashOptions, type CashRow } from "@/lib/plan/model";
+import { fmt$, fmtN } from "@/lib/plan/format";
+import { useModel } from "./model-state";
+import { SectionHead, Tag } from "./ui";
+
+Chart.register(...registerables);
+
+const INK = "#1d2422", ACC = "#2c6650", NEG = "#b4553f", GRID = "#eceeec";
+
+type MarkedChart = Chart & { $mark?: { index: number; text: string } | null };
+
+// A dashed vertical line at the month revenue starts.
+const markLine: Plugin = {
+  id: "markLine",
+  afterDatasetsDraw(chart) {
+    const mark = (chart as MarkedChart).$mark;
+    if (!mark) return;
+    const x0 = chart.scales.x.getPixelForValue(mark.index - 1), x1 = chart.scales.x.getPixelForValue(mark.index);
+    const x = (x0 + x1) / 2;
+    const { top, bottom } = chart.chartArea;
+    const c = chart.ctx;
+    c.save(); c.strokeStyle = INK; c.setLineDash([4, 4]); c.lineWidth = 1;
+    c.beginPath(); c.moveTo(x, top); c.lineTo(x, bottom); c.stroke(); c.setLineDash([]);
+    c.fillStyle = INK; c.font = `600 11px ${getComputedStyle(document.body).fontFamily}`; c.textAlign = "left";
+    c.fillText(mark.text, x + 6, bottom - 8); c.restore();
+  },
+};
+
+function CashChart({ rows, mark, label }: { rows: CashRow[]; mark?: { index: number; text: string }; label: string }) {
+  const ref = useRef<HTMLCanvasElement>(null);
+  const chart = useRef<Chart | null>(null);
+  useEffect(() => {
+    const ff = getComputedStyle(document.body).fontFamily;
+    chart.current = new Chart(ref.current!, {
+      data: { labels: [], datasets: [
+        { type: "bar", label: "Monthly result", data: [], backgroundColor: [], borderRadius: 3, maxBarThickness: 28, order: 2 },
+        { type: "line", label: "Running total", data: [], borderColor: INK, backgroundColor: INK, borderWidth: 2, pointRadius: 2.5, pointHoverRadius: 4, tension: 0.2, order: 1 },
+      ]},
+      options: {
+        maintainAspectRatio: false, animation: { duration: 260 },
+        interaction: { mode: "index", intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: { backgroundColor: INK, padding: 10, cornerRadius: 6, callbacks: { label: (c: TooltipItem<"bar">) => ` ${c.dataset.label}: ${fmt$(c.parsed.y ?? 0, { plus: true })}` } },
+        },
+        scales: {
+          x: { grid: { display: false }, border: { color: "#cfd3cf" }, ticks: { color: "#6b7471", font: { family: ff, size: 11 }, maxRotation: 0, autoSkip: true, autoSkipPadding: 8 } },
+          y: { grid: { color: GRID }, border: { display: false }, ticks: { color: "#6b7471", font: { family: ff, size: 11 }, maxTicksLimit: 7, callback: (v: number | string) => fmt$(Number(v), { k: true }) } },
+        },
+      },
+      plugins: [markLine],
+    } as never);
+    return () => { chart.current?.destroy(); chart.current = null; };
+  }, []);
+  useEffect(() => {
+    const ch = chart.current;
+    if (!ch) return;
+    ch.data.labels = rows.map((r) => r.label.replace(" 20", " ’"));
+    ch.data.datasets[0].data = rows.map((r) => r.result);
+    (ch.data.datasets[0] as unknown as { backgroundColor: string[] }).backgroundColor = rows.map((r) => (r.result < 0 ? NEG : ACC));
+    ch.data.datasets[1].data = rows.map((r) => r.cum);
+    (ch as MarkedChart).$mark = mark ?? null;
+    ch.update();
+  });
+  return <div className="canvas-box"><canvas ref={ref} role="img" aria-label={label} /></div>;
+}
+
+function CashTable({ rows, opt }: { rows: CashRow[]; opt: CashOptions }) {
+  const t = cashTotals(rows);
+  const showSetup = opt.includeSetup, showCredit = opt.includeSetup && opt.creditFirst10;
+  const money = (v: number, plus = false) => <span className={v < 0 ? "neg" : ""}>{fmt$(v, { plus })}</span>;
+  return (
+    <div className="table-wrap">
+      <table className="cash-table">
+        <thead>
+          <tr>
+            <th scope="col">Month</th><th scope="col">Stage</th><th scope="col" className="r">Paying</th>
+            <th scope="col" className="r">Revenue</th>
+            {showSetup ? <th scope="col" className="r">Setup fees</th> : null}
+            {showCredit ? <th scope="col" className="r">Owed back</th> : null}
+            <th scope="col" className="r">Cost</th><th scope="col" className="r">Result</th><th scope="col" className="r">Running total</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r) => (
+            <tr key={r.label} className={r.paying === 0 ? "pre" : ""}>
+              <th scope="row">{r.label}</th><td className="muted">{r.phase}</td>
+              <td className="r num">{r.paying ? fmtN(r.paying, 1) : "—"}</td>
+              <td className="r num">{fmt$(r.revenue)}</td>
+              {showSetup ? <td className="r num">{r.setup ? fmt$(r.setup) : "—"}</td> : null}
+              {showCredit ? <td className="r num">{r.credit ? money(-r.credit) : "—"}</td> : null}
+              <td className="r num">{fmt$(r.cost)}</td>
+              <td className="r num">{money(r.result, true)}</td>
+              <td className="r num strong">{money(r.cum, true)}</td>
+            </tr>
+          ))}
+        </tbody>
+        <tfoot>
+          <tr>
+            <th scope="row" colSpan={3}>12-month total</th>
+            <td className="r num">{fmt$(t.revenue)}</td>
+            {showSetup ? <td className="r num">{fmt$(t.setup)}</td> : null}
+            {showCredit ? <td className="r num">{money(-t.credit)}</td> : null}
+            <td className="r num">{fmt$(t.cost)}</td>
+            <td className="r num" colSpan={2}>{money(t.result, true)}</td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+  );
+}
+
+function View({ id, title, intro, rows, opt, mark }: { id: string; title: string; intro: string; rows: CashRow[]; opt: CashOptions; mark?: { index: number; text: string } }) {
+  const t = cashTotals(rows);
+  return (
+    <section className="cash-view" aria-labelledby={`${id}-h`}>
+      <div className="cash-head">
+        <h2 id={`${id}-h`}>{title}</h2>
+        <p className="muted small">{intro}</p>
+      </div>
+      <dl className="cash-stats">
+        <div><dt>12-month result</dt><dd className={t.result < 0 ? "neg" : ""}>{fmt$(t.result, { k: true, plus: true })}</dd></div>
+        <div><dt>Lowest point</dt><dd className={t.low.cum < 0 ? "neg" : ""}>{fmt$(Math.min(0, t.low.cum), { k: true, plus: true })}</dd><span>{t.low.cum < 0 ? t.low.label : "never below zero"}</span></div>
+        <div><dt>Costs</dt><dd>{fmt$(t.cost, { k: true })}</dd></div>
+        <div><dt>Revenue{opt.includeSetup ? " + setup kept" : ""}</dt><dd>{fmt$(t.revenue + t.setup - t.credit, { k: true })}</dd></div>
+      </dl>
+      <figure className="chart" style={{ margin: 0 }}>
+        <div className="legend"><span><i style={{ background: ACC }} />Month in profit</span><span><i style={{ background: NEG }} />Month at a loss</span><span><i style={{ background: INK }} />Running total</span></div>
+        <CashChart rows={rows} mark={mark} label={`${title}: monthly result as bars and running total as a line`} />
+      </figure>
+      <CashTable rows={rows} opt={opt} />
+    </section>
+  );
+}
+
+export function MonthlySection() {
+  const { state } = useModel();
+  const [opt, setOpt] = useState<CashOptions>({ includeSetup: false, creditFirst10: false });
+  const first12 = useMemo(() => first12Cash(state, opt), [state, opt]);
+  const year1 = useMemo(() => year1Cash(state, opt), [state, opt]);
+  const M = C.monthly;
+  return (
+    <section className="section" id="monthly" aria-labelledby="monthly-h">
+      <div className="inner">
+        <SectionHead id="monthly" title="Month by month" intro={M.intro} />
+        <div className="cash-toggles" role="group" aria-label="What to count">
+          <label className="toggle">
+            <input type="checkbox" checked={opt.includeSetup} onChange={(e) => setOpt((o) => ({ ...o, includeSetup: e.target.checked }))} />
+            <span>{M.setupLabel}<small>{M.setupNote}</small></span>
+          </label>
+          <label className={`toggle ${opt.includeSetup ? "" : "off"}`}>
+            <input type="checkbox" checked={opt.creditFirst10} disabled={!opt.includeSetup} onChange={(e) => setOpt((o) => ({ ...o, creditFirst10: e.target.checked }))} />
+            <span>{M.creditLabel} <Tag k="estimate" /><small>{M.creditNote}</small></span>
+          </label>
+        </div>
+        <View id="first12" title={M.first12Title} intro={M.first12Intro} rows={first12} opt={opt} mark={{ index: 8, text: "Revenue starts" }} />
+        <View id="year1" title={M.year1Title} intro={M.year1Intro} rows={year1} opt={opt} />
+      </div>
+    </section>
+  );
+}

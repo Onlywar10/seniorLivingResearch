@@ -8,8 +8,9 @@ export function Summary({ children }: { children: React.ReactNode }) {
   return (
     <section className="section summary" id="summary" aria-labelledby="summary-h">
       <div className="inner">
-        <div className="meta-line"><span>{C.meta.title}</span><span>{C.meta.subtitle}</span><span>{C.meta.date}</span></div>
         <h1 id="summary-h">{S.pitch}</h1>
+        <p className="elevator">{S.elevator}</p>
+        <div className="meta-line"><span>{C.meta.title}</span><span>{C.meta.subtitle}</span><span>{C.meta.date}</span></div>
         <dl className="facts">
           {S.facts.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
         </dl>

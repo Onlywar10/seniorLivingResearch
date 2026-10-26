@@ -9,6 +9,7 @@ export const CONTENT = {
 
   summary: {
     pitch: "CMS Plus brings families and the public into the daily life of a senior living community.",
+    elevator: "Staff post an activity, menu or event once, and it appears on the community’s website, goes to families by text and email, and prints as large-print flyers for residents, in a few minutes a week instead of hours.",
     question: "Your question on 11 Oct: assuming the MVP is built, where are we one year from now?",
     facts: [
       ["What", "The website and the family engagement system for senior living communities, on Catapult’s platform"],
@@ -289,6 +290,18 @@ export const CONTENT = {
       ["Acquisition", "$3,170", "Ads $1,500 · trade shows $10k a year · travel $10k a year"]
     ],
     coverNote: "Catapult covers insurance, legal, bookkeeping and payroll"
+  },
+
+  monthly: {
+    intro: "The same model, month by month. Each month’s result is revenue minus every cost; the running total adds them up. Moves with the sliders on the financial model page.",
+    setupLabel: "Include setup fees",
+    setupNote: "One-time fees paid up front by each new organisation: about $9,500 for five communities on Community Life.",
+    creditLabel: "First 10 Organisations: setup credited back",
+    creditNote: "Setup from the first 10 paying organisations (up to 100 communities) is credited against their second year, so it is shown as owed back rather than kept.",
+    first12Title: "The first 12 months: Nov 2026 – Oct 2027",
+    first12Intro: "From the day development starts. Eight months of build and alpha (no revenue; alpha is free and Catapult pays these costs), then the first four months of sales.",
+    year1Title: "Year 1: Jul 2027 – Jun 2028",
+    year1Intro: "The 12 months from beta launch, when revenue starts. This is the period behind “operating result over Year 1”."
   },
 
   scenarios: {

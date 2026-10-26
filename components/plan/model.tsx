@@ -32,6 +32,7 @@ const GROUPS: { group: string; items: Control[] }[] = [
   ]},
   { group: "Costs (per month)", items: [
     { key: "runCost", label: "Running cost + card fees per community", min: 30, max: 120, step: 1, f: money },
+    { key: "p1Fixed", label: "Build and alpha cost (Nov 2026 – Jun 2027)", min: 0, max: 10000, step: 100, f: money },
     { key: "p2Fixed", label: "Phase 2 fixed cost before Adam is paid", min: 10000, max: 60000, step: 10, f: money, why: true },
     { key: "adam", label: "Adam’s monthly cost once paid", min: 0, max: 12000, step: 100, f: money },
     { key: "p3Fixed", label: "Phase 3 fixed cost (Year 2)", min: 20000, max: 80000, step: 10, f: money },

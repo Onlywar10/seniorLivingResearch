@@ -9,7 +9,12 @@ export const CONTENT = {
 
   summary: {
     pitch: "Kinward brings families and the public into the daily life of a senior living community.",
-    elevator: "Staff post an activity, menu or event once, and it appears on the community’s website, goes to families by text and email, and prints as large-print flyers for residents, in a few minutes a week instead of hours.",
+    elevator: [
+      "When did your families last see what Mom actually did this week? In most communities, they only hear from you when something goes wrong, and the website still shows last month’s menu.",
+      "Kinward fixes that. Your staff post an activity, a menu or a photo once, from their phone, and it goes out to families by text and email, onto your website, and into large-print flyers for residents.",
+      "Families feel close, people thinking about moving in see real daily life before they tour, and your team gets hours back every week. It replaces both your website vendor and your engagement app, for less than buying both.",
+      "We’re starting with five California operators this spring. Could I show you what it would look like for one of your communities?"
+    ],
     question: "Your question on 11 Oct: assuming the MVP is built, where are we one year from now?",
     facts: [
       ["What", "The website and the family engagement system for senior living communities, on Catapult’s platform"],

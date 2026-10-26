@@ -10,7 +10,7 @@ export const CONTENT = {
   summary: {
     pitch: "Kinward brings families and the public into the daily life of a senior living community.",
     elevator: [
-      "When did your families last see what Grandma actually did this week? In most communities, they only hear from you when something goes wrong. And when someone looks at your website, do they see a sales brochure that looks just like the four others they’re comparing, or do they see your community?",
+      "When did your families last see what Grandma actually did this week? In most communities, they only hear when something goes wrong. When someone looks at your website, do they see a sales brochure that looks just like the four others they’re comparing, or do they see your community?",
       "Kinward fixes both. Your staff post an activity, a menu or a photo once, and it goes everywhere: onto your website, into large-print flyers for residents, and out to families by text and email.",
       "Families feel close to their loved ones, and people looking for a home for their aging parents see real daily life before they tour. Kinward replaces both your website vendor and your engagement app, for less than buying both.",
       "We’re starting with five operators this spring. Could I show you what it would look like for one of your communities?"

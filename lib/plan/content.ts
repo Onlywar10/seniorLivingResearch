@@ -127,9 +127,9 @@ export const CONTENT = {
         { name: "90 days live", body: "Success criteria measured; feedback calls every two weeks; check-ins at day 30, 60 and 90; a day-90 decision." }
       ],
       terms: [
-        "Free through alpha, with no setup fee, until the success criteria are met. Then a 24-month subscription starts at the founding price (Community Life $519, Website $349), locked for the term; increases are capped at 5% a year after it.",
+        "Free through alpha, with no setup fee, until the success criteria are met. Then the subscription starts at the founding price (Community Life $519, Website $349), locked for 24 months.",
         "Not met at day 90: alpha extends free in 30-day steps, up to 180 days after go-live. After that they convert or leave owing nothing.",
-        "They can cancel any time before converting, or decline within 10 business days of the results, and owe nothing. After converting, leaving early takes 60 days’ notice and three months’ fees.",
+        "They can cancel any time before converting, or decline within 10 business days of the results, and owe nothing.",
         "In return: a named decision-maker, a champion per community, baselines, feedback calls, and the DNS switch within the agreed days. Miss the switch and alpha ends; miss their own commitments and the free extension doesn’t apply.",
         "They own their content and can export it any time. Anonymised, aggregated activity data may improve the product; nothing that identifies a resident, family member or staff member leaves their organisation."
       ]

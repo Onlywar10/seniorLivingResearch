@@ -15,6 +15,7 @@ export type Inputs = {
   websitePrice: number;
   clPrice: number;
   foundingPrice: number;
+  foundingMonths: number; // months a founding contract runs at the founding price before list price
   churn: number; // % of paying communities lost each month
   runCost: number; // running cost + card fees per community per month
   perOrg: number; // average communities per organisation
@@ -46,7 +47,8 @@ export const PLAN_DEFAULTS: Inputs = {
   mix: 80,
   websitePrice: 349,
   clPrice: 649,
-  foundingPrice: 519,
+  foundingPrice: 454,
+  foundingMonths: 12,
   churn: 1,
   runCost: 59,
   perOrg: 5,
@@ -154,7 +156,7 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
   // Commission is 10% of the monthly fees of communities the sales associate signed, so for
   // break-even it counts as a share of each community’s fee (a slightly cautious approximation).
   const contrib = inp.staged ? avgPrice * (1 - rate) - inp.runCost : avgPrice - inp.runCost;
-  // Alpha communities pay founding prices: Community Life $519, Website at list.
+  // Alpha communities pay founding prices: Community Life 30% off ($454) for a year, Website at list.
   const alphaPrice = (inp.alphaMix / 100) * inp.foundingPrice + (1 - inp.alphaMix / 100) * inp.websitePrice;
   const newTotal = joined.reduce((a, b) => a + b, 0);
   const setupPerOrg = 2500 + 1000 * inp.perOrg + 1000 + mix * 250 * inp.perOrg;
@@ -181,7 +183,10 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
     } else otherN = newSigned;
     const paying = alphaN + otherN;
     const alphaCL = R(alphaN * (inp.alphaMix / 100)), otherCL = R(otherN * mix);
-    const revenue = alphaCL * inp.foundingPrice + (alphaN - alphaCL) * inp.websitePrice + otherCL * inp.clPrice + (otherN - otherCL) * inp.websitePrice;
+    // Alpha starts paying in June, the month before Year 1, so its founding year ends after month 11.
+    const founding = m < inp.foundingMonths;
+    const alphaCLPrice = founding ? inp.foundingPrice : inp.clPrice;
+    const revenue = alphaCL * alphaCLPrice + (alphaN - alphaCL) * inp.websitePrice + otherCL * inp.clPrice + (otherN - otherCL) * inp.websitePrice;
     const running = paying * inp.runCost;
     // Setup fees: new organisations pay up front in the month they sign (from month 2).
     const newOrgs = newSigned / inp.perOrg;
@@ -239,7 +244,7 @@ export function computeModel(inp: Inputs, hires: Hires = {}, cash: CashOptions =
     const result = revenue - cost;
     const detail: MonthDetail = {
       revenue: [
-        { label: "Alpha · Community Life (founding price)", count: alphaCL, price: inp.foundingPrice, amount: alphaCL * inp.foundingPrice },
+        { label: founding ? "Alpha · Community Life (founding price)" : "Alpha · Community Life (founding year over)", count: alphaCL, price: alphaCLPrice, amount: alphaCL * alphaCLPrice },
         { label: "Alpha · Website", count: alphaN - alphaCL, price: inp.websitePrice, amount: (alphaN - alphaCL) * inp.websitePrice },
         { label: "Community Life", count: otherCL, price: inp.clPrice, amount: otherCL * inp.clPrice },
         { label: "Website", count: otherN - otherCL, price: inp.websitePrice, amount: (otherN - otherCL) * inp.websitePrice },
@@ -370,11 +375,11 @@ export function cashTotals(rows: CashRow[]) {
   return { revenue: sum("revenue"), setup: sum("setup"), credit: sum("credit"), fixed: sum("fixed"), running: sum("running"), cost: sum("cost"), result: sum("result"), low, start, end };
 }
 
-// The written business plan assumed 12 alpha communities, all on Community Life at $519.
+// The written business plan assumed 12 alpha communities, all on Community Life at $519 throughout.
 // The checks run the model with those inputs to prove the method still reproduces the plan.
 // It also hired the whole Phase 2 team at launch rather than in stages.
 // It had no beta waitlist and paced signings from 80 signed by Jun 2028.
-export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, alpha: 12, alphaMix: 100, staged: false, adam: 6300, p3Fixed: 35770, planPaying: null, waitlist: 0, whole: false };
+export const WRITTEN_PLAN: Inputs = { ...PLAN_DEFAULTS, foundingPrice: 519, foundingMonths: 99, alpha: 12, alphaMix: 100, staged: false, adam: 6300, p3Fixed: 35770, planPaying: null, waitlist: 0, whole: false };
 
 // The plan's published numbers. The model must reproduce them (±1 community, ±2%).
 export function runPlanChecks() {

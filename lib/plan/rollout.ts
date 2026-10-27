@@ -88,7 +88,7 @@ export const ROLLOUT: RolloutPhase[] = [
   {
     id: "alpha", name: "Alpha live · 90 days", title: "Alpha live: how we define success (Mar–Jun 2027)", from: 4, to: 7, row: 1, kind: "customers",
     summary: "Alpha goes live at the beginning of March 2027 and runs 90 days. Success is defined by these metrics: every one must be met for an organisation to convert at the founding price in early June. Targets are starting numbers; baselines are taken 2–4 weeks before go-live, and days count from each community’s go-live.",
-    plans: "Converts at the founding price: Community Life $519, Website $349",
+    plans: "Converts on a 12-month founding contract: Community Life $454 (30% off), Website $349 (no discount)",
     sections: [
       { heading: "Staff", items: [
         "One entry reaches every channel: every post reaches 3 or more channels (week 1)",

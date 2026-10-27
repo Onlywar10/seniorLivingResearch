@@ -28,7 +28,7 @@ const GROUPS: { id: string; group: string; items: Control[] }[] = [
   { id: "prices", group: "Prices", items: [
     { key: "websitePrice", label: "Website price", min: 199, max: 599, step: 10, f: money },
     { key: "clPrice", label: "Community Life price", min: 399, max: 999, step: 10, f: money },
-    { key: "foundingPrice", label: "Alpha founding price (Community Life)", min: 349, max: 649, step: 10, f: money },
+    { key: "foundingPrice", label: "Alpha founding price (Community Life, first year)", min: 349, max: 649, step: 5, f: money },
   ]},
   { id: "costs", group: "Costs", items: [
     { key: "runCost", label: "Running cost + card fees per community", min: 30, max: 120, step: 1, f: money },

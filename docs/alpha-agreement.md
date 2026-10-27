@@ -17,7 +17,7 @@ This sets out how the Kinward alpha works between Catapult and the organisation 
 
 ## How it ends
 
-- **Results met:** your subscription starts the following month at the founding price, **Community Life $519 or Website $349 per community per month**, locked for 24 months. Your other communities can join at the same price.
+- **Results met:** a 12-month founding contract starts the following month: **Community Life at 30% off, $454 instead of $649 per community per month**. Website-only communities pay the normal $349. Your other communities can join on the same terms.
 - **Results not met at day 90:** the alpha extends free in 30-day steps, up to 180 days after go-live. If they're still not met, you choose to continue at the founding price or leave owing nothing. If your own commitments above weren't met, the free extension is at our discretion.
 - **Leaving:** you can stop at any time before your subscription starts, or decline it within 10 business days of the results, and owe nothing. The website we built stays with us; your content does not.
 

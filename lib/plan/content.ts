@@ -26,11 +26,11 @@ export const CONTENT = {
     cards: [
       { value: "$349 / $649 / $1,149", label: "Website / Community Life (website + families) / Complete (adds marketing), per community per month. Each plan includes the one before", tag: "draft" },
       { value: "100 paying", label: "Communities paying by June 2028: 20 from the free pilot, 30 from the waitlist at launch, the rest signed month by month", tag: "estimate" },
-      { value: "≈$684k", label: "Annual recurring revenue (12 × monthly subscription revenue) in June 2028", tag: "derived" },
+      { value: "≈$707k", label: "Annual recurring revenue (12 × monthly subscription revenue) in June 2028", tag: "derived" },
       { value: "≈48 communities", label: "Paying communities needed to cover every monthly cost once the whole team is paid. Reached at launch in July 2027", tag: "derived" },
       { value: "Jul 2027 – Jun 2028", label: "Year 1, the first 12 months of sales. Building starts Nov 2026; the free pilot runs Mar–Jun 2027", tag: "estimate" },
       { value: "≈$27k", label: "Cost of building and piloting, Nov 2026 – Jun 2027, paid by Catapult", tag: "estimate" },
-      { value: "≈45%", label: "Operating margin in June 2028: what’s left of revenue after every cost, all salaries included", tag: "derived" },
+      { value: "≈47%", label: "Operating margin in June 2028: what’s left of revenue after every cost, all salaries included", tag: "derived" },
       { value: "≈53%", label: "Operating margin at about $1M a year in revenue, the point where it could become its own company", tag: "derived" }
     ],
     timelineTitle: "When the milestones land",
@@ -41,12 +41,12 @@ export const CONTENT = {
       { when: "Jun 2027", label: "First revenue", detail: "The pilot’s 20 communities start paying" },
       { when: "Jul 2027", label: "Launch", detail: "On sale to everyone; 30 waitlist communities join; every monthly cost covered; the team goes full-time" },
       { when: "Q2 2028", label: "Complete plan on sale", detail: "Marketing tools to help fill apartments" },
-      { when: "Jun 2028", label: "100 paying communities", detail: "About $684k in annual recurring revenue, at a 45% margin" },
+      { when: "Jun 2028", label: "100 paying communities", detail: "About $707k in annual recurring revenue, at a 47% margin" },
     ],
     tagNote: "Tags: draft = a stated plan figure not yet tested with buyers · estimate = a planning assumption · derived = calculated from the other figures.",
     glossaryTitle: "Terms used on this page",
     glossary: [
-      ["Alpha (free pilot)", "Up to five California operators use Kinward free for 90 days from March 2027. If it meets the results agreed with them, they start paying in June 2027 at a founding price (Community Life $519, Website $349)."],
+      ["Alpha (free pilot)", "Up to five California operators use Kinward free for 90 days from March 2027. If it meets the results agreed with them, they start paying in June 2027 on a 12-month founding contract: Community Life at 30% off ($454 instead of $649), Website at its normal $349."],
       ["Beta launch", "July 2027, when Kinward goes on sale to everyone. It’s the start of Year 1."],
       ["Waitlist", "About 30 communities expected to sign up before launch and start paying in July 2027."],
       ["Beta offer", "The waitlist pays its setup fee up front and gets it back as a discount spread over its first 12 months of subscription."],
@@ -127,7 +127,7 @@ export const CONTENT = {
         { name: "90 days live", body: "Success criteria measured; feedback calls every two weeks; check-ins at day 30, 60 and 90; a day-90 decision." }
       ],
       terms: [
-        "Free through alpha, with no setup fee, until the success criteria are met. Then the subscription starts at the founding price (Community Life $519, Website $349), locked for 24 months.",
+        "Free through alpha, with no setup fee, until the success criteria are met. Then a 12-month founding contract starts: Community Life at 30% off ($454 instead of $649); Website at its normal $349.",
         "Not met at day 90: alpha extends free in 30-day steps, up to 180 days after go-live. After that they convert or leave owing nothing.",
         "They can cancel any time before converting, or decline within 10 business days of the results, and owe nothing.",
         "In return: a named decision-maker, a champion per community, baselines, feedback calls, and the DNS switch within the agreed days. Miss the switch and alpha ends; miss their own commitments and the free extension doesn’t apply.",
@@ -210,7 +210,7 @@ export const CONTENT = {
       { name: "Alpha Founding Partner", rows: [
         ["Who", "Up to 5 California organisations in alpha, 1–3 pilot communities each"],
         ["Setup", "None. We build the new site alongside the old one"],
-        ["Monthly", "Free until the agreed results are met; then Community Life $519, Website $349"],
+        ["Monthly", "Free until the agreed results are met; then a 12-month contract with Community Life at 30% off ($454). No discount on Website ($349)"],
         ["Commitment", "Named contact, a champion per community, feedback calls, a committed DNS switch"],
         ["Why", "De-risks the switch for them; we earn proof and case studies"]
       ]},

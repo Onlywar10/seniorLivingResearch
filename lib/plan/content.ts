@@ -142,7 +142,7 @@ export const CONTENT = {
     sizes: [
       { value: "≈$248M", label: "a year: the whole market at our prices, every US assisted living and memory care community on Complete ($1,149 a month)", tag: "derived" },
       { value: "≈$2.75B", label: "a year: a hypothetical TAM projected from a study showing assisted living and memory care communities spend about 5% of gross revenue on marketing", tag: "derived" },
-      { value: "≈18,000", label: "assisted living and memory care communities. The $248M is this count × $1,149 × 12", tag: "derived" }
+      { value: "≈18,000", label: "assisted living and memory care communities qualified for Kinward. The $248M is this count × $1,149 × 12", tag: "derived" }
     ],
     evidenceKey: "Evidence: A government record · B published by the vendor · C filing or trade press · D software directory (often stale). None of the six publishes a current price list.",
     competitors: [

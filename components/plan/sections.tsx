@@ -241,7 +241,7 @@ export function Asks() {
   return (
     <section className="section asks-sec" id="asks" aria-labelledby="asks-h">
       <div className="inner">
-        <SectionHead id="asks" title="Asks of Jason" intro="Seven things only you can answer. Each one changes a number or a date in this plan." />
+        <SectionHead id="asks" title="Asks of Jason" intro="Eight things only you can answer. Most change a number or a date in this plan." />
         <aside className="need" aria-labelledby="need-h">
           <h2 id="need-h">{C.summary.needTitle}</h2>
           <ul>{C.summary.need.map((n) => <li key={n}>{n}</li>)}</ul>

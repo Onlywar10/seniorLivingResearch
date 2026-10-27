@@ -300,7 +300,7 @@ export const CONTENT = {
       ["Hubert", "Developer: senior living features, imports, the app", "Part-time, 20 hrs a week at $30/hr, contractor", "Full-time at $62k once revenue covers it, after Adam (from Jul 2027)", "Full-time; more developers as needed"],
       ["Sales associate", "Demos, proposals, closing; conference and outreach pipeline", "—", "Starts once revenue covers it, after Hubert (from Jul 2027): $55k base + 10% of the monthly fees of the communities they sign", "Same"],
       ["Dave (Catapult)", "Mentor and technical guidance; platform decisions", "From 1 Nov", "Catapult’s call", "Catapult’s call"],
-      ["Jason (Catapult)", "Business mentor: strategy, pricing and sales guidance", "From 1 Nov", "Catapult’s call", "Catapult’s call"]
+      ["Jason (Catapult)", "Business mentor, with an emphasis on sales and networking", "From 1 Nov", "Catapult’s call", "Catapult’s call"]
     ],
     capacity: [
       "Onboarding about 15 hours per community, plus about 5 per organisation for kickoff.",
@@ -375,6 +375,7 @@ export const CONTENT = {
   asks: [
     { title: "Confirm what Catapult covers", body: "The platform, Dave’s mentoring, hosting and upkeep, texting registration, insurance, legal, bookkeeping and payroll, and the build and alpha costs (about $24–27k from November to about June)." },
     { title: "Dave as mentor", body: "How much of his time, and which build decisions only you can make." },
+    { title: "You as my business mentor", body: "Mentoring me on the business, with the emphasis on sales and networking: how to open doors with operators, introductions where you can make them, and reviewing my pitch, pipeline and deals. How often should we meet?" },
     { title: "Confirm alpha Phase 1", body: "What survives the move to WordPress; whether the chatbot can go live; how much of the GEO work already exists; what Catapult has for shared content and social posting." },
     { title: "The timeline", body: "A usable MVP 3–4 months after development starts, so Year 1 begins about July 2027. Does that work for you?" },
     { title: "Equity and the spin-out", body: "Agree the shape now (percentage, vesting, departure, the spin-out at about $1M ARR); the detail can follow." },

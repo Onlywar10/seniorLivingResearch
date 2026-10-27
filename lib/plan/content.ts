@@ -140,9 +140,9 @@ export const CONTENT = {
   market: {
     intro: "The plan doesn’t depend on winning a big share. It depends on closing about one organisation a month.",
     sizes: [
-      { value: "≈$153M", label: "a year: engagement software alone for US assisted living and memory care (at about $710 per community per month)", tag: "derived" },
-      { value: "≈$470–790M", label: "a year: with websites, marketing tools and services included", tag: "derived" },
-      { value: "≈18,000", label: "assisted living and memory care communities (17,976, counting each operator’s whole portfolio; about 14,000 have 26 or more beds). Both dollar figures above use this count", tag: "derived" }
+      { value: "≈$248M", label: "a year: the whole market at our prices, every US assisted living and memory care community on Complete ($1,149 a month)", tag: "derived" },
+      { value: "≈$75–140M", label: "a year: the same communities on our lower plans, Website ($349) to Community Life ($649)", tag: "derived" },
+      { value: "≈18,000", label: "assisted living and memory care communities (17,976, counting each operator’s whole portfolio; about 14,000 have 26 or more beds). Both figures above are this count × our monthly price × 12", tag: "derived" }
     ],
     evidenceKey: "Evidence: A government record · B published by the vendor · C filing or trade press · D software directory (often stale). None of the six publishes a current price list.",
     competitors: [
@@ -338,7 +338,7 @@ export const CONTENT = {
       "But the beta waitlist’s setup comes back to them as a discount over their first 12 months, so treat that cash as an advance on their subscription.",
       "The slow case needs cover for its losses, or a later sales hire. The fast case needs the Phase 3 hires sooner."
     ],
-    share: "100 paying communities is about 0.6% of the roughly 18,000 assisted living and memory care communities, and about $707k a year is about 0.5% of the $153M engagement market (0.1% of the $470–790M wider market)."
+    share: "100 paying communities is about 0.6% of the roughly 18,000 assisted living and memory care communities, and about $707k a year is about 0.3% of the $248M market at our prices."
   },
 
   objections: {

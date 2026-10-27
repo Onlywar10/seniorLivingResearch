@@ -153,6 +153,24 @@ export const CONTENT = {
       { name: "Websites for Senior Living", type: "Websites (sold through agencies)", size: "Small", price: "None found: fixed quote per project", ev: "—", lacks: "Family engagement" },
       { name: "Senior Living SMART", type: "Marketing agency", size: "11–50 staff", price: "No current price; agency retainers in this market run $2,500–7,500+ a month", ev: "C", lacks: "Family engagement; a site that updates itself" }
     ],
+    pricingNote: "We hold a lot more pricing evidence than this. The six above are the closest competitors we found; below are some of the strongest prices we have, by the part of Kinward they compete with.",
+    pricingMore: [
+      { plan: "Website", items: [
+        { text: "A senior living web agency (SSDM) publishes site builds at $15,000–20,000, or $45,000–75,000 for its top tier", ev: "B" },
+        { text: "SageAge charged Tuscan Gardens $7,500 for a website plus a $7,500 monthly retainer (2015 bond offering)", ev: "C" },
+        { text: "Senior Care Website Design: $2,000 setup + $150 a month, or $3,500 + $300 a month", ev: "B" }
+      ]},
+      { plan: "Community Life", items: [
+        { text: "LifeLoop’s VA contracts: $600, $900 and about $1,350 per community per month, software only", ev: "A" },
+        { text: "Eversound through state grants: $681–918 per facility per month, hardware and training included", ev: "A" },
+        { text: "Speak2 Family: $2,500 per community per month plus $7,500 setup; Quiltt Pro: $499 per community per month", ev: "B" }
+      ]},
+      { plan: "Complete", items: [
+        { text: "A single-campus retirement community paid its marketing agency a $19,500 monthly retainer (bankruptcy filing)", ev: "C" },
+        { text: "SSDM lead programs start at $3,500 a month", ev: "B" },
+        { text: "WelcomeHome CRM: $550 or $700 per community per month, plus $550 setup per community", ev: "B" }
+      ]}
+    ],
     where: [
       "Buying the website, engagement, messaging, AI chat and content tools separately costs a community about $700–1,600 a month across four or five vendors; the average single tool is about $710.",
       "Community Life at $649 replaces two of those bills for less than one of them.",

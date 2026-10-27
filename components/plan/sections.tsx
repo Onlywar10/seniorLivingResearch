@@ -98,6 +98,15 @@ export function Market() {
             <tr key={c.name}><th scope="row">{c.name}</th><td>{c.type}</td><td>{c.size}</td><td>{c.price}</td><td className="c"><span className="ev">{c.ev}</span></td><td>{c.lacks}</td></tr>
           ))}</tbody>
         </table></div>
+        <p className="pricing-note">{M.pricingNote}</p>
+        <div className="pricing-more">
+          {M.pricingMore.map((g) => (
+            <div key={g.plan}>
+              <h4>Against {g.plan}</h4>
+              <ul>{g.items.map((i) => <li key={i.text}><span className="ev">{i.ev}</span>{i.text}</li>)}</ul>
+            </div>
+          ))}
+        </div>
         <h3 className="sub-h">Where we sit</h3>
         <div className="where" style={{ marginTop: 0 }}>{M.where.map((w) => <p key={w}>{w}</p>)}</div>
       </div>
